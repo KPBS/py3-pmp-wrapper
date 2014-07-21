@@ -25,7 +25,7 @@ class PmpAccess(object):
     generate_new_credentials -- generates new client_id/client_secret
     remove_credentials -- revokes client_id/client_secret for account
 
-    Returns:
+    returns:
     `pmp_api.auth.PmpAuthorization` instance
     """
     def __init__(self, username, password):
@@ -65,16 +65,14 @@ class PmpAccess(object):
                                  timeout=5.0)
         if response.ok:
             result = response.json()
-            client_id = result.get('client_id', '')
-            client_secret = result.get('client_secret', '')
+            client_id = result.get('client_id', None)
+            client_secret = result.get('client_secret', None)
             self.client_id = client_id
             self.client_secret = client_secret
             self.expiration = token_expiry
-            return self.client_id, self.client_secret, self.expiration
+            return self.client_id, self.client_secret
         else:
             raise BadRequest("No response from endpoint: {}".format(endpoint))
-
-        return client_id, client_secret
 
     def remove_credentials(self, endpoint):
         """
@@ -137,7 +135,7 @@ class PmpAuth(object):
         Arguments:
         `request_object` -- instance of `requests.Request`
 
-        Returns:
+        returns:
         instance of `requests.Request` (signed)
         """
         unencoded_sig = "{}:{}".format(self.client_id, self.client_secret)
@@ -158,6 +156,9 @@ class PmpAuth(object):
 
         See: https://github.com/publicmediaplatform/pmpdocs/ \
         wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
+
+        returns:
+        access_token
         """
         if self.access_token_url is None and endpoint is None:
             errmsg = "No access_token_url provided"
@@ -201,7 +202,7 @@ class PmpAuth(object):
         Keyword ArgumentsL
         `token` -- Optional access token provided by PMP API
 
-        Returns:
+        returns:
         instance of `requests.Request` (signed)
         """
         now = datetime.datetime.utcnow()

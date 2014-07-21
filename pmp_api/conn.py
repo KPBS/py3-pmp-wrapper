@@ -39,7 +39,7 @@ class PmpConnector(object):
             self.client_id = access_credentials.get('client_id', '')
             self.client_secret = access_credentials.get('client_secret', '')
             self.authorizer = PmpAuth(self.client_id, self.client_secret)
-            self.authorizer.get_access_token(access_token_url)
+            self.authorizer.get_access_token(endpoint=access_token_url)
         else:
             self.authorizer = auth_object
 
