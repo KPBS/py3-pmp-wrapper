@@ -116,7 +116,7 @@ class PmpAuth(object):
     `get_access_token(endpoint)` -- retrieves new access token by posting
     to the included endpoint
 
-    `sign_request(endpoint)` -- uses access_token to sign requests for
+    `sign_request(request_object)` -- uses access_token to sign requests for
     the resource
 
     returns:
