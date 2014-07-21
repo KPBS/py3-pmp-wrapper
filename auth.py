@@ -65,7 +65,7 @@ class PmpAccess(object):
                                  allow_redirects=True,
                                  timeout=5.0)
         if response.ok:
-            result = json.loads(response.json())
+            result = response.json()
             client_id = result.get('client_id', '')
             client_secret = result.get('client_secret', '')
             self.client = client_id
@@ -164,7 +164,7 @@ class PmpAuth(object):
                                  params=params,
                                  headers=headers)
         if response.ok:
-            result = json.loads(response.content.decode())
+            result = response.json()
             self.access_token = result.get('access_token', None)
             expiration = result.get('token_expires_in', None)
             issue_time = result.get('token_issue_date', None)
