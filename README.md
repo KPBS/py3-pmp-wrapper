@@ -61,7 +61,7 @@ We will need a PmpAuth object to sign all of our requests of the PMP API. Thus, 
 
 With a working PmpAuth object, we will need to generate an access token in order to communicate with PMP. To do that, we use the following method:
 ```python
->>> pmp_auth.get_access_token()
+>>> pmp_auth.get_access_token(ACCESS_TOKEN_URL)
 ```
 
 For most applications, we'll only need to do this once per session. A PmpAuth object will remember its `access_token` and it will let you know when that token has expired. 
