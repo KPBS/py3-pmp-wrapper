@@ -19,7 +19,7 @@ curl --user pmpuser:pmpsecret \
 ```
 ##### Issuing Credentials Using This Application
 
-If you do not have a client_id/client_secret for your application, you can create a PmPAccess object and have it generate credentials for you:
+If you do not have a client_id/client_secret for your application, you can create a PmPAccess object and have it generate credentials for you using your username and password:
 
 ```python
 >>> from pmp_api.auth import PmpAccess
@@ -43,7 +43,7 @@ Once these credentials are saved inside the config file, you can use the conveni
 ```python
 >>> from pmp_api import get_configs
 >>> configs = get_configs()
->>> configs['credentials']['client-id']
+>>> configs['credentials']['client_id']
 YOUR-CLIENT-ID
 ```
 
@@ -59,7 +59,7 @@ We will need a PmpAuth object to sign all of our requests of the PMP API. Thus, 
 >>> pmp_auth = PmpAuth(CLIENT_ID, CLIENT_SECRET)
 ```
 
-With a working PmpAuth object, we will need to generate an access token in order to communicate with PMP. To do that, we use the following method:
+We will need to generate an access token in order to communicate with PMP. To do that, you can use the following method:
 ```python
 >>> pmp_auth.get_access_token(ACCESS_TOKEN_URL)
 ```
@@ -67,7 +67,7 @@ With a working PmpAuth object, we will need to generate an access token in order
 For most applications, we'll only need to do this once per session. A PmpAuth object will remember its `access_token` and it will let you know when that token has expired. 
 
 ### Making requests
-Now that you have a PmpAuth object with a valid access token, we can use our PmpAuth object to create a PmpConnector that will make requests for us:
+Now that you have a PmpAuth object with a valid access token, you can create a PmpConnector that will issue signed requests:
 
 ```python
 >>> from pmp_api.conn import PmpConnector
@@ -84,4 +84,4 @@ Every link you'd like to retrieve from the PMP API can be retrieved using your c
 >>> etc.
 ```
 
-The returned value is a dictionary created from the JSON returned by the endpoint.
+This method will automatically return the JSON returned by the endpoint. In addition, the connector will automatically renew the access_token if it expires.

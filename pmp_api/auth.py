@@ -16,7 +16,7 @@ from .pmp_exceptions import BadRequest
 
 class PmpAccess(object):
     """Access class for Public Media Platform credentials.
-    See: https://github.com/publicmediaplatform/pmpdocs/ \
+    See: https://github.com/publicmediaplatform/pmpdocs/\
     wiki/Authenticating-with-the-API
 
     Requires a username/password combination approved for use in the PMP Api.
