@@ -1,0 +1,27 @@
+# -*- coding utf-8 -*- 
+
+[DEFAULT]
+# CONFIG File for pmp_api
+
+[pmp login]
+login = LOGIN NAME
+password = PASSWORD
+
+
+[credentials] # read-only credentials
+app = APP NAME
+client_id = APP CLIENT ID
+client_secret = APP CLIENT SECRET
+token_expires_in = 2000000
+label = APP LABEL
+scope = read
+
+[credentials write]
+
+[pmp endpoints]
+base_url = https://api-pilot.pmp.io
+publish_url = https://publish-pilot.pmp.io
+credentials_endpoint = /auth/credentials
+access_token_endpoint = /auth/access_token
+credentials_url = %(publish_url)s%(credentials_endpoint)s
+access_token_url = %(publish_url)s%(access_token_endpoint)s

@@ -49,4 +49,4 @@ class PmpOperator(object):
         prepped_req = sesh.prepare_request(signed_req)
         response = sesh.send(prepped_req)
         if response.ok:
-            return response
+            return response.json()

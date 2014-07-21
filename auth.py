@@ -67,9 +67,10 @@ class PmpAccess(object):
             result = response.json()
             client_id = result.get('client_id', '')
             client_secret = result.get('client_secret', '')
-            self.client = client_id
+            self.client_id = client_id
             self.client_secret = client_secret
             self.expiration = token_expiry
+            return self.client_id, self.client_secret, self.expiration
         else:
             raise BadRequest("No response from endpoint: {}".format(endpoint))
 
