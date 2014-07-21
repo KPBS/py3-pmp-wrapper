@@ -1,4 +1,4 @@
-An application for making signed requests of the PMP API (Public Media Platform). This application has been written for Python 3.3 and has not been tested with other Python versions (but it should work on Python3.3 and above).
+An application for making signed requests of the PMP API (Public Media Platform). This application has been written for Python 3.3 and has not been tested with other Python versions (but it should work on Python3.3 and above). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 ## Setup and Configuration
 
@@ -37,6 +37,17 @@ To use the convenience config file and config-parser, perform the following step
 1. Rename `config/config_TEMPLATE` to 'config/config`.
 2. Add your username/password to the renamed file.
 3. Add your client_id/client_secret for this and other applications to the config file. 
+
+Once these credentials are saved inside the config file, you can use the convenience method to retrieve them from the config file in the following way:
+
+```python
+>>> from pmp_api import get_configs
+>>> configs = get_configs()
+>>> configs['credentials']['client-id']
+YOUR-CLIENT-ID
+```
+
+For questions on this creating or editing the config file, consult the documentation for [Python's ConfigParser](https://docs.python.org/3/library/configparser.html).
 
 ## How to make requests of PMP API
 

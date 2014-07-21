@@ -129,6 +129,7 @@ class PmpAuth(object):
         self.access_token = None
         self.token_expires = None
         self.token_issued = None
+        self.access_token_url = None
 
     def _auth_header(self):
         """Sign requests for PMP API as per PmpAuth specifications.
@@ -151,13 +152,19 @@ class PmpAuth(object):
 
         return headers
 
-    def get_access_token(self, endpoint):
+    def get_access_token(self, endpoint=None):
         """
         Method for retrieving an access token for use with PMP API
 
         See: https://github.com/publicmediaplatform/pmpdocs/ \
         wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
         """
+        if self.access_token_url is None and endpoint is None:
+            errmsg = "No access_token_url provided"
+            raise BadRequest(errmsg)
+        elif self.access_token_url is None:
+            self.access_token_url = endpoint
+
         params = {'grant_type': 'client_credentials'}
         headers = self._auth_header()
         response = requests.post(endpoint,
