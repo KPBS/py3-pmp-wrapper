@@ -5,7 +5,7 @@ from .auth import PmpAuth
 from .pmp_exceptions import BadInstantiation
 
 
-class PmpOperator(object):
+class PmpConnector(object):
 
     def __init__(self, pmp_url, auth_object=None,
                  access_credentials=None, access_token_url=None):
