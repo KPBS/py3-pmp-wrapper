@@ -7,7 +7,6 @@ API requests.
 import six
 import datetime
 import requests
-import json
 from base64 import b64encode
 
 from .pmp_exceptions import NoToken
