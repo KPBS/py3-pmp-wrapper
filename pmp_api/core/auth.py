@@ -163,8 +163,8 @@ class PmpAuth(object):
         if self.access_token_url is None and endpoint is None:
             errmsg = "No access_token_url provided"
             raise BadRequest(errmsg)
-        elif self.access_token_url is None:
-            self.access_token_url = endpoint
+
+        self.access_token_url = endpoint
 
         params = {'grant_type': 'client_credentials'}
         headers = self._auth_header()
@@ -182,6 +182,7 @@ class PmpAuth(object):
             self.token_issued = datetime.datetime.strptime(issue_time,
                                                            time_format)
             self.token_expires = self.token_issued + expires
+            self.access_token_url = endpoint
 
         if self.access_token is None:
             raise NoToken("Access Token missing: {}".format(endpoint))
