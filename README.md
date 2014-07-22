@@ -96,7 +96,7 @@ A number of helper methods have been provided in the `utils` directory. These ar
 For filtering a nested dictionary, use **json_utils.filter_dict**. This function returns a generator of dictionaries that contain the key where the associated value matches the value passed in:
 
 ```python
->>> from pmp_api.utils import json_utils
+>>> from pmp_api.utils.json_utils import filter_dict
 >>> docs = pmp_connect.get("https://api-pilot.pmp.io/")
 >>> list(filter_dict(base_result, 'rels', 'urn:collectiondoc:form:issuetoken'))
 [{'href': 'https://api-pilot.pmp.io/auth/access_token', 'title': 'Issue OAuth2 Token', 'rels': ['urn:collectiondoc:form:issuetoken'], 'hints': {'docs': 'http://docs.pmp.io/wiki/Authentication-Model#token-management', 'allow': ['POST']}}]
@@ -107,9 +107,9 @@ For filtering a nested dictionary, use **json_utils.filter_dict**. This function
 For searching for a key, use **json_utils.qfind**. This function returns a generator of dictionaries that contain the key passed in:
 
 ```python
->>> from pmp_api.utils import json_utils
+>>> from pmp_api.utils.json_utils import qfind
 >>> docs = pmp_connect.get("https://api-pilot.pmp.io/docs")
->>> for item in json_utils.qfind(results, 'creator'):
+>>> for item in qfind(results, 'creator'):
 ...    print(item)
 [{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID ...
 ```
@@ -120,7 +120,7 @@ For searching for a key, use **json_utils.qfind**. This function returns a gener
 If you are expecting that your filtering is only going to result in one value, you can immediately return that result and skip getting a generator object back. For this case, use **json_utils.get_dict**. 
 
 ```python
->>> from pmp_api.utils import json_utils
+>>> from pmp_api.utils.json_utils import get_dict
 >>> docs = pmp_connect.get("https://api-pilot.pmp.io/")
 >>> get_dict(base_result, 'rels', 'urn:collectiondoc:form:issuetoken')
 [{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID
