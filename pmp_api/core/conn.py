@@ -1,7 +1,6 @@
 import requests
 
 from .auth import PmpAuth
-from .utils import json_utils
 from .pmp_exceptions import BadInstantiation
 from .pmp_exceptions import ExpiredToken
 

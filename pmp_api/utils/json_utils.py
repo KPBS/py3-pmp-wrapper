@@ -10,6 +10,10 @@ class SearchResultsAmbiguous(Exception):
     pass
 
 
+class NoResult(Exception):
+    pass
+
+
 def get_nested_val(somedict, keys):
     """
     This function makes it easy to plumb the depths of a nested
@@ -100,8 +104,12 @@ def returnfirst(func):
     object.
     """
     def inner(*args, **kwargs):
-        result, *_ = func(*args, **kwargs)
-        return result
+        try:
+            result, *_ = func(*args, **kwargs)
+            return result
+        except ValueError:
+            errmsg = "Result empty for provided arguments: {} {}"
+            raise NoResult(errmsg.format(args, kwargs))
     return inner
 
 

@@ -85,3 +85,53 @@ Every link you'd like to retrieve from the PMP API can be retrieved using your c
 ```
 
 This method will automatically return the JSON returned by the endpoint. In addition, the connector will automatically renew the access_token if it expires.
+
+
+## Helper Methods
+
+A number of helper methods have been provided in the `utils` directory. These are present in order to make it easy to parse and filter the various JSON objects returned. Examples follow
+
+#### Filter nested dictionaries for a particular key-value pair
+
+For filtering a nested dictionary, use **json_utils.filter_dict**. This function returns a generator of dictionaries that contain the key where the associated value matches the value passed in:
+
+```python
+>>> from pmp_api.utils import json_utils
+>>> docs = pmp_connect.get("https://api-pilot.pmp.io/")
+>>> list(filter_dict(base_result, 'rels', 'urn:collectiondoc:form:issuetoken'))
+[{'href': 'https://api-pilot.pmp.io/auth/access_token', 'title': 'Issue OAuth2 Token', 'rels': ['urn:collectiondoc:form:issuetoken'], 'hints': {'docs': 'http://docs.pmp.io/wiki/Authentication-Model#token-management', 'allow': ['POST']}}]
+```
+
+#### Find all dict objects (nested or not) containing a key
+
+For searching for a key, use **json_utils.qfind**. This function returns a generator of dictionaries that contain the key passed in:
+
+```python
+>>> from pmp_api.utils import json_utils
+>>> docs = pmp_connect.get("https://api-pilot.pmp.io/docs")
+>>> for item in json_utils.qfind(results, 'creator'):
+...    print(item)
+[{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID ...
+```
+
+
+#### Retrieve a particular dictionary with a key/value pair
+
+If you are expecting that your filtering is only going to result in one value, you can immediately return that result and skip getting a generator object back. For this case, use **json_utils.get_dict**. 
+
+```python
+>>> from pmp_api.utils import json_utils
+>>> docs = pmp_connect.get("https://api-pilot.pmp.io/")
+>>> get_dict(base_result, 'rels', 'urn:collectiondoc:form:issuetoken')
+[{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID
+{'href': 'https://api-pilot.pmp.io/auth/access_token', 'title': 'Issue OAuth2 Token', 'rels': ['urn:collectiondoc:form:issuetoken'], 'hints': {'docs': 'http://docs.pmp.io/wiki/Authentication-Model#token-management', 'allow': ['POST']}
+```
+
+This function returns the first dictionary that matches the key/value pair and raises `NoResult` on empty search.
+
+```python
+>>> get_dict(base_result, 'rels', "SOME MISSING VALUE")
+Traceback (most recent call last)
+	  ...
+NoResult: Result empty for provided arguments...
+```
