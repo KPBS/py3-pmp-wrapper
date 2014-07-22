@@ -6,6 +6,6 @@ https://github.com/publicmediaplatform/pmpdocs
 
 from .core import auth
 from .core import conn
-from .core import pmp_excepions as exceptions
+from .core import pmp_exceptions as exceptions
 
 from .pmp_client import Client

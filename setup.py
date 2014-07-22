@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name = 'py3-pmp-wrapper',
-    packages = ['pmp_api', 'pmp_api.core', 'pmp_api.utils', 'pmp_api.config'],
+    packages = ['pmp_api', 'pmp_api.core', 'pmp_api.utils'],
     version = '0.0.2',
     description = 'Wrapper Interface for Public Media Platform API',
     author = 'Erik Aker',
