@@ -53,7 +53,7 @@ For questions on this creating or editing the config file, consult the documenta
 
 ### Using a PmpAuth object to create an access token
 
-We will need a PmpAuth object to sign all of our requests of the PMP API. Thus, if you do not already have one, create a new PmpAuth object:
+We will need a PmpAuth object to sign all of our requests of the PMP API, so create a new PmpAuth object:
 ```python
 >>> from pmp_api.auth import PmpAuth
 >>> pmp_auth = PmpAuth(CLIENT_ID, CLIENT_SECRET)
