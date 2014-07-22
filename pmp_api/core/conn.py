@@ -21,7 +21,7 @@ class PmpConnector(object):
 
         Keyword Arguments:
         `auth_object` -- already authorized PmpAccess object
-        `access_credentials` -- Dictionary with keys: `client_id`, `client_secret`
+        `access_credentials` -- Dictionary with keys `client_id`, `client_secret`
         `access_token_url` -- PMP Url to get make access_token requests
 
         returns:

@@ -30,27 +30,6 @@ If you do not have a client_id/client_secret for your application, you can creat
 (CLIENT_ID, CLIENT_SECRET, EXPIRATION)
 ```
 
-## Storing Credentials
-
-A config template has been provided inside the `config` directory. In addition, a convenience method for accessing these configs has also been provided. 
-
-To use the convenience config file and config-parser, perform the following steps:
-
-1. Rename `config/config_TEMPLATE` to `config/config`.
-2. Add your username/password to the renamed file.
-3. Add your client_id/client_secret for this and other applications to the config file. 
-
-Once these credentials are saved inside the config file, you can use the convenience method to retrieve them from the config file in the following way:
-
-```python
->>> from pmp_api import get_configs
->>> configs = get_configs()
->>> configs['credentials']['client_id']
-YOUR-CLIENT-ID
-```
-
-For questions on this creating or editing the config file, consult the documentation for [Python's ConfigParser](https://docs.python.org/3/library/configparser.html).
-
 ## How to make requests of PMP API
 
 ### Using a PmpAuth object to create an access token

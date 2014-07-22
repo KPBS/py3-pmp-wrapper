@@ -6,13 +6,6 @@ https://github.com/publicmediaplatform/pmpdocs
 
 from .core import auth
 from .core import conn
+from .core import pmp_excepions as exceptions
 
-
-def get_configs():
-    import os
-    from configparser import ConfigParser
-    from . import config
-    config_file = os.path.abspath(os.path.join(config.__path__[0], 'config'))
-    config = ConfigParser()
-    config.read(config_file)
-    return config
+from .pmp_client import Client
