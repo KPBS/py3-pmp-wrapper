@@ -1,3 +1,5 @@
+# py3-pmp-wrapper
+
 An application for making signed requests of the PMP API (Public Media Platform). This application has been written for Python 3.3 and has not been tested with other Python versions (but it should work on Python3.3 and above). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 ## Setup and Configuration
@@ -97,8 +99,8 @@ For filtering a nested dictionary, use `json_utils.filter_dict`. This function r
 
 ```python
 >>> from pmp_api.utils.json_utils import filter_dict
->>> docs = pmp_connect.get("https://api-pilot.pmp.io/")
->>> list(filter_dict(base_result, 'rels', 'urn:collectiondoc:form:issuetoken'))
+>>> results = pmp_connect.get("https://api-pilot.pmp.io/")
+>>> list(filter_dict(results, 'rels', 'urn:collectiondoc:form:issuetoken'))
 [{'href': 'https://api-pilot.pmp.io/auth/access_token', 'title': 'Issue OAuth2 Token', 'rels': ['urn:collectiondoc:form:issuetoken'], 'hints': {'docs': 'http://docs.pmp.io/wiki/Authentication-Model#token-management', 'allow': ['POST']}}]
 ```
 
@@ -109,7 +111,7 @@ For searching for a key, use `json_utils.qfind`. This function returns a generat
 ```python
 >>> from pmp_api.utils.json_utils import qfind
 >>> docs = pmp_connect.get("https://api-pilot.pmp.io/docs")
->>> for item in qfind(results, 'creator'):
+>>> for item in qfind(docs, 'creator'):
 ...    print(item)
 [{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID ...
 ```
@@ -121,8 +123,8 @@ If you are expecting that your filtering is only going to result in one value, y
 
 ```python
 >>> from pmp_api.utils.json_utils get_dict
->>> docs = pmp_connect.get("https://api-pilot.pmp.io/")
->>> get_dict(base_result, 'rels', 'urn:collectiondoc:form:issuetoken')
+>>> results = pmp_connect.get("https://api-pilot.pmp.io/")
+>>> get_dict(results, 'rels', 'urn:collectiondoc:form:issuetoken')
 [{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID
 {'href': 'https://api-pilot.pmp.io/auth/access_token', 'title': 'Issue OAuth2 Token', 'rels': ['urn:collectiondoc:form:issuetoken'], 'hints': {'docs': 'http://docs.pmp.io/wiki/Authentication-Model#token-management', 'allow': ['POST']}
 ```
@@ -130,7 +132,7 @@ If you are expecting that your filtering is only going to result in one value, y
 This function returns the first dictionary that matches the key/value pair and raises `NoResult` on empty search.
 
 ```python
->>> get_dict(base_result, 'rels', "SOME MISSING VALUE")
+>>> get_dict(results, 'rels', "SOME MISSING VALUE")
 Traceback (most recent call last)
 	  ...
 NoResult: Result empty for provided arguments...

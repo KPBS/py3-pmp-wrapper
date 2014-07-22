@@ -4,8 +4,8 @@ See PMP Docs for more information:
 https://github.com/publicmediaplatform/pmpdocs
 """
 
-from core import auth
-from core import conn
+from .core import auth
+from .core import conn
 
 
 def get_configs():
