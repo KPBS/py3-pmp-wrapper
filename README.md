@@ -34,7 +34,7 @@ A config template has been provided inside the `config` directory. In addition, 
 
 To use the convenience config file and config-parser, perform the following steps:
 
-1. Rename `config/config_TEMPLATE` to 'config/config`.
+1. Rename `config/config_TEMPLATE` to `config/config`.
 2. Add your username/password to the renamed file.
 3. Add your client_id/client_secret for this and other applications to the config file. 
 
@@ -93,7 +93,7 @@ A number of helper methods have been provided in the `utils` directory. These ar
 
 #### Filter nested dictionaries for a particular key-value pair
 
-For filtering a nested dictionary, use **json_utils.filter_dict**. This function returns a generator of dictionaries that contain the key where the associated value matches the value passed in:
+For filtering a nested dictionary, use `json_utils.filter_dict`. This function returns a generator of dictionaries that contain the key where the associated value matches the value passed in:
 
 ```python
 >>> from pmp_api.utils.json_utils import filter_dict
@@ -104,7 +104,7 @@ For filtering a nested dictionary, use **json_utils.filter_dict**. This function
 
 #### Find all dict objects (nested or not) containing a key
 
-For searching for a key, use **json_utils.qfind**. This function returns a generator of dictionaries that contain the key passed in:
+For searching for a key, use `json_utils.qfind`. This function returns a generator of dictionaries that contain the key passed in:
 
 ```python
 >>> from pmp_api.utils.json_utils import qfind
@@ -117,7 +117,7 @@ For searching for a key, use **json_utils.qfind**. This function returns a gener
 
 #### Retrieve a particular dictionary with a key/value pair
 
-If you are expecting that your filtering is only going to result in one value, you can immediately return that result and skip getting a generator object back. For this case, use **json_utils.get_dict**. 
+If you are expecting that your filtering is only going to result in one value, you can immediately return that result and skip getting a generator object back. For this case, use `json_utils.get_dict`. 
 
 ```python
 >>> from pmp_api.utils.json_utils import get_dict
