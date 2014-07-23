@@ -151,6 +151,15 @@ class PmpAuth(object):
         return headers
 
     def get_access_token(self, endpoint=None):
+        # Pending documentation, this may change.
+        # This method works at the POST-to ('publish') server address as per 
+        # docs
+        # However, it does not work at the standard url given by home-doc
+        # For that, we must use the simpler example here:
+        # curl -i "https://api-pilot.pmp.io/auth/access_token" -u \
+        #     "clientid:clientsecret" -H \
+        #     "Content-Type: application/x-www-form-urlencoded" -X POST
+
         """
         Method for retrieving an access token for use with PMP API
 
@@ -189,8 +198,7 @@ class PmpAuth(object):
 
         return self.access_token
 
-    def sign_request(self, request_obj, token=None,
-                     content_type='collection+json'):
+    def sign_request(self, request_obj, token=None):
         """
         Provided with a requests.Request object, this method will sign a
         request for the PMP API. It either takes a token passed in or
@@ -215,13 +223,6 @@ class PmpAuth(object):
             errmsg += " You may use get_access_token method of PmpAuth object."
             raise ExpiredToken(errmsg)
 
-        headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
-
-        content_types = {'collection+json': 'application/vnd.collection.doc+json',
-                         'json': 'application/json',
-                         'text': 'application/x-www-form-urlencoded'}
-
-        headers['Content-Type'] = content_types[content_type]
-
-        request_obj.headers = headers
+        token_signed = 'Bearer {}'.format(self.access_token)
+        request_obj.headers['Authorization'] = token_signed
         return request_obj

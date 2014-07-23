@@ -32,14 +32,14 @@ class Pager(object):
         if len(nav) > 1:
             self.navigable = True
             navigator = self.navigator(nav)
-            self._next = navigator('prev')
-            self._prev = navigator('next')
+            self._prev = navigator('prev')
+            self._next = navigator('next')
             self._last = navigator('last')
             self._first = navigator('first')
             self._current = navigator('self')
 
     def __str__(self):
-        return self._current
+        return "<Pager for: {}>".format(self._current)
 
 
 class Client(object):
@@ -67,3 +67,8 @@ class Client(object):
                 yield item['title'], item['rels']
             else:
                 yield item['rels']
+
+    def make_pager(self, result_set, key):
+        new_pager = Pager()
+        self.pagers[key] = new_pager
+        new_pager.update(result_set)
