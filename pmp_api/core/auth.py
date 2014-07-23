@@ -198,7 +198,7 @@ class PmpAuth(object):
 
         return self.access_token
 
-    def sign_request(self, request_obj, token=None):
+    def sign_request(self, request_obj):
         """
         Provided with a requests.Request object, this method will sign a
         request for the PMP API. It either takes a token passed in or
@@ -215,7 +215,7 @@ class PmpAuth(object):
         instance of `requests.Request` (signed)
         """
         now = datetime.datetime.utcnow()
-        if token is None and self.access_token is None:
+        if self.access_token is None:
             raise NoToken("Access Token missing and needed to sign request")
 
         elif self.token_expires < now:

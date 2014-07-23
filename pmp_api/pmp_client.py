@@ -42,6 +42,9 @@ class Pager(object):
         return "<Pager for: {}>".format(self._current)
 
 
+class PaginatedConnection(object):
+    pass
+
 class Client(object):
     def __init__(self, entry_point, client_id, client_secret):
         self.entry_point = entry_point
@@ -72,3 +75,4 @@ class Client(object):
         new_pager = Pager()
         self.pagers[key] = new_pager
         new_pager.update(result_set)
+        return new_pager
