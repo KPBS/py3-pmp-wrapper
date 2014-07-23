@@ -7,10 +7,46 @@ from .utils.json_utils import filter_dict
 from .utils.json_utils import get_dict
 
 
+class Pager(object):
+    """
+    This may not work; there may be multiplate nav objects...
+    """
+    def __init__(self):
+        self._prev = None
+        self._next = None
+        self._last = None
+        self._first = None
+        self._current = None
+        self.navigable = False
+
+    def navigator(self, navigable_dict):
+        def _get_page(val):
+            try:
+                return next(filter_dict(navigable_dict, 'rels', val))['href']
+            except StopIteration:
+                return None
+        return _get_page
+
+    def update(self, result_dict):
+        nav = list(qfind(result_dict, 'navigation'))
+        if len(nav) > 1:
+            self.navigable = True
+            navigator = self.navigator(nav)
+            self._next = navigator('prev')
+            self._prev = navigator('next')
+            self._last = navigator('last')
+            self._first = navigator('first')
+            self._current = navigator('self')
+
+    def __str__(self):
+        return self._current
+
+
 class Client(object):
     def __init__(self, entry_point, client_id, client_secret):
         self.entry_point = entry_point
         self.connector = self._get_access(client_id, client_secret)
+        self.pagers = {}
 
     def _get_access(self, client_id, client_secret):
         resp = requests.get(self.entry_point)
@@ -24,7 +60,7 @@ class Client(object):
         self.connector = PmpConnector(authorizer)
         return self.connector
 
-    def query_link_types(self, endpoint):
+    def query_rel_types(self, endpoint):
         values = self.connector.get(endpoint)
         for item in qfind(values, 'rels'):
             if 'title' in item:

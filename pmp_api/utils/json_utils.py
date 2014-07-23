@@ -14,38 +14,6 @@ class NoResult(Exception):
     pass
 
 
-def get_nested_val(somedict, keys):
-    """
-    This function makes it easy to plumb the depths of a nested
-    dict using an iterable of keys only. It will go as deep
-    as keeps exist and error out if the key isn't present.
-    """
-    if len(keys) <= 1:
-        return somedict[keys[0]]
-    else:
-        key, *keys = keys
-        return get_nested_val(somedict.get(key), keys)
-
-
-def get_dict_from_unique_val(list_of_dicts, keys, val):
-    """
-    This utility function looks within a set of nested dictionaries
-    for a particular value and it returns the first nested
-    dictionary it finds that contains that value.
-
-    It is designed to work with JSON nested dictionaries
-    where a particular unique value exists somewhere in the dictionary
-    that will identify it.
-
-    It will be no help, obviously, in finding all the dictionaries
-    that contain a particular value.
-    """
-
-    for some_dict in dropwhile(lambda d: get_nested_val(d, keys) != val,
-                               list_of_dicts):
-        return some_dict
-
-
 def qfind(results, key):
     """
     Recursive method for finding nested dictionaries anywhere in a dictionary

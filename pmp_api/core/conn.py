@@ -28,6 +28,7 @@ class PmpConnector(object):
         PmpOperator object
         """
         self.base_url = base_url
+        self.last_url = None
 
         if auth_object is None and access_credentials is None:
             errmsg = "PmpOperator requires either a PmpAuth object"
@@ -61,4 +62,5 @@ class PmpConnector(object):
                 response = sesh.send(prepped_req)
 
         if response.ok:
+            self.last_url = endpoint
             return response.json()
