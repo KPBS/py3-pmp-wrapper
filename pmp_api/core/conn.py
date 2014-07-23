@@ -2,6 +2,7 @@ import requests
 
 from .auth import PmpAuth
 from .pmp_exceptions import BadInstantiation
+from .pmp_exceptions import EmptyResponse
 from .pmp_exceptions import ExpiredToken
 
 
@@ -31,7 +32,7 @@ class PmpConnector(object):
         self.last_url = None
 
         if auth_object is None and access_credentials is None:
-            errmsg = "PmpOperator requires either a PmpAuth object"
+            errmsg = "PmpConnector requires either a PmpAuth object"
             errmsg += " or access_credentials and an access_token_url"
             errmsg += " to create its own PmpAccess object to access PMP"
             raise BadInstantiation(errmsg)
@@ -70,4 +71,9 @@ class PmpConnector(object):
 
         if response.ok:
             self.last_url = endpoint
-            return response.json()
+            try:
+                results = response.json()
+                return results
+            except ValueError:
+                errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
+                raise EmptyResponse(errmsg)

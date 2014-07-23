@@ -7,13 +7,17 @@ class BadRequest(Exception):
     pass
 
 
-class NoToken(Exception):
-    pass
-
-
 class BadInstantiation(Exception):
     pass
 
 
+class EmptyResponse(Exception):
+    pass
+
+
 class ExpiredToken(Exception):
+    pass
+
+
+class NoToken(Exception):
     pass

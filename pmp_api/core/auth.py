@@ -172,8 +172,10 @@ class PmpAuth(object):
         if self.access_token_url is None and endpoint is None:
             errmsg = "No access_token_url provided"
             raise BadRequest(errmsg)
-
-        self.access_token_url = endpoint
+        elif self.access_token_url is None:
+            self.access_token_url = endpoint
+        else:
+            endpoint = self.access_token_url
 
         params = {'grant_type': 'client_credentials'}
         headers = self._auth_header()
