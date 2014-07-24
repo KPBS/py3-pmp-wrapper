@@ -16,7 +16,7 @@ class TestPmpConnector(TestCase):
     def setUp(self):
         from pmp_api.core.auth import PmpAuth
         self.authorizer = PmpAuth('client-id', 'client-secret')
-        self.authorizer.access_token_url = "http://api.kpbs.org"
+        self.authorizer.access_token_url = "http://www.google.com"
         self.delta = datetime.timedelta(hours=4)
         self.authorizer.token_expires = datetime.datetime.utcnow() + self.delta
         self.authorizer.token_issued = datetime.datetime.utcnow() - self.delta
@@ -47,7 +47,7 @@ class TestPmpConnector(TestCase):
         self.access_token_url = None
         pconn = PmpConnector(auth_object=self.authorizer)
         with self.raises(ExpiredToken):
-            pconn.get("http://api-pilot.pmp.io")
+            pconn.get("http://www.google.com")
 
     def test_get_with_bad_response(self):
         pass
