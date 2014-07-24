@@ -1,6 +1,5 @@
 import requests
 
-from .auth import PmpAuth
 from .pmp_exceptions import EmptyResponse
 from .pmp_exceptions import ExpiredToken
 
@@ -34,10 +33,8 @@ class PmpConnector(object):
                          'text': 'application/x-www-form-urlencoded'}
 
         req.headers['Content-Type'] = content_types[content_type]
-        signed_req = self.authorizer.sign_request(req)
-        prepped_req = sesh.prepare_request(signed_req)
         try:
-            response = sesh.send(prepped_req)
+            signed_req = self.authorizer.sign_request(req)
         except ExpiredToken:
             if self.authorizer.access_token_url is None:
                 errmsg = "Access token expired and access_token_url is unknown"
@@ -46,8 +43,9 @@ class PmpConnector(object):
             else:
                 self.authorizer.get_access_token()
                 signed_req = self.authorizer.sign_request(req)
-                prepped_req = sesh.prepare_request(signed_req)
-                response = sesh.send(prepped_req)
+
+        prepped_req = sesh.prepare_request(signed_req)
+        response = sesh.send(prepped_req)
 
         if response.ok:
             self.last_url = endpoint

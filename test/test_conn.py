@@ -1,59 +1,84 @@
 import datetime
-import os
+import requests
 
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
-from pmp_api.core.pmp_exceptions import BadRequest
-from pmp_api.core.pmp_exceptions import NoToken
+from pmp_api.core.conn import PmpConnector
 from pmp_api.core.pmp_exceptions import ExpiredToken
 from pmp_api.core.pmp_exceptions import EmptyResponse
-from pmp_api.core.pmp_exceptions import BadInstantiation
 
 
 class TestPmpConnector(TestCase):
 
     def setUp(self):
-        from pmp_api.core.auth import PmpAuth
-        self.authorizer = PmpAuth('client-id', 'client-secret')
-        self.authorizer.access_token_url = "http://www.google.com"
+        token = 'bd50df0000000000'
+        header = {'Authorization': 'Bearer ' + token}
+        header['Content-Type'] = 'application/vnd.collection.doc+json'
         self.delta = datetime.timedelta(hours=4)
-        self.authorizer.token_expires = datetime.datetime.utcnow() + self.delta
-        self.authorizer.token_issued = datetime.datetime.utcnow() - self.delta
-        fixture_dir = os.path.abspath('fixtures')
-        fixtures = ['docs_marketplace_wAudio.json',
-                    'docs_pbs_cove.json',
-                    'homedoc.json',
-                    'schemas.json',
-                    'schemas_media.json']
-        self.fixtures = [os.path.join(fixture_dir, fix) for fix in fixtures]
+        self.signed_request = Mock(**{'headers': header})
+        self.auth_vals = {'client_id': 'client-id',
+                          'client_secret': 'client-secret',
+                          'access_token': token,
+                          'access_token_url': None,
+                          'token_issued': datetime.datetime.utcnow() - self.delta,
+                          'sign_request.return_value': self.signed_request}
+        self.test_vals = {'a': 1, 'b': 2, 'c': 'VALUE'}
+        self.attribs = {'ok': True, 'json.return_value': self.test_vals}
 
-    def test_conn_init_bad(self):
-        from pmp_api.core.conn import PmpConnector
-        with self.raises(BadInstantiation):
-            PmpConnector(auth_object=None)
+    def test_bad_response(self):
+        # Shouldn't raise EmptyResponse. Should return None
+        attribs = {'ok': False, 'json.side_effect': ValueError}
+        authorizer = Mock(**self.auth_vals)
+        response = Mock(**attribs)
+        session = Mock(**{'send.return_value': response,
+                               'prepare_request.return_value': self.signed_request})
+        pconn = PmpConnector(authorizer)
+        with patch.object(requests, 'Session', return_value=session) as mocker:
+            self.assertEqual(pconn.get("http://www.google.com"), None)
 
-    def test_conn_init(self):
-        from pmp_api.core.conn import PmpConnector
-        self.assertTrue(PmpConnector(auth_object=self.authorizer))
+    def test_simple_get(self):
+        authorizer = Mock(**self.auth_vals)
+        response = Mock(**self.attribs)
+        session = Mock(**{'send.return_value': response,
+                          'prepare_request.return_value': self.signed_request})
+        pconn = PmpConnector(authorizer)
+        with patch.object(requests, 'Session', return_value=session) as mocker:
+            results = pconn.get("http://www.google.com")
+            self.assertEqual(results, self.test_vals)
 
-    def test_get_request(self):
-        from pmp_api.core.conn import PmpConnector
-        pconn = PmpConnector(self.authorizer)
-
-    def test_get_with_expired_token(self):
-        from pmp_api.core.conn import PmpConnector
-        self.authorizer.token_expires -= self.delta + self.delta
-        self.access_token_url = None
-        pconn = PmpConnector(auth_object=self.authorizer)
-        with self.raises(ExpiredToken):
+    def test_get_header_inspect(self):
+        authorizer = Mock(**self.auth_vals)
+        response = Mock(**self.attribs)
+        session = Mock(**{'send.return_value': response,
+                          'prepare_request.return_value': self.signed_request})
+        pconn = PmpConnector(authorizer)
+        with patch.object(requests, 'Session', return_value=session) as mocker:
             pconn.get("http://www.google.com")
-
-    def test_get_with_bad_response(self):
-        pass
+            session.prepare_request.assert_called_with(self.signed_request)
 
     def test_get_with_no_json(self):
-        pass
+        attribs = {'ok': True, 'json.side_effect': ValueError}
+        authorizer = Mock(**self.auth_vals)
+        response = Mock(**attribs)
+        session = Mock(**{'send.return_value': response,
+                          'prepare_request.return_value': self.signed_request})
+        pconn = PmpConnector(authorizer)
+        with patch.object(requests, 'Session', return_value=session) as mocker:
+            with self.assertRaises(EmptyResponse):
+                pconn.get("http://www.google.com")
 
-    def test_good_get(self):
-        pass
+    def test_get_with_expired_token(self):
+        auth_vals = {'client_id': 'client-id',
+                     'client_secret': 'client-secret',
+                     'access_token': 'bd50df0000000000',
+                     'access_token_url': None,
+                     'sign_request.side_effect': ExpiredToken}
+        authorizer = Mock(**auth_vals)
+        response = Mock(**self.attribs)
+        session = Mock(**{'send.return_value': response,
+                          'prepare_request.return_value': self.signed_request})
+        pconn = PmpConnector(authorizer)
+        with patch.object(requests, 'Session', return_value=session) as mocker:
+            with self.assertRaises(ExpiredToken):
+                pconn.get("http://www.google.com")
