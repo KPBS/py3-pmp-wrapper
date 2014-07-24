@@ -10,3 +10,5 @@ from .core import pmp_exceptions as exceptions
 
 from .pmp_client import Client
 from .utils import json_utils
+
+__version__ = '0.0.3'

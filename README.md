@@ -52,7 +52,7 @@ Now that you have a PmpAuth object with a valid access token, you can create a P
 
 ```python
 >>> from pmp_api.conn import PmpConnector
->>> pmp_connect = PmpConnector(pmp_auth)
+>>> pmp_connect = PmpConnector(auth_object=pmp_auth)
 >>> pmp_connect.get("https://api-pilot.pmp.io/docs")
 {...DICTIONARY OF VALUES IN RESPONSE...}
 ```
