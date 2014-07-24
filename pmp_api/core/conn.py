@@ -47,13 +47,12 @@ class PmpConnector(object):
     def get(self, endpoint, content_type='collection+json'):
         sesh = requests.Session()
         req = requests.Request('GET', endpoint)
-        headers = {}
+        req.headers = {}
         content_types = {'collection+json': 'application/vnd.collection.doc+json',
                          'json': 'application/json',
                          'text': 'application/x-www-form-urlencoded'}
 
-        headers['Content-Type'] = content_types[content_type]
-        req.headers = headers
+        req.headers['Content-Type'] = content_types[content_type]
         signed_req = self.authorizer.sign_request(req)
         prepped_req = sesh.prepare_request(signed_req)
         try:

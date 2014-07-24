@@ -27,6 +27,7 @@ class Tox(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
+        # nosetests --with-coverage --cover-package=pmp_api
         self.test_suite = True
     def run_tests(self):
         #import here, cause outside the eggs aren't loaded
@@ -45,7 +46,7 @@ setup(
     license = "GNU General Public License v2",
     download_url = "https://github.com/KPBS/py3-pmp-wrapper.git",
     keywords = ["pmp", "hateoas"],
-    tests_require=['tox','nose'],
+    tests_require=['tox','nose', 'mock', 'coverage'],
     cmdclass = {'test': Tox},
     classifiers = [
         "Programming Language :: Python",

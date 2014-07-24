@@ -85,8 +85,7 @@ class Client(object):
             values = self.last_result
 
         options = get_dict(values, 'rels', rel_type)
-        for option in options:
-            yield option
+        return options
 
     def get(self, endpoint):
         result_set = self.connector.get(endpoint)
