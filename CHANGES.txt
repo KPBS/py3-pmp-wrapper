@@ -1,1 +1,3 @@
+v0.3 July 24, 2014 -- Added unittests for all modules in pmp_api.core. Cleaned and refactored auth and conn. Refactored auth and separated PmpAccess into separate module. Added a bit of functionality to PmpClient, but this aspect is still in development.
+
 v0.2, July 22 2014 -- Initial release

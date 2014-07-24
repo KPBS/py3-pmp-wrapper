@@ -101,7 +101,7 @@ For searching for a key, use `json_utils.qfind`. This function returns a generat
 If you are expecting that your filtering is only going to result in one value, you can immediately return that result and skip getting a generator object back. For this case, use `json_utils.get_dict`. 
 
 ```python
->>> from pmp_api.utils.json_utils get_dict
+>>> from pmp_api.utils.json_utils import get_dict
 >>> results = pmp_connect.get("https://api-pilot.pmp.io/")
 >>> get_dict(results, 'rels', 'urn:collectiondoc:form:issuetoken')
 [{'creator': [{'href': 'https://api-pilot.pmp.io/docs/SOME-HUGE-GUID
