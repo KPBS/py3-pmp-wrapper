@@ -8,7 +8,6 @@ from pmp_api.pmp_client import Client
 from pmp_api.core.pmp_exceptions import ExpiredToken
 from pmp_api.core.pmp_exceptions import EmptyResponse
 
-### For reference only
 
 class TestPmpConnector(TestCase):
 

@@ -51,6 +51,8 @@ class Pager(object):
         Returns navigable_dictionary object which can be searched
         against common navigation values in order to populate class
         attributes.
+
+        :param navigable_dict: dicitionary (from JSON)
         """
         def _get_page(val):
             try:
@@ -62,6 +64,8 @@ class Pager(object):
     def update(self, result_dict):
         """:method:`updated` upadtes all page attributes as well as `navigable` boolean
         attribute.
+
+        :param result_dict: dicitionary (from JSON)
         """
         nav = list(qfind(result_dict, 'navigation'))
         if len(nav) > 1:
@@ -81,11 +85,11 @@ class Pager(object):
 
 
 class Client(object):
-    def __init__(self):  # , client_id, client_secret, entry_point):
-        # self.entry_point = entry_point
+    def __init__(self, client_id, client_secret, entry_point):
+        self.entry_point = entry_point
         self.pager = None
         self.recent_result = {}
-        # self.connector = self._get_access(client_id, client_secret)
+        self.connector = self._get_access(client_id, client_secret)
         self.history = []
         self.forward_stack = []
         self.current_page = None
@@ -103,7 +107,7 @@ class Client(object):
         access_token_url = auth_schema.get('href', None)
         authorizer = PmpAuth(client_id, client_secret)
         try:
-            authorizer.get_access_token(access_token_url)
+            authorizer.get_access_token2(access_token_url)
             self.connector = PmpConnector(authorizer)
             return self.connector
         except NoToken:
@@ -147,7 +151,7 @@ class Client(object):
             self.pager = Pager()
         self.pager.update(result_set)
         self.recent_result = result_set
-        return recent_result
+        return self.recent_result
 
     def get(self, endpoint):
         """
@@ -199,10 +203,10 @@ class Client(object):
         if len(self.history) < 1:
             return
         else:
-            self.get(self.history[-1])
+            return self.get(self.history[-1])
 
     def forward(self):
         if len(self.forward_stack) < 1:
             return
         else:
-            self.get(self.history[-1])
+            return self.get(self.history[-1])
