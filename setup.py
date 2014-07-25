@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 import os
@@ -31,7 +31,7 @@ class Tox(TestCommand):
         self.test_suite = True
     def run_tests(self):
         #import here, cause outside the eggs aren't loaded
-        import tox
+        import nose
         errcode = tox.cmdline(self.test_args)
         sys.exit(errcode)
 
@@ -46,7 +46,7 @@ setup(
     license = "GNU General Public License v2",
     download_url = "https://github.com/KPBS/py3-pmp-wrapper.git",
     keywords = ["pmp", "hateoas"],
-    tests_require=['tox','nose', 'mock', 'coverage'],
+    tests_require=['tox','nose', 'coverage'],
     cmdclass = {'test': Tox},
     classifiers = [
         "Programming Language :: Python",

@@ -1,8 +1,8 @@
 """
 pmp_api.pmp_client module
 
-`Pager` -- for keeping track of PMP navigation links
-`Client` -- for easily making requests of PMP resources
+``Pager`` -- for keeping track of PMP navigation links
+``Client`` -- for easily making requests of PMP resources
 
 The Client module exists to facilitate making requests of the PMP API. It
 supports following navigation elements as well as 'forward' and 'back'
@@ -20,6 +20,24 @@ from .utils.json_utils import get_dict
 
 
 class Pager(object):
+    """The :class:`Pager <Pager>` object is for keeping track
+    of navigation values from a PMP Hypermedia object. This object
+    contains an :method update: method that looks for navigation
+    links and updates :class:`Pager <Pager>` attributes.
+    
+    Usage::
+
+      >>> from pmp_api.pmp_client import Pager
+      >>> import requests
+      >>> nav_page = requests.get("http://some-api.that-returns.json")
+      >>> results = nav_page.json()
+      >>> pager = Pager(results)
+      >>> pager.navigable
+      True
+      >>> pager._next
+     "http://some-api.that-returns.json/some-next-page-of-results"
+
+    """
     def __init__(self):
         self._prev = None
         self._next = None
@@ -29,6 +47,11 @@ class Pager(object):
         self.navigable = False
 
     def navigator(self, navigable_dict):
+        """:method::navigator(navigable_dict)
+        Returns navigable_dictionary object which can be searched
+        against common navigation values in order to populate class
+        attributes.
+        """
         def _get_page(val):
             try:
                 return next(filter_dict(navigable_dict, 'rels', val))['href']
@@ -37,6 +60,9 @@ class Pager(object):
         return _get_page
 
     def update(self, result_dict):
+        """:method:`updated` upadtes all page attributes as well as `navigable` boolean
+        attribute.
+        """
         nav = list(qfind(result_dict, 'navigation'))
         if len(nav) > 1:
             self.navigable = True
@@ -50,21 +76,27 @@ class Pager(object):
     def __str__(self):
         return "<Pager for: {}>".format(self._current)
 
+    def __repr__(self):
+        return "<Pager for: {}>".format(self._current)
+
 
 class Client(object):
-    def __init__(self, entry_point, client_id, client_secret):
-        self.entry_point = entry_point
+    def __init__(self):  # , client_id, client_secret, entry_point):
+        # self.entry_point = entry_point
         self.pager = None
         self.recent_result = {}
-        self.connector = self._get_access(client_id, client_secret)
+        # self.connector = self._get_access(client_id, client_secret)
         self.history = []
         self.forward_stack = []
         self.current_page = None
 
+    def home(self):
+        self.get(self.entry_point)
+
     def _get_access(self, client_id, client_secret):
         resp = requests.get(self.entry_point)
         home_doc = resp.json()
-        # get_dict is fragile: sure you want to use it?
+        # get_dict is fragile, but we want to know if this urn is not present.
         auth_schema = get_dict(home_doc,
                                'rels',
                                "urn:collectiondoc:form:issuetoken")
@@ -111,10 +143,11 @@ class Client(object):
         will result in those stacks losing track.
         """
         result_set = self.connector.get(endpoint)
-        new_pager = Pager()
-        new_pager.update(result_set)
-        self.pager = new_pager
+        if self.pager is None:
+            self.pager = Pager()
+        self.pager.update(result_set)
         self.recent_result = result_set
+        return recent_result
 
     def get(self, endpoint):
         """
@@ -132,7 +165,7 @@ class Client(object):
             # our first request only should be None
             self.current_page = endpoint
             result_set = self._get(endpoint)
-        elif (self.history) > 1 and self.history[-1] == endpoint:
+        elif len(self.history) > 1 and self.history[-1] == endpoint:
             self.forward_stack.append(self.current_page)
             self.current_page = self.history.pop()
             result_set = self._get(self.current_page)
@@ -145,21 +178,21 @@ class Client(object):
 
     def next(self):
         if self.pager and self.pager.navigable:
-            if self.pager.__next is not None:
+            if self.pager._next is not None:
                 return self.get(self.pager._next)
 
     def prev(self):
         if self.pager and self.pager.navigable:
-            if self.pager.__prev is not None:
+            if self.pager._prev is not None:
                 return self.get(self.pager._prev)
 
     def last(self):
         if self.pager and self.pager.navigable:
-            if self.pager.__last is not None:
+            if self.pager._last is not None:
                 return self.get(self.pager._last)
 
     def first(self):
-        if self.pager and self.pager.__first is not None:
+        if self.pager and self.pager._first is not None:
             return self.get(self.pager._first)
 
     def back(self):
@@ -169,7 +202,7 @@ class Client(object):
             self.get(self.history[-1])
 
     def forward(self):
-        if len(self.forward_stacky) < 1:
+        if len(self.forward_stack) < 1:
             return
         else:
             self.get(self.history[-1])

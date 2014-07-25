@@ -129,14 +129,14 @@ class PmpAuth(object):
             if self.access_token is None:
                 raise NoToken("Access Token missing: {}".format(endpoint))
 
-            expiration = result.get('token_expires_in', None)
-            issue_time = result.get('token_issue_date', None)
-
-            expires = datetime.timedelta(seconds=expiration)
             time_format = "%Y-%m-%dT%H:%M:%S+00:00"
+            issue_time = result.get('token_issue_date', None)
             self.token_issued = datetime.datetime.strptime(issue_time,
-                                                       time_format)
-            self.token_expires = self.token_issued + expires
+                                                           time_format)
+
+            expiration = result.get('token_expires_in', None)
+            expires = datetime.timedelta(seconds=expiration)
+            self.token_expires = datetime.datetime.utcnow() + expires
             self.access_token_url = endpoint
 
             return self.access_token

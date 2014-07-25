@@ -32,7 +32,7 @@ class TestPmpConnector(TestCase):
         authorizer = Mock(**self.auth_vals)
         response = Mock(**attribs)
         session = Mock(**{'send.return_value': response,
-                               'prepare_request.return_value': self.signed_request})
+                          'prepare_request.return_value': self.signed_request})
         pconn = PmpConnector(authorizer)
         with patch.object(requests, 'Session', return_value=session) as mocker:
             self.assertEqual(pconn.get("http://www.google.com"), None)
