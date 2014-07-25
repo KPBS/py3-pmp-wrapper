@@ -1,3 +1,4 @@
+Build href-template module, program for creating easy templates from template-inputs
 Build tests for pmp_client.Client
 Build tests for pmp_client.Pager
 Work on serializing and deserializing values from a collection-doc
