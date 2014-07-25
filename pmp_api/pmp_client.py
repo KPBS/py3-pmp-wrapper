@@ -101,6 +101,7 @@ class Client(object):
         resp = requests.get(self.entry_point)
         home_doc = resp.json()
         # get_dict is fragile, but we want to know if this urn is not present.
+        # if not, we probably want to raise EmptyResponse exception
         auth_schema = get_dict(home_doc,
                                'rels',
                                "urn:collectiondoc:form:issuetoken")
