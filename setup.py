@@ -61,8 +61,8 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries"
         ],
     install_requires=[
-        "requests",
-        "six"
+        "requests>=2.2.1",
+        "six>=1.7.3"
     ],
     long_description = long_description
 )
