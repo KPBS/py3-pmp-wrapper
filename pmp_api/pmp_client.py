@@ -1,12 +1,13 @@
 """
-pmp_api.pmp_client module
-
-``Pager`` -- for keeping track of PMP navigation links
-``Client`` -- for easily making requests of PMP resources
+.. module:: pmp_api.pmp_client
+   :synopsis: Facilitates interaction with PMP API
 
 The Client module exists to facilitate making requests of the PMP API. It
 supports following navigation elements as well as 'forward' and 'back'
 functionality, similar to a browser.
+
+Includes :class:`Client <Client>`, for easily making requests of PMP resources,
+and :class:`Pager <Pager>` for keeping track of PMP navigation links.
 """
 
 import requests
@@ -14,7 +15,6 @@ import requests
 from .core.auth import PmpAuth
 from .core.conn import PmpConnector
 from .core.pmp_exceptions import NoToken
-from .query import make_query
 from .utils.json_utils import qfind
 from .utils.json_utils import filter_dict
 from .utils.json_utils import get_dict
@@ -22,10 +22,8 @@ from .utils.json_utils import get_dict
 
 class Pager(object):
     """The :class:`Pager <Pager>` object is for keeping track
-    of navigation values from a PMP Hypermedia object. This object
-    contains an :method update: method that looks for navigation
-    links and updates :class:`Pager <Pager>` attributes.
-    
+    of navigation values from a PMP Hypermedia object.
+
     Usage::
 
       >>> from pmp_api.pmp_client import Pager
@@ -53,7 +51,8 @@ class Pager(object):
         against common navigation values in order to populate class
         attributes.
 
-        :param navigable_dict: dicitionary (from JSON)
+        :param navigable_dict: dicitionary of JSON values
+        :type navigable_dict: dict
         """
         def _get_page(val):
             try:
@@ -63,10 +62,11 @@ class Pager(object):
         return _get_page
 
     def update(self, result_dict):
-        """:method:`updated` upadtes all page attributes as well as `navigable` boolean
-        attribute.
+        """:method::update(result_dict)
+        updates all page attributes as well as :attribute::navigable
+        boolean attribute.
 
-        :param result_dict: dicitionary (from JSON)
+        :param result_dict: dictionary (from JSON)
         """
         nav = list(qfind(result_dict, 'navigation'))
         if len(nav) > 1:
@@ -86,19 +86,52 @@ class Pager(object):
 
 
 class Client(object):
-    def __init__(self, client_id, client_secret, entry_point):
+    """The :class:`Client <Client>` object is a high-level interface for
+    requesting endpoints from the Public Media Platform API.
+
+    :class:`Client <Client>` objects can issue requests for endpoints
+    and will automatically sign all API requests. In addition, the
+    `Client` object has a number of helper methods, which should make
+    browsing easier.
+
+    Usage::
+
+      >>> from pmp_api.pmp_client import Client
+      >>> client = Client("https://some-protected.api.com")
+
+    We must request a token we can use for all future requests
+    and then we can browse the values returned by the endpoint::
+
+      >>> client.gain_access(CLIENT_ID, CLIENT_SECRET)
+      >>> client.get("https://some-protected.api.com/some-endpoint")
+      {key: val-returned-by-endpoint ...}
+      >>> client.next()
+      {key: "next-page-of-vals taken from 'next' in navigation" ...}
+
+    """
+
+    def __init__(self, entry_point):
+        """Args:
+        entry_point: URL that will serve as entry-point to the API
+        """
         self.entry_point = entry_point
         self.pager = None
         self.recent_result = {}
-        self.connector = self._get_access(client_id, client_secret)
         self.history = []
         self.forward_stack = []
         self.current_page = None
+        self.connector = None
 
     def home(self):
-        self.get(self.entry_point)
+        """Requests API home-doc `entry_point` and returns results.
+        """
+        return self.get(self.entry_point)
 
-    def _get_access(self, client_id, client_secret):
+    def gain_access(self, client_id, client_secret):
+        """Requests access for `entry_point` using provided authentication.
+        Finds the urn `urn:collectiondoc:form:issuetoken` and requests a
+        token using the protocol listed there.
+        """
         resp = requests.get(self.entry_point)
         home_doc = resp.json()
         # get_dict is fragile, but we want to know if this urn is not present.
@@ -112,42 +145,21 @@ class Client(object):
         try:
             authorizer.get_access_token2(access_token_url)
             self.connector = PmpConnector(authorizer)
-            return self.connector
         except NoToken:
-            print("No Token set. No requests without a token")
-            # RAISE SOME ERROR
-
-    def query_types(self, endpoint=None):
-        if endpoint is not None:
-            values = self.connector.get(endpoint)
-            self.last_result = values
-        else:
-            values = self.last_result
-
-        for item in qfind(values, 'rels'):
-            if 'title' in item:
-                yield item['title'], item['rels']
-            else:
-                yield item['rels']
-
-    def query_options(self, rel_type, endpoint=None):
-        if endpoint is not None:
-            values = self.connector.get(endpoint)
-            self.last_result = values
-        else:
-            values = self.last_result
-
-        options = get_dict(values, 'rels', rel_type)
-        return options
+            errmsg = "Client connection failed. Check entry_point or"
+            errmsg += " authentication schema used."
+            raise NoToken(errmsg)
 
     def _get(self, endpoint):
-        """
-        Lowever level _get has been separated so that it
-        can manage updating pager on each request.
+        """:method:: _get(endpoint)
+        Lowever level `_get` has been separated so that it
+        can make signed requests (using the `PmpConnector` object) and
+        so that it may update the pager on each request.
 
         This method knows nothing about the `history` and
-        `forward_stack` attributes and calling it directly
-        will result in those stacks losing track.
+        `forward_stack` attributes and calling `_get` directly
+        will result in those stacks losing track, which will make
+        `forward` and `back` useless.
         """
         result_set = self.connector.get(endpoint)
         if self.pager is None:
@@ -157,8 +169,7 @@ class Client(object):
         return self.recent_result
 
     def get(self, endpoint):
-        """
-        This method has been set-up to handle 'forward' and 'back'
+        """This method has been set-up to handle 'forward' and 'back'
         requests as well as navigation returned by a collection-doc,
         including 'next', 'prev', 'first', 'last'.
 
@@ -193,14 +204,14 @@ class Client(object):
             if self.pager._prev is not None:
                 return self.get(self.pager._prev)
 
+    def first(self):
+        if self.pager and self.pager._first is not None:
+            return self.get(self.pager._first)
+
     def last(self):
         if self.pager and self.pager.navigable:
             if self.pager._last is not None:
                 return self.get(self.pager._last)
-
-    def first(self):
-        if self.pager and self.pager._first is not None:
-            return self.get(self.pager._first)
 
     def back(self):
         if len(self.history) < 1:

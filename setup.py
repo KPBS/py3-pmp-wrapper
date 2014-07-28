@@ -39,7 +39,7 @@ setup(
     name = 'py3-pmp-wrapper',
     packages = ['pmp_api', 'pmp_api.core', 'pmp_api.utils'],
     version = find_version('pmp_api', '__init__.py'),
-    description = 'Wrapper Interface for Public Media Platform API',
+    description = 'Python3 Wrapper Interface for Public Media Platform API',
     author = 'Erik Aker',
     author_email = "eraker@gmail.org",
     url = "https://github.com/KPBS/py3-pmp-wrapper",
@@ -62,7 +62,8 @@ setup(
         ],
     install_requires=[
         "requests>=2.2.1",
-        "six>=1.7.3"
+        "six>=1.7.3",
+        "uritemplate"
     ],
     long_description = long_description
 )

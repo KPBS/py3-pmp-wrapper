@@ -8,6 +8,8 @@ def validate(template, var_dict):
 
 
 def make_query(template, var_dict):
+    if var_dict is None:
+        var_dict = {}
     if validate(template, var_dict):
         return expand(template, var_dict)
     else:
