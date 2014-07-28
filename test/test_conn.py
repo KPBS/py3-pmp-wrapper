@@ -4,8 +4,8 @@ from unittest.mock import Mock, patch
 import datetime
 import requests
 
-from pmp_api.core.pmp_exceptions import ExpiredToken
-from pmp_api.core.pmp_exceptions import EmptyResponse
+from pmp_api.core.exceptions import ExpiredToken
+from pmp_api.core.exceptions import EmptyResponse
 
 
 class TestPmpConnector(TestCase):

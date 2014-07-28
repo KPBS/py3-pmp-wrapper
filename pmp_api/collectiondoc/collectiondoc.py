@@ -1,6 +1,6 @@
 import uuid
 
-from .pmp_query import make_query
+from .query import make_query
 from .utils.json_utils import qfind
 from .utils.json_utils import filter_dict
 from .utils.json_utils import get_dict

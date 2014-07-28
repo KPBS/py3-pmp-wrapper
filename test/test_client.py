@@ -7,8 +7,8 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 
 from pmp_api.pmp_client import Client
-from pmp_api.core.pmp_exceptions import ExpiredToken
-from pmp_api.core.pmp_exceptions import EmptyResponse
+from pmp_api.core.exceptions import ExpiredToken
+from pmp_api.core.exceptions import EmptyResponse
 
 
 class TestPmpConnector(TestCase):

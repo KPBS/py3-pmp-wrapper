@@ -1,7 +1,7 @@
 import requests
 
-from .pmp_exceptions import EmptyResponse
-from .pmp_exceptions import ExpiredToken
+from .exceptions import EmptyResponse
+from .exceptions import ExpiredToken
 
 
 class PmpConnector(object):

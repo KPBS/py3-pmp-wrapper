@@ -9,9 +9,9 @@ import datetime
 import requests
 from base64 import b64encode
 
-from .pmp_exceptions import NoToken
-from .pmp_exceptions import ExpiredToken
-from .pmp_exceptions import BadRequest
+from .exceptions import NoToken
+from .exceptions import ExpiredToken
+from .exceptions import BadRequest
 
 
 class PmpAuth(object):
