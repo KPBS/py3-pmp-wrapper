@@ -12,11 +12,8 @@ import requests
 from .core.auth import PmpAuth
 from .core.conn import PmpConnector
 from .core.exceptions import NoToken
-from .collectiondoc.pager import Pager
+from .collectiondoc.navigabledoc import NavigableDoc
 from .utils.json_utils import get_dict
-
-# from .utils.json_utils import qfind
-# from .utils.json_utils import filter_dict
 
 
 class Client(object):
@@ -49,12 +46,12 @@ class Client(object):
         entry_point: URL that will serve as entry-point to the API
         """
         self.entry_point = entry_point
-        self.pager = None
-        self.recent_result = {}
         self.history = []
         self.forward_stack = []
         self.current_page = None
         self.connector = None
+        self.pager = None
+        self.document = None
 
     def home(self):
         """Requests API home-doc `entry_point` and returns results.
@@ -84,76 +81,76 @@ class Client(object):
             errmsg += " authentication schema used."
             raise NoToken(errmsg)
 
-    def _get(self, endpoint):
-        """:method:: _get(endpoint)
-        Lowever level `_get` has been separated so that it
-        can make signed requests (using the `PmpConnector` object) and
-        so that it may update the pager on each request.
-
-        This method knows nothing about the `history` and
-        `forward_stack` attributes and calling `_get` directly
-        will result in those stacks losing track, which will make
-        `forward` and `back` useless.
-        """
-        result_set = self.connector.get(endpoint)
-        if self.pager is None:
-            self.pager = Pager()
-        self.pager.update(result_set)
-        self.recent_result = result_set
-        return self.recent_result
-
     def get(self, endpoint):
-        """This method has been set-up to handle 'forward' and 'back'
-        requests as well as navigation returned by a collection-doc,
-        including 'next', 'prev', 'first', 'last'.
+        """Returns NavigableDoc object obtained from requested endpoint.
 
-        As a result, it has a lower-level `_get` method, which
-        updates the pager object that itself keeps track of
-        navigation, while this method updates the `history` and
-        `forward_stack` in order to be able to return those
-        values when a user wants to go "back" and "foward"
+        Uses the `connector` object to issue signed requests
+        Also, saves NavigableDoc object as `document` attribute.
+
+        Args:
+           endpoint -- url endpoint requested.
         """
         if self.current_page is None:
             # our first request only should be None
             self.current_page = endpoint
-            result_set = self._get(endpoint)
+            results = self._get(endpoint)
         elif len(self.history) > 1 and self.history[-1] == endpoint:
             self.forward_stack.append(self.current_page)
             self.current_page = self.history.pop()
-            result_set = self._get(self.current_page)
+            results = self._get(self.current_page)
         else:
             self.history.append(self.current_page)
             self.current_page = endpoint
-            result_set = self._get(endpoint)
+            results = self._get(endpoint)
 
-        return result_set
+        self.document = NavigableDoc(results)
+        self.pager = self.document.pager
+        return self.document
 
     def next(self):
-        if self.pager and self.pager.navigable:
-            if self.pager._next is not None:
-                return self.get(self.pager._next)
+        """Requests the `next` page listed by navigation. If
+        `next` is absent, it returns None.
+        """
+        if self.pager and self.result.pager.navigable:
+            if self.pager.next is not None:
+                return self.get(self.pager.next)
 
     def prev(self):
+        """Requests the `prev` page listed by page navigation. If
+        `prev` is absent, it returns None.
+        """
         if self.pager and self.pager.navigable:
-            if self.pager._prev is not None:
-                return self.get(self.pager._prev)
+            if self.pager.prev is not None:
+                return self.get(self.pager.prev)
 
     def first(self):
-        if self.pager and self.pager._first is not None:
-            return self.get(self.pager._first)
+        """Requests the `first` page listed by navigation. If
+        `first` is absent, it returns None.
+        """
+        if self.pager and self.pager.first is not None:
+            return self.get(self.pager.first)
 
     def last(self):
+        """Requests the `last` page listed by navigation. If
+        `last` is absent, it returns None.
+        """
         if self.pager and self.pager.navigable:
-            if self.pager._last is not None:
-                return self.get(self.pager._last)
+            if self.pager.last is not None:
+                return self.get(self.pager.last)
 
     def back(self):
+        """Works like a browser's `back` button. Does nothing
+        if this is used before any pages have been requested
+        """
         if len(self.history) < 1:
             return
         else:
             return self.get(self.history[-1])
 
     def forward(self):
+        """Works like a browser's `forward` button. Does nothing
+        if `back` has not been used.
+        """
         if len(self.forward_stack) < 1:
             return
         else:

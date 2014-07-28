@@ -20,11 +20,11 @@ class Pager(object):
 
     """
     def __init__(self):
-        self._prev = None
-        self._next = None
-        self._last = None
-        self._first = None
-        self._current = None
+        self.prev = None
+        self.next = None
+        self.last = None
+        self.first = None
+        self.current = None
         self.navigable = False
 
     def navigator(self, navigable_dict):
@@ -54,11 +54,11 @@ class Pager(object):
         if len(nav) > 1:
             self.navigable = True
             navigator = self.navigator(nav)
-            self._prev = navigator('prev')
-            self._next = navigator('next')
-            self._last = navigator('last')
-            self._first = navigator('first')
-            self._current = navigator('self')
+            self.prev = navigator('prev')
+            self.next = navigator('next')
+            self.last = navigator('last')
+            self.first = navigator('first')
+            self.current = navigator('self')
 
     def __str__(self):
         return "<Pager for: {}>".format(self._current)

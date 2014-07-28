@@ -21,8 +21,9 @@ home_doc.links            # all link relations
 home_doc.items            # item links, if available
 
 
-Build href-template module, program for creating easy templates from template-inputs
 Build tests for pmp_client.Client
 Build tests for pmp_client.Pager
+Build tests for json_utils
+Goal: Give a profile schema to a program and have it automatically serialize values. How?
 Work on serializing and deserializing values from a collection-doc
 Begin working on writing/editing, PUTtin documents into PMP

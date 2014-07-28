@@ -16,13 +16,13 @@ class TestPager(TestCase):
             self.docsdata = json.loads(d.read())
 
     def test_paging_home_doc(self):
-        from pmp_api.pmp_client import Pager
+        from pmp_api.collectiondoc.pager import Pager
         self.pager = Pager()
         self.pager.update(self.homedata)
         self.assertFalse(self.pager.navigable)
 
     def test_paging_docs_doc(self):
-        from pmp_api.pmp_client import Pager
+        from pmp_api.collectiondoc.pager import Pager
         self.pager = Pager()
         actual_vals = {'prev': 'https://api-pilot.pmp.io/docs?',
                        'next': 'https://api-pilot.pmp.io/docs?offset=20',
@@ -31,8 +31,8 @@ class TestPager(TestCase):
                        'current': 'https://api-pilot.pmp.io/docs?offset=10'}
         self.pager.update(self.docsdata)
         self.assertTrue(self.pager.navigable)
-        self.assertEqual(actual_vals['prev'], self.pager._prev)
-        self.assertEqual(actual_vals['next'], self.pager._next)
-        self.assertEqual(actual_vals['last'], self.pager._last)
-        self.assertEqual(actual_vals['first'], self.pager._first)
-        self.assertEqual(actual_vals['current'], self.pager._current)
+        self.assertEqual(actual_vals['prev'], self.pager.prev)
+        self.assertEqual(actual_vals['next'], self.pager.next)
+        self.assertEqual(actual_vals['last'], self.pager.last)
+        self.assertEqual(actual_vals['first'], self.pager.first)
+        self.assertEqual(actual_vals['current'], self.pager.current)
