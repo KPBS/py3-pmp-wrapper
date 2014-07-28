@@ -14,6 +14,7 @@ import requests
 from .core.auth import PmpAuth
 from .core.conn import PmpConnector
 from .core.pmp_exceptions import NoToken
+from .query import make_query
 from .utils.json_utils import qfind
 from .utils.json_utils import filter_dict
 from .utils.json_utils import get_dict
@@ -116,7 +117,7 @@ class Client(object):
             print("No Token set. No requests without a token")
             # RAISE SOME ERROR
 
-    def query_rel_types(self, endpoint=None):
+    def query_types(self, endpoint=None):
         if endpoint is not None:
             values = self.connector.get(endpoint)
             self.last_result = values
@@ -129,7 +130,7 @@ class Client(object):
             else:
                 yield item['rels']
 
-    def query_type_options(self, rel_type, endpoint=None):
+    def query_options(self, rel_type, endpoint=None):
         if endpoint is not None:
             values = self.connector.get(endpoint)
             self.last_result = values
