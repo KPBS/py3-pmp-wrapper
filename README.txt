@@ -1,6 +1,14 @@
-# py3-pmp-wrapper
+py3-pmp-wrapper
 
-An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The documentation for this application is located (!here!(almost ready)). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
+An application for interacting with the Public Media Platform (PMP) API. 
+
+This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. 
+
+The documentation for this application is located at 
+
+http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/ 
+
+To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 
 ## How to Query the PMP API

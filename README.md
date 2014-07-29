@@ -1,6 +1,6 @@
 # py3-pmp-wrapper
 
-An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located (!here!(almost ready)). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
+An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located [here](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 ## Installation
 
@@ -103,7 +103,7 @@ Finally, you can always retrieve *all* of the results inside a document by acess
 {ALL-The_Data ...}
 ```
 
-To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the documentation (LINK).
+To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the [documentation](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/).
 
 ## Lower Level requests of PMP API
 
