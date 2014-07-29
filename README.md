@@ -1,6 +1,6 @@
 # py3-pmp-wrapper
 
-An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The documentation for this application is located (!here!(almost ready)). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
+An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located (!here!(almost ready)). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 
 ## How to Query the PMP API
@@ -27,7 +27,7 @@ Now, we're ready to make requests of the PMP API:
 <Navigable Doc: https://Some/arbitrary/endpoint?params=someparam>
 ```
 
-The client will automatically sign all requests and it should renew your access token if and it expires. 
+The client will automatically sign all requests and it should renew your access token if it expires. 
 
 Most of the useful navigation is done via `urn`, the primary method for accessing content, and the `Client` object provides a number of ways to get information in response to a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
 
@@ -87,6 +87,13 @@ What if we want to know which `urn`s are listed at a particular endpoint? We mus
 ('Access documents', ['urn:collectiondoc:hreftpl:docs'])
 ('Query for documents', ['urn:collectiondoc:query:docs'])
 etc.
+```
+
+Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of all values contained in the document:
+
+```python
+>>> client.document.collectiondoc
+{ALL-The_Data ...}
 ```
 
 To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the documentation (LINK).
