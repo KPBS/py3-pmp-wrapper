@@ -2,9 +2,19 @@
 .. module:: pmp_api.pmp_client
    :synopsis: Facilitates interaction with PMP API
 
-The Client module exists to facilitate making requests of the PMP API. It
-supports following navigation elements as well as 'forward' and 'back'
-functionality, similar to a browser.
+The :class:`Client <Client>` object is one of two primary means for
+interacting directly with the PMP API. There are other classes and functions
+provided by the pmp_api package, but most functionality has been limited
+to the :class:`Client <Client>` object described herein and the
+:class:`NavigableDoc` class.
+
+A :class:`Client <Client>` object can make requests of PMP endpoints,
+it can request an access_token, and it follow navigation elements, including
+`next`, `prev`, `first, and `last`. Finally, the :class:`Client <Client>`
+object can also navigate 'forward' and 'back', similar to a browser.
+
+All results returned from PMP endpoints are returned as :class:`NavigableDoc`
+objects, so the API for :class:`NavigableDoc` is important to look at as well.
 """
 
 import requests
@@ -20,24 +30,23 @@ class Client(object):
     """The :class:`Client <Client>` object is a high-level interface for
     requesting endpoints from the Public Media Platform API.
 
-    :class:`Client <Client>` objects can issue requests for endpoints
+    :class:`Client <Client>` objects can requests endpoints
     and will automatically sign all API requests. In addition, the
-    `Client` object has a number of helper methods, which should make
-    browsing easier.
+    :class:`Client <Client>` object has a number of helper methods, which
+    should make browsing easier.
 
     Usage::
 
       >>> from pmp_api.pmp_client import Client
       >>> client = Client("https://some-protected.api.com")
 
-    We must request a token we can use for all future requests
-    and then we can browse the values returned by the endpoint::
+    We must request a token and then can browse the endpoint::
 
       >>> client.gain_access(CLIENT_ID, CLIENT_SECRET)
       >>> client.get("https://some-protected.api.com/some-endpoint")
-      {key: val-returned-by-endpoint ...}
+      <Navigable doc: https://some-protected.api.com/some-endpoint>
       >>> client.next()
-      {key: "next-page-of-vals taken from 'next' in navigation" ...}
+      <Navigable doc: https://some-protected.api.com/some-endpoint?NEXTPAGE>
 
     """
 
@@ -107,12 +116,10 @@ class Client(object):
         return self.document
 
     def query(self, rel_type, params=None):
+        """Issues request for a query using urn with params to create
+        a well-formed request.
+        """
         return self.get(self.document.query(rel_type, params=params))
-
-    def get_urn(self, rel_type):
-        if self.current_page is None:
-            self.get(self.entry_point)
-        self.document
 
     def home(self):
         """Requests API home-doc `entry_point` and returns results.

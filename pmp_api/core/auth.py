@@ -1,8 +1,9 @@
 """
-Module: `pmp_api.auth`
+.. module:: pmp_api.core.auth
+   :synopsis: Core authorization object for the application
 
-Authorization classes for signing Public Media Platform
-API requests.
+:class:`PmpAuth <PmpAuth>` classes may be used to sign all requests
+with PMP API and they can also generate and revoke access-tokens.
 """
 import six
 import datetime
@@ -15,14 +16,26 @@ from .exceptions import BadRequest
 
 
 class PmpAuth(object):
-    """
-    Authorization class for interacting with PMP API.
+    """This is the authorization class for interacting with PMP API.
 
-    With a working client-id and client-secret, the PmpAuth class works
-    to retrieve access tokens and it uses those tokens to  authenticate
+    With a working client-id and client-secret, the :class:`PmpAuth <PmpAuth>`
+    retrieves access tokens and it uses those tokens to  authenticate
     all requests made with the PMP API.
 
-    Must be instantiated with a working client_id/client_secret
+    Usage::
+        
+      >>> from pmp_api.core.auth import PmpAuth
+      >>> auth = PmpAuth(Client_ID, CLIENT_SECRET)
+      >>> auth.get_access_token(AUTH_TOKEN_ENDPOINT)
+      'ACCESS-TOKEN'
+
+
+    :class:`PmpAuth <PmpAuth>` objects must be instantiated with a working
+    client_id/client_secret
+
+    Args:
+    `client-id`
+    `client-secret`
 
     Methods:
 
@@ -45,13 +58,7 @@ class PmpAuth(object):
         self.access_token_url = None
 
     def _auth_header(self):
-        """Sign requests for PMP API as per PmpAuth specifications.
-
-        Arguments:
-        `request_object` -- instance of `requests.Request`
-
-        returns:
-        instance of `requests.Request` (signed)
+        """Returns Basic authorization headers as specified in PMP spec.
         """
         unencoded_sig = "{}:{}".format(self.client_id, self.client_secret)
         unencoded_sig = bytes(unencoded_sig, encoding="UTF-8")
@@ -66,13 +73,12 @@ class PmpAuth(object):
         return headers
 
     def delete_access_token(self, endpoint=None):
-        """
-        This method is likely unnecessary, but has been provided for
+        """This method is likely unnecessary, but has been provided for
         completeness as specified in the documentation.
 
         Deletes access token for this account.
 
-        returns: boolean value
+        returns: True|False
         """
         if self.access_token_url is None and endpoint is None:
             errmsg = "No access_token_url provided"
@@ -95,11 +101,9 @@ class PmpAuth(object):
         # This method works at the POST-to ('publish') server address as per
         # docs
         # See alternate get_access_token2 below
-        """
-        Method for retrieving an access token for use with PMP API
+        """Method for retrieving an access token for use with PMP API
 
-        See: https://github.com/publicmediaplatform/pmpdocs/ \
-        wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
+        See: https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
 
         returns:
         access_token
@@ -142,15 +146,14 @@ class PmpAuth(object):
         # curl -i "https://api-pilot.pmp.io/auth/access_token" -u \
         #     "clientid:clientsecret" -H \
         #     "Content-Type: application/x-www-form-urlencoded" -X POST
-        """Returns access_token. :method get_access_token2: takes
-        an *access_token_url* and requests an access token and parses
-        the response, setting attributes for the :class:`PmpAuth`
-        object as a result.
+        """Alternate access_token request method provided due to shifting spec.
+        Using an `access_token_url` this method requests an access token and 
+        parses the response object as a result.
 
-        See: https://github.com/publicmediaplatform/pmpdocs/ \
-        wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
+        See: https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
 
-        :param access_token_url: http string taken from PMP API Home-Doc
+        Args:
+           access_token_url: http string taken from PMP API Home-Doc
         """
         header = {"Content-Type": "application/x-www-form-urlencoded"}
         response = requests.post(access_token_url,
@@ -177,20 +180,15 @@ class PmpAuth(object):
             return self.access_token
 
     def sign_request(self, request_obj):
-        """
-        Provided with a requests.Request object, this method will sign a
-        request for the PMP API. It either takes a token passed in or
-        it will utilize the previously requested token and set as an
-        object attribute:
+        """Provided with a :class:requests.Request object, this method will sign a
+        request for the PMP API. Raises ExpiredToken if token has expired
+        before request has been made.
 
-        Arguments:
-        `request_object` -- instance of `requests.Request`
-
-        Keyword ArgumentsL
-        `token` -- Optional access token provided by PMP API
+        Args:
+           request_object -- instance of `requests.Request`
 
         returns:
-        instance of `requests.Request` (signed)
+           instance of `requests.Request` (signed)
         """
         now = datetime.datetime.utcnow()
         if self.access_token is None:
