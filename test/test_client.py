@@ -55,6 +55,7 @@ class TestPmpConnector(TestCase):
 
     def test_query(self):
         # test that query method actually requests proper query url
+        pass
         
     def test_next_requests_actual_next(self):
         # set up document/pager with pre-determined next
