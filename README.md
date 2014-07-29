@@ -29,7 +29,7 @@ Now, we're ready to make requests of the PMP API:
 
 The client will automatically sign all requests and it should renew your access token if and it expires. 
 
-Most of the useful navigation is done via `urn`, the primary method for accessing content, and the `pmp_api.pmp_client.Client` object provides a number of ways to get information in response to a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
+Most of the useful navigation is done via `urn`, the primary method for accessing content, and the `Client` object provides a number of ways to get information in response to a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
 
 ```python
 >>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
@@ -42,7 +42,7 @@ Most of the useful navigation is done via `urn`, the primary method for accessin
 >>>
 ```
 
-We can also go 'back' or `forward`, like a browser, re-requesting the previous document:
+We can also go `back` or `forward`, like a browser, re-requesting the previous document:
 
 ```python
 >>> client.back() 
@@ -51,7 +51,7 @@ We can also go 'back' or `forward`, like a browser, re-requesting the previous d
 
 ## What's this NavigableDoc object?
 
-To really get interesting information back, we need to have some way of managing it. For this reason, the `pmp_api.pmp_client.Client` object returns `pmp_api.collectiondoc.navigabledoc.NavigableDoc` elements. These have a number of methods and properties, which should make it easier to extract information from the document.
+To really get interesting information back, we need to have some way of managing it. For this reason, the `Client` object returns `NavigableDoc` elements. These have a number of methods and properties, which should make it easier to extract information from the document.
 
 ```python
 >>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
@@ -74,12 +74,13 @@ In order to get interesting results back, we generally want to issue queries, bu
 In addition, we can find options associated with the `urn`:
 ```python
 >>> client.document.options('urn:collectiondoc:query:docs')
+{'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
 ```
 
 What if we want to know which `urn`s are listed at a particular endpoint? We must ask the document for its query_types:
 
 ```python
->>> for item in client.document.options():
+>>> for item in client.document.query_types():
 ...     print(item)
 ('Query for users', ['urn:collectiondoc:query:users'])
 ('Query for schemas', ['urn:collectiondoc:query:schemas'])
@@ -88,11 +89,13 @@ What if we want to know which `urn`s are listed at a particular endpoint? We mus
 etc.
 ```
 
+To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the documentation (LINK).
+
 ## Lower Level requests of PMP API
 
-For most things, you can use the `pmp_client.Client` object, but there are lower-level objects in this application, and these can be used directly should have an application that needs finer control over authenticating or requesting results from the PMP API.
+For most things, you can use the `Client` object, but there are lower-level objects in this application, and these can be used directly should have an application that needs finer control over authenticating or requesting results from the PMP API.
 
-### Using a PmpAuth object to create an access token
+### Using a PmpAuth object to get an access token
 
 We will need a PmpAuth object to sign all of our requests of the PMP API, so create a new PmpAuth object:
 ```python
@@ -124,7 +127,9 @@ This method will automatically return the JSON returned by the endpoint. In addi
 
 ## Credentials
 
-The PMP API uses OAUTH2, which means that you need a client-id and client-secret in order to receive an access token and to use the application. A client-id/client-secret combination can be generated for your application by requesting one using your username/password. In order to request access, you must already have a username/password. Only the maintainers of PMP can issue a username/password. This application has been written and maintained by a third-party and neither this application nor the maintainers can issue username/password combinations.
+The PMP API uses OAUTH2, which means that you need a client-id and client-secret in order to receive an access token and to use the application.
+
+In order to request access, you must already have a username/password. Only the maintainers of PMP can issue a username/password. This application has been written and maintained by a third-party and neither this application nor the maintainers can issue username/password combinations.
 
 ### Generating Credentials
 
@@ -148,7 +153,7 @@ If you do not have a client_id/client_secret for your application, you can creat
 ```python
 >>> from pmp_api.core.access import PmpAccess
 >>> pmp_access = PmpAccess(username, password)
->>> pmp_access.generate_new_credentials(PMP_API_ENDPOINT_URL.io, LABEL)
+>>> pmp_access.generate_new_credentials(PMP_API_AUTHENTICATION_ENDPOINT, LABEL)
 (CLIENT_ID, CLIENT_SECRET, EXPIRATION)
 ```
 
