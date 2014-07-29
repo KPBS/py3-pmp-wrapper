@@ -3,9 +3,9 @@ from unittest.mock import Mock, patch
 import datetime
 import requests
 
-from pmp_api.core.pmp_exceptions import NoToken
-from pmp_api.core.pmp_exceptions import ExpiredToken
-from pmp_api.core.pmp_exceptions import BadRequest
+from pmp_api.core.exceptions import NoToken
+from pmp_api.core.exceptions import ExpiredToken
+from pmp_api.core.exceptions import BadRequest
 
 
 class TestPmpAccess(TestCase):

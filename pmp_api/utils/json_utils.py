@@ -14,48 +14,39 @@ class NoResult(Exception):
     pass
 
 
-def qfind(results, key):
-    """
+def qfind(json_dict, key):
+    """Return generator of dicts filtered from *json_dict* that contain *key*.
     Recursive method for finding nested dictionaries anywhere in a dictionary
     given a key which may or may not be in the dictionary.
 
-    Arguments:
-    results -- dictionary (could be nested)
-    key -- dictionary key :: string that is searched for
-
-    returns:
-    generator of objects that contain the key
+    :param json_dict: dictionary (could be nested with lists/dicts inside)
+    :param key: string (JSON object key)
     """
-    if isinstance(results, list):
-        for item in results:
+    if isinstance(json_dict, list):
+        for item in json_dict:
             yield from qfind(item, key)
-    elif isinstance(results, dict):
-        if key in results and isinstance(results[key], dict):
-            yield results
-            yield from qfind(results[key], key)
-        elif key in results:
-            yield results
-        elif isinstance(results, dict):
-            for k in results:
-                yield from qfind(results[k], key)
+    elif isinstance(json_dict, dict):
+        if key in json_dict and isinstance(json_dict[key], dict):
+            yield json_dict
+            yield from qfind(json_dict[key], key)
+        elif key in json_dict:
+            yield json_dict
+        elif isinstance(json_dict, dict):
+            for k in json_dict:
+                yield from qfind(json_dict[k], key)
 
 
-def filter_dict(results, key, val):
+def filter_dict(json_dict, key, val):
+    """Returns a filter iterator from *json_dict* where results contain
+    *key* - *val* matches. Relies on qfind method to search out a particular
+    value inside the dictionary, so it works on nested dictionaries.
+
+    :param json_dict: dictionary or list of dictionaries (from JSON)
+    :param key: string value to search for inside *json_dict*
+    :param val: value search for either *inside* value from key or
+    exactly matching value.
     """
-    Relies on qfind method to search out a particular value
-    inside the dictionary. Not as efficient as `get_dict_from_unique_val`
-    but works if you don't know the keys (in order) needed to find the
-    values you are looking for.
-
-    Arguments:
-    results -- dictionary or list of dictionaries
-    key -- key::string that gets val searched for
-    val -- value::string searched for
-
-    returns:
-    filter object of results
-    """
-    qresults = qfind(results, key)
+    qjson_dict = qfind(json_dict, key)
 
     def filterfunc(somedict):
         if key in somedict and val in somedict[key]:
@@ -63,13 +54,16 @@ def filter_dict(results, key, val):
         elif key in somedict and somedict[key] == val:
             return True
         return False
-    return filter(filterfunc, qresults)
+    return filter(filterfunc, qjson_dict)
 
 
 def returnfirst(func):
-    """
-    This decorator drops all results but the first from a generator
-    object.
+    """:decorator returnfirst:: returnfirst(func)
+
+    Return decorator that strips out all but the first result value from the
+    function's invocation. Not safe if results are not guaranteed to appear.
+
+    :params func: function that returns multiple results.
     """
     def inner(*args, **kwargs):
         try:
@@ -82,5 +76,13 @@ def returnfirst(func):
 
 
 @returnfirst
-def get_dict(results, key, val):
-    return filter_dict(results, key, val)
+def get_dict(json_dict, key, val):
+    """Returns first dictionary that matches *key* - *val*
+    search. Unsafe if results are not guaranteed to appear.
+
+    :param json_dict: dictionary or list of dictionaries (from JSON)
+    :param key: string value to search for inside *json_dict*
+    :param val: value search for either *inside* value from key or
+    exactly matching value.
+    """
+    return filter_dict(json_dict, key, val)
