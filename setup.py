@@ -37,7 +37,10 @@ class Tox(TestCommand):
 
 setup(
     name = 'py3-pmp-wrapper',
-    packages = ['pmp_api', 'pmp_api.core', 'pmp_api.utils'],
+    packages = ['pmp_api', 
+                'pmp_api.core', 
+                'pmp_api.collectiondoc', 
+                'pmp_api.utils'],
     version = find_version('pmp_api', '__init__.py'),
     description = 'Python3 Wrapper Interface for Public Media Platform API',
     author = 'Erik Aker',

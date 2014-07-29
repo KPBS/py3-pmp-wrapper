@@ -1,8 +1,10 @@
 """
-Module: `pmp_api.access`
 
-Access classes for manageing Public Media Platform credentials
-API requests.
+.. module:: pmp_api.core.access
+   :synopsis: For managing application credentials
+
+The :class:`PmpAccess <PmpAccess>` object can generate and revoke credentials
+(client-id, client-secret) for use with PMP API.
 """
 import requests
 
@@ -11,8 +13,7 @@ from .exceptions import BadRequest
 
 class PmpAccess(object):
     """Access class for Public Media Platform credentials.
-    See: https://github.com/publicmediaplatform/pmpdocs/\
-    wiki/Authenticating-with-the-API
+    See: https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API
 
     Requires a username/password combination approved for use in the PMP Api.
 
@@ -39,11 +40,11 @@ class PmpAccess(object):
         can also be generated with a curl post to the PMP
         Auth endpoint with the proper parameters (see auth link from docs)
 
-        Arguments:
+        Args:
         `endpoint` -- url to query for credentials
         `label` -- User-set label for credentials
 
-        Keyword Arguments:
+        Kwargs:
         `scope` -- read || write permissions for PMP access. Default: "read"
         `token_expiry` -- expiration for PMP credentials. Default: "2000000"
 

@@ -1,3 +1,11 @@
+"""
+.. module:: pmp_api.collectiondoc.pager
+   :synopsis: contains :class:`Pager <Pager>` for collectiondoc navigation.
+
+The :class:`Pager <Pager>` class is for easily following navigation elements
+returned by collection+doc.json documents.
+"""
+
 from ..utils.json_utils import qfind
 from ..utils.json_utils import filter_dict
 
@@ -28,8 +36,7 @@ class Pager(object):
         self.navigable = False
 
     def navigator(self, navigable_dict):
-        """:method::navigator(navigable_dict)
-        Returns navigable_dictionary object which can be searched
+        """Returns navigable_dictionary object which can be searched
         against common navigation values in order to populate class
         attributes.
 
@@ -44,8 +51,7 @@ class Pager(object):
         return _get_page
 
     def update(self, result_dict):
-        """:method::update(result_dict)
-        updates all page attributes as well as :attribute::navigable
+        """Updates all page attributes as well as :attribute::navigable
         boolean attribute.
 
         :param result_dict: dictionary (from JSON)

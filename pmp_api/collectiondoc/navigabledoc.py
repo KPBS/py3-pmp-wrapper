@@ -1,6 +1,6 @@
 """
-.. module:: pmp_api.collectiondoc.collectiondoc
-   :synopsis: Creates an interactive collection doc object
+.. module:: pmp_api.collectiondoc.navigabledoc
+   :synopsis: Creates an interactive NavigableDoc object
    from API results.
 """
 
@@ -11,6 +11,8 @@ from ..utils.json_utils import get_dict
 
 
 class NavigableDoc(object):
+    """
+    """
 
     def __init__(self, collection_result):
         self.collectiondoc = collection_result
@@ -28,6 +30,8 @@ class NavigableDoc(object):
         """Returns constructed url with query parameters for urn
         type requested. To see which params are expected first
         run `query_template(rel_type)`.
+
+        Raises BadQuery if params are not valid.
 
         Args:
            rel_type -- urn type we want to query
@@ -53,13 +57,15 @@ class NavigableDoc(object):
                 yield item['rels']
 
     def options(self, rel_type):
-        """Dictionary of query_options for particular query type.
+        """Returns dictionary of query_options for particular query type.
+        Raises Exception if `rel_type` is not found.
         """
         options = get_dict(self.collectiondoc, 'rels', rel_type)
         return options
 
     def template(self, rel_type):
         """Query_template for particular query type.
+        Raises Exception if `rel_type` is not found.
         """
         return self.options(rel_type).get('href-template', None)
 
@@ -79,12 +85,7 @@ class NavigableDoc(object):
 
     @property
     def querylinks(self):
+        """All items associated with `query` key of `links`
+        """
         if self.links:
             return self.links.get('query', None)
-
-# def new(uri, my_auth):
-#     new_doc = CollectionDoc(uri, my_auth)
-#     new_doc.guid =new_doc.attributes["guid"] = str(uuid4())
-#     #new_doc.attributes["guid"] = str(uuid4())
-
-#     return new_doc

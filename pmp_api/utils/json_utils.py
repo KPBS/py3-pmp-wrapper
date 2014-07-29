@@ -1,7 +1,9 @@
-"""JSON utilities module:
+"""
+.. module:: pmp_api.utils.json_utils
+   :synopsis: Utilities for parsing PMP JSON values
 
-This module includes functions for parsing nested
-dictionaries returned from JSON.
+This module includes functions for parsing nested dictionaries returned
+by the PMP API
 """
 from itertools import dropwhile
 
@@ -15,12 +17,13 @@ class NoResult(Exception):
 
 
 def qfind(json_dict, key):
-    """Return generator of dicts filtered from *json_dict* that contain *key*.
+    """Return generator of dicts filtered from `json_dict` that contain `key`.
     Recursive method for finding nested dictionaries anywhere in a dictionary
     given a key which may or may not be in the dictionary.
 
-    :param json_dict: dictionary (could be nested with lists/dicts inside)
-    :param key: string (JSON object key)
+    Args:
+       `json_dict` -- JSON dictionary.
+       `key` -- Key we are searching for.
     """
     if isinstance(json_dict, list):
         for item in json_dict:
@@ -37,14 +40,14 @@ def qfind(json_dict, key):
 
 
 def filter_dict(json_dict, key, val):
-    """Returns a filter iterator from *json_dict* where results contain
-    *key* - *val* matches. Relies on qfind method to search out a particular
+    """Returns a filter iterator from `json_dict` where results contain
+    `key` - `val` matches. Relies on qfind method to search out a particular
     value inside the dictionary, so it works on nested dictionaries.
 
-    :param json_dict: dictionary or list of dictionaries (from JSON)
-    :param key: string value to search for inside *json_dict*
-    :param val: value search for either *inside* value from key or
-    exactly matching value.
+    Args:
+       `json_dict` -- JSON dictionary.
+       `key` -- Key we are searching for.
+       `val` -- Value that should explicitly match the key searched for.
     """
     qjson_dict = qfind(json_dict, key)
 
@@ -58,12 +61,11 @@ def filter_dict(json_dict, key, val):
 
 
 def returnfirst(func):
-    """:decorator returnfirst:: returnfirst(func)
+    """Decorator for retrieving the first value of any function that returns
+    multiple values or an iterator with more than one value.
 
-    Return decorator that strips out all but the first result value from the
-    function's invocation. Not safe if results are not guaranteed to appear.
-
-    :params func: function that returns multiple results.
+    Args:
+       `func` -- function that returns iterator
     """
     def inner(*args, **kwargs):
         try:
@@ -77,12 +79,12 @@ def returnfirst(func):
 
 @returnfirst
 def get_dict(json_dict, key, val):
-    """Returns first dictionary that matches *key* - *val*
+    """Returns first dictionary that matches `key` - `val`
     search. Unsafe if results are not guaranteed to appear.
 
-    :param json_dict: dictionary or list of dictionaries (from JSON)
-    :param key: string value to search for inside *json_dict*
-    :param val: value search for either *inside* value from key or
-    exactly matching value.
+    Args:
+       `json_dict` -- JSON dictionary.
+       `key` -- Key we are searching for.
+       `val` -- Value that should explicitly match the key searched for.
     """
     return filter_dict(json_dict, key, val)
