@@ -1,8 +1,6 @@
 """
-pmp_api.pmp_client module
-
-`Pager` -- for keeping track of PMP navigation links
-`Client` -- for easily making requests of PMP resources
+.. module:: pmp_api.pmp_client
+   :synopsis: Facilitates interaction with PMP API
 
 The Client module exists to facilitate making requests of the PMP API. It
 supports following navigation elements as well as 'forward' and 'back'
@@ -13,163 +11,159 @@ import requests
 
 from .core.auth import PmpAuth
 from .core.conn import PmpConnector
-from .core.pmp_exceptions import NoToken
-from .utils.json_utils import qfind
-from .utils.json_utils import filter_dict
+from .core.exceptions import NoToken
+from .collectiondoc.navigabledoc import NavigableDoc
 from .utils.json_utils import get_dict
 
 
-class Pager(object):
-    def __init__(self):
-        self._prev = None
-        self._next = None
-        self._last = None
-        self._first = None
-        self._current = None
-        self.navigable = False
-
-    def navigator(self, navigable_dict):
-        def _get_page(val):
-            try:
-                return next(filter_dict(navigable_dict, 'rels', val))['href']
-            except StopIteration:
-                return None
-        return _get_page
-
-    def update(self, result_dict):
-        nav = list(qfind(result_dict, 'navigation'))
-        if len(nav) > 1:
-            self.navigable = True
-            navigator = self.navigator(nav)
-            self._prev = navigator('prev')
-            self._next = navigator('next')
-            self._last = navigator('last')
-            self._first = navigator('first')
-            self._current = navigator('self')
-
-    def __str__(self):
-        return "<Pager for: {}>".format(self._current)
-
-
 class Client(object):
-    def __init__(self, entry_point, client_id, client_secret):
+    """The :class:`Client <Client>` object is a high-level interface for
+    requesting endpoints from the Public Media Platform API.
+
+    :class:`Client <Client>` objects can issue requests for endpoints
+    and will automatically sign all API requests. In addition, the
+    `Client` object has a number of helper methods, which should make
+    browsing easier.
+
+    Usage::
+
+      >>> from pmp_api.pmp_client import Client
+      >>> client = Client("https://some-protected.api.com")
+
+    We must request a token we can use for all future requests
+    and then we can browse the values returned by the endpoint::
+
+      >>> client.gain_access(CLIENT_ID, CLIENT_SECRET)
+      >>> client.get("https://some-protected.api.com/some-endpoint")
+      {key: val-returned-by-endpoint ...}
+      >>> client.next()
+      {key: "next-page-of-vals taken from 'next' in navigation" ...}
+
+    """
+
+    def __init__(self, entry_point):
+        """Args:
+        entry_point: URL that will serve as entry-point to the API
+        """
         self.entry_point = entry_point
-        self.pager = None
-        self.recent_result = {}
-        self.connector = self._get_access(client_id, client_secret)
         self.history = []
         self.forward_stack = []
         self.current_page = None
+        self.connector = None
+        self.pager = None
+        self.document = None
 
-    def _get_access(self, client_id, client_secret):
+    def gain_access(self, client_id, client_secret):
+        """Requests access for `entry_point` using provided authentication.
+        Finds the urn `urn:collectiondoc:form:issuetoken` and requests a
+        token using the protocol listed there.
+        """
         resp = requests.get(self.entry_point)
         home_doc = resp.json()
-        # get_dict is fragile: sure you want to use it?
+        # get_dict is fragile, but we want to know if this urn is not present.
+        # if not, we probably want to raise EmptyResponse exception, which will
+        # be raised by the function itself.
         auth_schema = get_dict(home_doc,
                                'rels',
                                "urn:collectiondoc:form:issuetoken")
         access_token_url = auth_schema.get('href', None)
         authorizer = PmpAuth(client_id, client_secret)
         try:
-            authorizer.get_access_token(access_token_url)
+            authorizer.get_access_token2(access_token_url)
             self.connector = PmpConnector(authorizer)
-            return self.connector
         except NoToken:
-            print("No Token set. No requests without a token")
-            # RAISE SOME ERROR
-
-    def query_rel_types(self, endpoint=None):
-        if endpoint is not None:
-            values = self.connector.get(endpoint)
-            self.last_result = values
-        else:
-            values = self.last_result
-
-        for item in qfind(values, 'rels'):
-            if 'title' in item:
-                yield item['title'], item['rels']
-            else:
-                yield item['rels']
-
-    def query_type_options(self, rel_type, endpoint=None):
-        if endpoint is not None:
-            values = self.connector.get(endpoint)
-            self.last_result = values
-        else:
-            values = self.last_result
-
-        options = get_dict(values, 'rels', rel_type)
-        return options
-
-    def _get(self, endpoint):
-        """
-        Lowever level _get has been separated so that it
-        can manage updating pager on each request.
-
-        This method knows nothing about the `history` and
-        `forward_stack` attributes and calling it directly
-        will result in those stacks losing track.
-        """
-        result_set = self.connector.get(endpoint)
-        new_pager = Pager()
-        new_pager.update(result_set)
-        self.pager = new_pager
-        self.recent_result = result_set
+            errmsg = "Client connection failed. Check entry_point or"
+            errmsg += " authentication schema used."
+            raise NoToken(errmsg)
 
     def get(self, endpoint):
-        """
-        This method has been set-up to handle 'forward' and 'back'
-        requests as well as navigation returned by a collection-doc,
-        including 'next', 'prev', 'first', 'last'.
+        """Returns NavigableDoc object obtained from requested endpoint.
 
-        As a result, it has a lower-level `_get` method, which
-        updates the pager object that itself keeps track of
-        navigation, while this method updates the `history` and
-        `forward_stack` in order to be able to return those
-        values when a user wants to go "back" and "foward"
+        Uses the `connector` object to issue signed requests
+        Also, saves NavigableDoc object as `document` attribute.
+
+        Args:
+           endpoint -- url endpoint requested.
         """
+        if self.connector is None:
+            errmsg = "Need access token before making requests."
+            errmsg += " Call `gain_access`"
+            raise NoToken(errmsg)
         if self.current_page is None:
             # our first request only should be None
             self.current_page = endpoint
-            result_set = self._get(endpoint)
-        elif (self.history) > 1 and self.history[-1] == endpoint:
+            results = self.connector.get(endpoint)
+        elif len(self.history) > 1 and self.history[-1] == endpoint:
             self.forward_stack.append(self.current_page)
             self.current_page = self.history.pop()
-            result_set = self._get(self.current_page)
+            results = self.connector.get(self.current_page)
         else:
             self.history.append(self.current_page)
             self.current_page = endpoint
-            result_set = self._get(endpoint)
+            results = self.connector.get(endpoint)
 
-        return result_set
+        self.document = NavigableDoc(results)
+        self.pager = self.document.pager
+        return self.document
+
+    def query(self, rel_type, params=None):
+        return self.get(self.document.query(rel_type, params=params))
+
+    def get_urn(self, rel_type):
+        if self.current_page is None:
+            self.get(self.entry_point)
+        self.document
+
+    def home(self):
+        """Requests API home-doc `entry_point` and returns results.
+        """
+        return self.get(self.entry_point)
 
     def next(self):
+        """Requests the `next` page listed by navigation. If
+        `next` is absent, it returns None.
+        """
         if self.pager and self.pager.navigable:
-            if self.pager.__next is not None:
-                return self.get(self.pager._next)
+            if self.pager.next is not None:
+                return self.get(self.pager.next)
 
     def prev(self):
+        """Requests the `prev` page listed by page navigation. If
+        `prev` is absent, it returns None.
+        """
         if self.pager and self.pager.navigable:
-            if self.pager.__prev is not None:
-                return self.get(self.pager._prev)
-
-    def last(self):
-        if self.pager and self.pager.navigable:
-            if self.pager.__last is not None:
-                return self.get(self.pager._last)
+            if self.pager.prev is not None:
+                return self.get(self.pager.prev)
 
     def first(self):
-        if self.pager and self.pager.__first is not None:
-            return self.get(self.pager._first)
+        """Requests the `first` page listed by navigation. If
+        `first` is absent, it returns None.
+        """
+        if self.pager and self.pager.first is not None:
+            return self.get(self.pager.first)
+
+    def last(self):
+        """Requests the `last` page listed by navigation. If
+        `last` is absent, it returns None.
+        """
+        if self.pager and self.pager.navigable:
+            if self.pager.last is not None:
+                return self.get(self.pager.last)
 
     def back(self):
+        """Works like a browser's `back` button. Does nothing
+        if this is used before any pages have been requested
+        """
         if len(self.history) < 1:
             return
         else:
-            self.get(self.history[-1])
+            return self.get(self.history[-1])
 
     def forward(self):
-        if len(self.forward_stacky) < 1:
+        """Works like a browser's `forward` button. Does nothing
+        if `back` has not been used.
+        """
+        if len(self.forward_stack) < 1:
             return
         else:
-            self.get(self.history[-1])
+            return self.get(self.history[-1])

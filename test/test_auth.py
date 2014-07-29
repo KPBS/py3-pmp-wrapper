@@ -1,11 +1,12 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
+
 import datetime
 import requests
 
-from pmp_api.core.pmp_exceptions import NoToken
-from pmp_api.core.pmp_exceptions import ExpiredToken
-from pmp_api.core.pmp_exceptions import BadRequest
+from pmp_api.core.exceptions import NoToken
+from pmp_api.core.exceptions import ExpiredToken
+from pmp_api.core.exceptions import BadRequest
 
 
 class TestPmpAuthRequestSigning(TestCase):
@@ -49,16 +50,14 @@ class PmpAuthTestGetToken(TestCase):
         self.authorizer = PmpAuth('client-id', 'client-secret')
         self.test_url = "http://www.google.com"
         self.time_format = "%Y-%m-%dT%H:%M:%S+00:00"
-
+        self.token = 'bd50df0000000000'
+        # Setting up mock times and expiration times
         self.delta = datetime.timedelta(hours=4)
-        # Issued is 4 hours back; expiry is 4 hours ahead. Total delta: 8 hours
-        self.expiration_duration = int(self.delta.seconds) + int(self.delta.seconds)
-        self.token_expires = datetime.datetime.utcnow() + self.delta
-        self.token_expires = self.token_expires.replace(microsecond=0)
-
+        self.expiry = int(self.delta.seconds)
+        token_expires = datetime.datetime.utcnow() + self.delta
+        self.token_expires = token_expires.replace(microsecond=0)
         issued = datetime.datetime.utcnow() - self.delta
         self.token_issued = issued.replace(microsecond=0)
-        self.token = 'bd50df0000000000'
 
     def test_auth_headers(self):
         headers = self.authorizer._auth_header()
@@ -81,7 +80,7 @@ class PmpAuthTestGetToken(TestCase):
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
         test_vals = {'access_token': self.token,
-                     'token_expires_in':  self.expiration_duration,
+                     'token_expires_in':  self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
@@ -95,7 +94,7 @@ class PmpAuthTestGetToken(TestCase):
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
         test_vals = {'access_token': self.token,
-                     'token_expires_in':  self.expiration_duration,
+                     'token_expires_in':  self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
@@ -110,7 +109,7 @@ class PmpAuthTestGetToken(TestCase):
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
         test_vals = {'access_token': self.token,
-                     'token_expires_in':  self.expiration_duration,
+                     'token_expires_in':  self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
@@ -128,7 +127,7 @@ class PmpAuthTestGetToken(TestCase):
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
         test_vals = {'access_token': self.token,
-                     'token_expires_in':  self.expiration_duration,
+                     'token_expires_in':  self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
@@ -142,14 +141,15 @@ class PmpAuthTestGetToken(TestCase):
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
         test_vals = {'access_token': self.token,
-                     'token_expires_in':  self.expiration_duration,
+                     'token_expires_in':  self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
         response = Mock(**response_vals)
         with patch.object(requests, 'post', return_value=response) as mocker:
             self.authorizer.get_access_token()
-            self.assertEqual(self.authorizer.token_expires, self.token_expires)
+            self.assertEqual(self.authorizer.token_expires.replace(microsecond=0),
+                             self.token_expires)
 
     def test_get_token_vals_access_token(self):
         self.authorizer.access_token_url = "http://www.google.com"
@@ -157,7 +157,7 @@ class PmpAuthTestGetToken(TestCase):
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
         test_vals = {'access_token': self.token,
-                     'token_expires_in':  self.expiration_duration,
+                     'token_expires_in':  self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
@@ -171,7 +171,7 @@ class PmpAuthTestGetToken(TestCase):
         self.authorizer.access_token_url = "http://www.google.com"
         issued = datetime.datetime.strftime(self.token_issued,
                                             self.time_format)
-        test_vals = {'token_expires_in': self.expiration_duration,
+        test_vals = {'token_expires_in': self.expiry,
                      'token_issue_date': issued}
         response_vals = {'ok': True,
                          'json.return_value': test_vals}
@@ -211,3 +211,94 @@ class PmpAuthTestGetToken(TestCase):
         with patch.object(requests, 'delete', return_value=response) as mocker:
             with self.assertRaises(BadRequest):
                 self.authorizer.delete_access_token()
+
+    # Test get_access_token2 tests are below. #
+    def test_get_token2(self):
+        token_url = "http://www.google.com"
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'access_token': self.token,
+                     'token_expires_in':  self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': True,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            self.authorizer.get_access_token2(token_url)
+            self.assertEqual(self.authorizer.access_token, self.token)
+
+    def test_get_token2_post_called_with(self):
+        token_url = "http://www.google.com"
+        self.authorizer.access_token = self.token
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'access_token': self.token,
+                     'token_expires_in':  self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': True,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            self.authorizer.get_access_token2(token_url)
+            mocker.assert_called_with("http://www.google.com",
+                                      auth=('client-id', 'client-secret'),
+                                      headers=headers)
+
+    def test_get_token2_vals_issued(self):
+        token_url = "http://www.google.com"
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'access_token': self.token,
+                     'token_expires_in':  self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': True,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            self.authorizer.get_access_token2(token_url)
+            self.assertEqual(self.authorizer.token_issued, self.token_issued)
+
+    def test_get_token2_vals_expiration(self):
+        token_url = "http://www.google.com"
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'access_token': self.token,
+                     'token_expires_in':  self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': True,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            self.authorizer.get_access_token2(token_url)
+            self.assertEqual(self.authorizer.token_expires.replace(microsecond=0),
+                             self.token_expires)
+
+    def test_get_token2_vals_access_token(self):
+        token_url = "http://www.google.com"
+        self.authorizer.access_token = self.token
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'access_token': self.token,
+                     'token_expires_in':  self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': True,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            received_token = self.authorizer.get_access_token2(token_url)
+            self.assertEqual(self.authorizer.access_token, self.token)
+            self.assertEqual(received_token, self.token)
+
+    def test_get_token2_missing_token(self):
+        token_url = "http://www.google.com"
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'token_expires_in': self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': True,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            with self.assertRaises(NoToken):
+                self.authorizer.get_access_token2(token_url)

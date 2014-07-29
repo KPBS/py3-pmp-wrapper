@@ -6,7 +6,7 @@ API requests.
 """
 import requests
 
-from .pmp_exceptions import BadRequest
+from .exceptions import BadRequest
 
 
 class PmpAccess(object):
@@ -92,4 +92,3 @@ class PmpAccess(object):
             errmsg = "Improper status code returned (should be 204,"
             errmsg += " according to PMP Auth Documentation). Endpoint:{}"
             raise BadRequest(errmsg.format(endpoint))
-

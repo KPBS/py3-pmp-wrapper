@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 import os
@@ -31,7 +31,7 @@ class Tox(TestCommand):
         self.test_suite = True
     def run_tests(self):
         #import here, cause outside the eggs aren't loaded
-        import tox
+        import nose
         errcode = tox.cmdline(self.test_args)
         sys.exit(errcode)
 
@@ -39,19 +39,19 @@ setup(
     name = 'py3-pmp-wrapper',
     packages = ['pmp_api', 'pmp_api.core', 'pmp_api.utils'],
     version = find_version('pmp_api', '__init__.py'),
-    description = 'Wrapper Interface for Public Media Platform API',
+    description = 'Python3 Wrapper Interface for Public Media Platform API',
     author = 'Erik Aker',
     author_email = "eraker@gmail.org",
     url = "https://github.com/KPBS/py3-pmp-wrapper",
     license = "GNU General Public License v2",
     download_url = "https://github.com/KPBS/py3-pmp-wrapper.git",
     keywords = ["pmp", "hateoas"],
-    tests_require=['tox','nose', 'mock', 'coverage'],
+    tests_require=['tox','nose', 'coverage'],
     cmdclass = {'test': Tox},
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Development Status :: 1 - Alpha",
+        "Development Status :: 3 - Alpha",
         "Environment :: Other Environment",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
@@ -62,7 +62,8 @@ setup(
         ],
     install_requires=[
         "requests>=2.2.1",
-        "six>=1.7.3"
+        "six>=1.7.3",
+        "uritemplate"
     ],
     long_description = long_description
 )

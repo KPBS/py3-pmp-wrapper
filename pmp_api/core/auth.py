@@ -9,9 +9,9 @@ import datetime
 import requests
 from base64 import b64encode
 
-from .pmp_exceptions import NoToken
-from .pmp_exceptions import ExpiredToken
-from .pmp_exceptions import BadRequest
+from .exceptions import NoToken
+from .exceptions import ExpiredToken
+from .exceptions import BadRequest
 
 
 class PmpAuth(object):
@@ -91,15 +91,10 @@ class PmpAuth(object):
             return False
 
     def get_access_token(self, endpoint=None):
-        # Pending documentation, this may change.
+        # Pending documentation, this may become deprecated.
         # This method works at the POST-to ('publish') server address as per
         # docs
-        # However, it does not work at the standard url given by home-doc
-        # For that, we must use the simpler example here:
-        # curl -i "https://api-pilot.pmp.io/auth/access_token" -u \
-        #     "clientid:clientsecret" -H \
-        #     "Content-Type: application/x-www-form-urlencoded" -X POST
-
+        # See alternate get_access_token2 below
         """
         Method for retrieving an access token for use with PMP API
 
@@ -129,15 +124,55 @@ class PmpAuth(object):
             if self.access_token is None:
                 raise NoToken("Access Token missing: {}".format(endpoint))
 
-            expiration = result.get('token_expires_in', None)
-            issue_time = result.get('token_issue_date', None)
-
-            expires = datetime.timedelta(seconds=expiration)
             time_format = "%Y-%m-%dT%H:%M:%S+00:00"
+            issue_time = result.get('token_issue_date', None)
             self.token_issued = datetime.datetime.strptime(issue_time,
-                                                       time_format)
-            self.token_expires = self.token_issued + expires
+                                                           time_format)
+
+            expiration = result.get('token_expires_in', None)
+            expires = datetime.timedelta(seconds=expiration)
+            self.token_expires = datetime.datetime.utcnow() + expires
             self.access_token_url = endpoint
+
+            return self.access_token
+
+    def get_access_token2(self, access_token_url):
+        # For the access_token urn given by homedoc, this
+        # method works, based on the following example:
+        # curl -i "https://api-pilot.pmp.io/auth/access_token" -u \
+        #     "clientid:clientsecret" -H \
+        #     "Content-Type: application/x-www-form-urlencoded" -X POST
+        """Returns access_token. :method get_access_token2: takes
+        an *access_token_url* and requests an access token and parses
+        the response, setting attributes for the :class:`PmpAuth`
+        object as a result.
+
+        See: https://github.com/publicmediaplatform/pmpdocs/ \
+        wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http
+
+        :param access_token_url: http string taken from PMP API Home-Doc
+        """
+        header = {"Content-Type": "application/x-www-form-urlencoded"}
+        response = requests.post(access_token_url,
+                                 auth=(self.client_id, self.client_secret),
+                                 headers=header)
+        if response.ok:
+            result = response.json()
+            self.access_token = result.get('access_token', None)
+
+            if self.access_token is None:
+                errmsg = "Access Token missing: {}".format(access_token_url)
+                raise NoToken(errmsg)
+
+            time_format = "%Y-%m-%dT%H:%M:%S+00:00"
+            issue_time = result.get('token_issue_date', None)
+            self.token_issued = datetime.datetime.strptime(issue_time,
+                                                           time_format)
+
+            expiration = result.get('token_expires_in', None)
+            expires = datetime.timedelta(seconds=expiration)
+            self.token_expires = datetime.datetime.utcnow() + expires
+            self.access_token_url = access_token_url
 
             return self.access_token
 

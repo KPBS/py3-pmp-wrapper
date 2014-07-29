@@ -1,7 +1,7 @@
 import requests
 
-from .pmp_exceptions import EmptyResponse
-from .pmp_exceptions import ExpiredToken
+from .exceptions import EmptyResponse
+from .exceptions import ExpiredToken
 
 
 class PmpConnector(object):
@@ -41,7 +41,8 @@ class PmpConnector(object):
                 errmsg += " Create new access token for PmpAuth object."
                 raise ExpiredToken(errmsg)
             else:
-                self.authorizer.get_access_token()
+                url = self.authorizer.access_token_url
+                self.authorizer.get_access_token2(url)
                 signed_req = self.authorizer.sign_request(req)
 
         prepped_req = sesh.prepare_request(signed_req)
