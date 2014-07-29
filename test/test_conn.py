@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 import datetime
 import requests
 
+from pmp_api.core.conn import PmpConnector
 from pmp_api.core.exceptions import ExpiredToken
 from pmp_api.core.exceptions import EmptyResponse
 
@@ -11,7 +12,6 @@ from pmp_api.core.exceptions import EmptyResponse
 class TestPmpConnector(TestCase):
 
     def setUp(self):
-        from pmp_api.core.conn import PmpConnector
         token = 'bd50df0000000000'
         header = {'Authorization': 'Bearer ' + token}
         header['Content-Type'] = 'application/vnd.collection.doc+json'

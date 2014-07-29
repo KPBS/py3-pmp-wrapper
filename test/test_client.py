@@ -5,6 +5,8 @@ import datetime
 
 from unittest import TestCase
 from unittest.mock import Mock, patch
+from wsgiref.simple_server import make_server
+from .server import wsgi_server
 
 from pmp_api.pmp_client import Client
 from pmp_api.core.exceptions import ExpiredToken
@@ -14,49 +16,55 @@ from pmp_api.core.exceptions import EmptyResponse
 class TestPmpConnector(TestCase):
 
     def setUp(self):
-        from pmp_api.core.conn import PmpConnector
-        token = 'bd50df0000000000'
-        header = {'Authorization': 'Bearer ' + token}
-        header['Content-Type'] = 'application/vnd.collection.doc+json'
-        self.delta = datetime.timedelta(hours=4)
-        self.signed_request = Mock(**{'headers': header})
-        self.auth_vals = {'client_id': 'client-id',
-                          'client_secret': 'client-secret',
-                          'access_token': token,
-                          'access_token_url': None,
-                          'token_issued': datetime.datetime.utcnow() - self.delta,
-                          'sign_request.return_value': self.signed_request}
-        authorizer = Mock(**self.auth_vals)
-        self.pconn = PmpConnector(authorizer)
-        self.test_vals = {'a': 1, 'b': 2, 'c': 'VALUE'}
-        self.attribs = {'ok': True, 'json.return_value': self.test_vals}
-
-    def test_good_init(self):
-        # Shouldn't raise EmptyResponse. Should return None
-        attribs = {'ok': False, 'json.side_effect': ValueError}
-        authorizer = Mock(**self.auth_vals)
-        response = Mock(**attribs)
-        session = Mock(**{'send.return_value': response,
-                               'prepare_request.return_value': self.signed_request})
-        pconn = PmpConnector(authorizer)
-        with patch.object(requests, 'Session', return_value=session) as mocker:
-            self.assertEqual(pconn.get("http://www.google.com"), None)
-
-    def test_bad_init(self):
-        authorizer = Mock(**self.auth_vals)
-        response = Mock(**self.attribs)
-        session = Mock(**{'send.return_value': response,
-                          'prepare_request.return_value': self.signed_request})
-        pconn = PmpConnector(authorizer)
-        with patch.object(requests, 'Session', return_value=session) as mocker:
-            results = pconn.get("http://www.google.com")
-            self.assertEqual(results, self.test_vals) 
+        self.test_url = 'http://127.0.0.1:8000'
+        pass
+        # let's assume we have a server we have implemented for this test
         
-    def test_get_access_find_auth_token(self):
+    def test_home(self):
+        # test that it actually requests entry_point
         pass
 
-    def test_get_access_find_auth_token(self):
+    def test_gain_access_find_correct_urn(self):
+        # need server to respond twice
+        # client will request home doc using requests
+        # Client will look at urn for auth
+        # client will request access token and set up a connector
         pass
 
-    def test_get_access_find_auth_token(self):
+    def test_get_without_connector_raise_no_auth_token(self):
+        client = Client(self.test_url)
+        with self.assertRaises(NoToken):
+            client.get(self.test_url)
+        # Test that no accesstoken raises No Token
+        # Test that no response raises no token?
+        pass
+
+    def test_get_access_no_auth_token(self):
+        # Test that no accesstoken raises No Token
+        # Test that no response raises no token?
+        pass
+
+    def test_get_makes_pager(self):
+        pass
+
+    def test_get_with_history_item(self):
+        pass
+
+    def test_get_makes_history_on_second_request(self):
+        pass
+
+    def test_query(self):
+        # test that query method actually requests proper query url
+        
+    def test_next_requests_actual_next(self):
+        # set up document/pager with pre-determined next
+        # affirm that next requests next
+        # test with pager as none
+        # test with pager.prev as none
+        pass
+
+    def test_back(self):
+        pass
+
+    def test_forward(self):
         pass

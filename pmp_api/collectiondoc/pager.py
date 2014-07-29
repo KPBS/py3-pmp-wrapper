@@ -61,7 +61,7 @@ class Pager(object):
             self.current = navigator('self')
 
     def __str__(self):
-        return "<Pager for: {}>".format(self._current)
+        return "<Pager for: {}>".format(self.current)
 
     def __repr__(self):
-        return "<Pager for: {}>".format(self._current)
+        return "<Pager for: {}>".format(self.current)

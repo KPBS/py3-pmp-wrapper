@@ -53,11 +53,6 @@ class Client(object):
         self.pager = None
         self.document = None
 
-    def home(self):
-        """Requests API home-doc `entry_point` and returns results.
-        """
-        return self.get(self.entry_point)
-
     def gain_access(self, client_id, client_secret):
         """Requests access for `entry_point` using provided authentication.
         Finds the urn `urn:collectiondoc:form:issuetoken` and requests a
@@ -90,28 +85,45 @@ class Client(object):
         Args:
            endpoint -- url endpoint requested.
         """
+        if self.connector is None:
+            errmsg = "Need access token before making requests."
+            errmsg += " Call `gain_access`"
+            raise NoToken(errmsg)
         if self.current_page is None:
             # our first request only should be None
             self.current_page = endpoint
-            results = self._get(endpoint)
+            results = self.connector.get(endpoint)
         elif len(self.history) > 1 and self.history[-1] == endpoint:
             self.forward_stack.append(self.current_page)
             self.current_page = self.history.pop()
-            results = self._get(self.current_page)
+            results = self.connector.get(self.current_page)
         else:
             self.history.append(self.current_page)
             self.current_page = endpoint
-            results = self._get(endpoint)
+            results = self.connector.get(endpoint)
 
         self.document = NavigableDoc(results)
         self.pager = self.document.pager
         return self.document
 
+    def query(self, rel_type, params=None):
+        return self.get(self.document.query(rel_type, params=params))
+
+    def get_urn(self, rel_type):
+        if self.current_page is None:
+            self.get(self.entry_point)
+        self.document
+
+    def home(self):
+        """Requests API home-doc `entry_point` and returns results.
+        """
+        return self.get(self.entry_point)
+
     def next(self):
         """Requests the `next` page listed by navigation. If
         `next` is absent, it returns None.
         """
-        if self.pager and self.result.pager.navigable:
+        if self.pager and self.pager.navigable:
             if self.pager.next is not None:
                 return self.get(self.pager.next)
 

@@ -35,7 +35,7 @@ class NavigableDoc(object):
         Kwargs:
            params -- dict of param values
         """
-        template = self.query_template(rel_type)
+        template = self.template(rel_type)
         if params is not None:
             endpoint = make_query(template, params)
         else:
@@ -52,18 +52,16 @@ class NavigableDoc(object):
             else:
                 yield item['rels']
 
-    @property
     def options(self, rel_type):
         """Dictionary of query_options for particular query type.
         """
         options = get_dict(self.collectiondoc, 'rels', rel_type)
         return options
 
-    @property
     def template(self, rel_type):
         """Query_template for particular query type.
         """
-        return self.query_options().get('href-template', None)
+        return self.options(rel_type).get('href-template', None)
 
     @property
     def items(self):
@@ -90,10 +88,3 @@ class NavigableDoc(object):
 #     #new_doc.attributes["guid"] = str(uuid4())
 
 #     return new_doc
-
-
-
-# class CollectionRecord(object):
-#     def __init__(self):
-#         # Class for collecting a lot of these: necessary?
-#         pass
