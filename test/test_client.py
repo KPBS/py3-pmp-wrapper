@@ -1,12 +1,12 @@
 import requests
 import os
 import json
-import datetime
+from multiprocessing import Process
 
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from wsgiref.simple_server import make_server
-from .server import run
+
+from server import run, run_forever
 
 from pmp_api.pmp_client import Client
 from pmp_api.core.exceptions import ExpiredToken
@@ -16,7 +16,7 @@ from pmp_api.core.exceptions import EmptyResponse
 class TestPmpConnector(TestCase):
 
     def setUp(self):
-        self.test_url = 'http://127.0.0.1:8000'
+        self.test_url = 'http://127.0.0.1:8080'
         pass
         # let's assume we have a server we have implemented for this test
         
@@ -27,7 +27,7 @@ class TestPmpConnector(TestCase):
     def test_gain_access_find_correct_urn(self):
         # need server to respond twice
         # client will request home doc using requests
-        # Client will look at urn for auth
+        # Client will look at urn for auth}
         # client will request access token and set up a connector
         pass
 
