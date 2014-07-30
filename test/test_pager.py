@@ -19,16 +19,16 @@ class TestPager(TestCase):
         from pmp_api.collectiondoc.pager import Pager
         self.pager = Pager()
         self.pager.update(self.homedata)
-        self.assertFalse(self.pager.navigable)
+        self.assertTrue(self.pager.navigable)
 
     def test_paging_docs_doc(self):
         from pmp_api.collectiondoc.pager import Pager
         self.pager = Pager()
-        actual_vals = {'prev': 'https://api-pilot.pmp.io/docs?',
-                       'next': 'https://api-pilot.pmp.io/docs?offset=20',
-                       'last': 'https://api-pilot.pmp.io/docs?offset=42920',
-                       'first': 'https://api-pilot.pmp.io/docs?',
-                       'current': 'https://api-pilot.pmp.io/docs?offset=10'}
+        actual_vals = {'next': "http://127.0.0.1:8080/docs?offset=20",
+                       'prev': "http://127.0.0.1:8080/docs?",
+                       'first': "http://127.0.0.1:8080/docs?",
+                       'last': "http://127.0.0.1:8080/docs?offset=42920",
+                       'current': "http://127.0.0.1:8080/docs?offset=10"}
         self.pager.update(self.docsdata)
         self.assertTrue(self.pager.navigable)
         self.assertEqual(actual_vals['prev'], self.pager.prev)
