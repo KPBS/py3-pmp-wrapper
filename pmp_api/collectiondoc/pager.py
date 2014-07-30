@@ -50,13 +50,12 @@ class Pager(object):
                 return None
         return _get_page
 
-    def update(self, result_dict):
+    def update(self, nav):
         """Updates all page attributes as well as :attribute::navigable
         boolean attribute.
 
         :param result_dict: dictionary (from JSON)
         """
-        nav = list(qfind(result_dict, 'navigation'))
         if len(nav) > 1:
             self.navigable = True
             navigator = self.navigator(nav)

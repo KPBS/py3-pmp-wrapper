@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmp_api.core.access &mdash; pmp_api  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pmp_api  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pmp_api.core.access</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">.. module:: pmp_api.core.access</span>
+<span class="sd">   :synopsis: For managing application credentials</span>
+
+<span class="sd">The :class:`PmpAccess &lt;PmpAccess&gt;` object can generate and revoke credentials</span>
+<span class="sd">(client-id, client-secret) for use with PMP API.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">BadRequest</span>
+
+
+<div class="viewcode-block" id="PmpAccess"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.access.PmpAccess">[docs]</a><span class="k">class</span> <span class="nc">PmpAccess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Access class for Public Media Platform credentials.</span>
+<span class="sd">    See: https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API</span>
+
+<span class="sd">    Requires a username/password combination approved for use in the PMP Api.</span>
+
+<span class="sd">    Methods include:</span>
+<span class="sd">    generate_new_credentials -- generates new client_id/client_secret</span>
+<span class="sd">    remove_credentials -- revokes client_id/client_secret for account</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">    `pmp_api.auth.PmpAuthorization` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expiration</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="PmpAccess.generate_new_credentials"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.access.PmpAccess.generate_new_credentials">[docs]</a>    <span class="k">def</span> <span class="nf">generate_new_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span>
+                                 <span class="n">scope</span><span class="o">=</span><span class="s">&quot;read&quot;</span><span class="p">,</span> <span class="n">token_expiry</span><span class="o">=</span><span class="s">&quot;200000&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for creating new credentials for an account. This</span>
+<span class="sd">        should not need to be used often (if at all). Credentials</span>
+<span class="sd">        can also be generated with a curl post to the PMP</span>
+<span class="sd">        Auth endpoint with the proper parameters (see auth link from docs)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        `endpoint` -- url to query for credentials</span>
+<span class="sd">        `label` -- User-set label for credentials</span>
+
+<span class="sd">        Kwargs:</span>
+<span class="sd">        `scope` -- read || write permissions for PMP access. Default: &quot;read&quot;</span>
+<span class="sd">        `token_expiry` -- expiration for PMP credentials. Default: &quot;2000000&quot;</span>
+
+<span class="sd">        returns: (client_id, client_secret) :: (String, String) or raises error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;label&#39;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                   <span class="s">&#39;scope&#39;</span><span class="p">:</span> <span class="n">scope</span><span class="p">,</span>
+                   <span class="s">&#39;token_expires_in&#39;</span><span class="p">:</span> <span class="n">token_expiry</span><span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span>
+                                 <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">),</span>
+                                 <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                                 <span class="n">allow_redirects</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="n">client_id</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;client_id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">client_secret</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;client_secret&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">expiration</span> <span class="o">=</span> <span class="n">token_expiry</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="s">&quot;No response from endpoint: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="PmpAccess.remove_credentials"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.access.PmpAccess.remove_credentials">[docs]</a>    <span class="k">def</span> <span class="nf">remove_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Revokes credentials for the PmpAuth object&#39;s username/password. This</span>
+<span class="sd">        may be necessary if credentials are ever compromised.</span>
+
+<span class="sd">        To revoke credentials, pass in endpoint</span>
+<span class="sd">        with the client_id at the end:</span>
+
+<span class="sd">        /auth/credentials/{client_id}</span>
+
+<span class="sd">        returns: True || False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span>
+                              <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">),</span>
+                              <span class="n">allow_redirects</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Improper status code returned (should be 204,&quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; according to PMP Auth Documentation). Endpoint:{}&quot;</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="n">errmsg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

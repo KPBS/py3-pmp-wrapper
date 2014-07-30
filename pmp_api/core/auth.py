@@ -23,7 +23,7 @@ class PmpAuth(object):
     all requests made with the PMP API.
 
     Usage::
-        
+
       >>> from pmp_api.core.auth import PmpAuth
       >>> auth = PmpAuth(Client_ID, CLIENT_SECRET)
       >>> auth.get_access_token(AUTH_TOKEN_ENDPOINT)

@@ -1,6 +1,8 @@
 # py3-pmp-wrapper
 
-An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located (!here!(almost ready)). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
+An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located [here](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/). 
+
+To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 ## Installation
 
@@ -10,7 +12,7 @@ This package may be installed using `pip`:
 pip install py3-pmp-wrapper
 ```
 
-## How to Query the PMP API
+## Quickstart
 
 First, create a `pmp_client.Client` object and pass it the entry-point to the application:
 
@@ -19,11 +21,15 @@ First, create a `pmp_client.Client` object and pass it the entry-point to the ap
 >>> client = Client("https://api-pilot.pmp.io")
 ```
 
-After that, you will need to authenticate your client. To authenticate, pass in your client-id and client-secret to the `gain_access` method. You should already have a client-id and/or client-secret, but if not see below. 
+#### Generate Access Token
+
+After that, you will need to authenticate your client. To authenticate, pass in your client-id and client-secret to the `gain_access` method. You should already have a client-id and client-secret, but if not see below. 
 
 ```python
 >>> client.gain_access(CLIENT-ID, CLIENT-SECRET) # This is NOT a username/password combination
 ```
+
+#### Making Requests
 
 Now, we're ready to make requests of the PMP API:
 
@@ -32,84 +38,108 @@ Now, we're ready to make requests of the PMP API:
 >>> random_request = client.get("https://Some/arbitrary/endpoint?params=someparam")
 >>> random_request
 <Navigable Doc: https://Some/arbitrary/endpoint?params=someparam>
+>>> client.document # Most recent result is saved here
+<NavigableDoc: https://Some/arbitrary/endpoint?params=someparam>
 ```
 
 The client will automatically sign all requests and it should renew your access token if it expires. 
 
-Most of the useful navigation is done via `urn`, the primary method for accessing content, and the `Client` object provides a number of ways to get information in response to a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
+#### Navigating
+   
+Using the fetched document's `navigation` object, the `Client` can follow navigation, if it's present:
 
 ```python
->>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
->>> client.document # Most recent result is saved here
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
 >>> client.next() # If the document defines a 'next' navigation element, we can follow it
 <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&offset=10>
 >>> client.prev() # Same as above, returns None if nothing there...
 >>>
+>>> client.last()  # requests 'last' page of results as given by document
+>>> client.first() # requests 'first' page of results as given by document
 ```
 
-We can also go `back` or `forward`, like a browser, re-requesting the previous document:
+We can also go `back` or `forward`, like a browser, re-requesting previous documents:
 
 ```python
->>> client.back() 
+>>> client.document
+<NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
+>>> client.back()  # This issues a new request
 <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
+>>> client.forward() 
+<NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
 ```
 
-## What's this NavigableDoc object?
+#### Using URNs
 
-To really get interesting information back, we need to have some way of managing it. For this reason, the `Client` object returns `NavigableDoc` elements. These have a number of methods and properties, which should make it easier to extract information from the document.
+Most of the useful navigation is done via `urn`, the primary method for accessing content, and the Client object provides a `query` method for use with a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
 
 ```python
 >>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID> # returns NavigableDoc
->>> client.document.links
-{'item': [{'href': 'https://api-pilot.pmp.io/docs/SOMEGUID ...
+<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
 >>> client.document.items
+{ ITEMS ... }
+```
+
+## NavigableDoc objects
+
+To really get interesting information back, we need to have some way of managing it. For this reason, a `Client` object returns `NavigableDoc` elements. These have a number of methods and properties, which should make it easier to extract information from the document.
+
+```python
+>>> document = client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
+<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID> # returns NavigableDoc
+>>> document.links
+{'item': [{'href': 'https://api-pilot.pmp.io/docs/SOMEGUID ...
+>>> document.items
 [{'attributes': {'valid': {'to': '3014-07-29T18:08:11+00:00', 'from': ...
->>> client.document.querylinks
+>>> document.querylinks
 [{'rels': ['urn:collectiondoc:query:users'], 'href-template': ...
 ```
 
-In order to get interesting results back, we generally want to issue queries, but it can be tough to know how to make queries. The `NavigableDoc` object can help with that.
+#### Querying 
+
+In order to get interesting results back, we generally want to issue queries, but it can be tough to remember how to make queries. The `NavigableDoc` has a `template` method that will reveal what params are available for a query:
 
 ```python
->>> client.document.template('urn:collectiondoc:query:docs')
+>>> document.template('urn:collectiondoc:query:docs')
 'https://api-pilot.pmp.io/docs{?guid,limit,offset,tag,collection,text,searchsort,has,author,distributor,distributorgroup,startdate,enddate,profile,language}'
+>>> client.query('urn:collectiondoc:query:docs', params={'has': 'audio', 'language': 'en'})
 ```
 
-In addition, we can find options associated with the `urn`:
-```python
->>> client.document.options('urn:collectiondoc:query:docs')
-{'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
-```
+(For values accepted by query keys, consult the [PMP documentation](https://github.com/publicmediaplatform/pmpdocs/wiki)
 
-What if we want to know which `urn`s are listed at a particular endpoint? We must ask the document for its query_types:
+#### Options and Query-Types
 
-```python
->>> for item in client.document.query_types():
-...     print(item)
-('Query for users', ['urn:collectiondoc:query:users'])
-('Query for schemas', ['urn:collectiondoc:query:schemas'])
-('Access documents', ['urn:collectiondoc:hreftpl:docs'])
-('Query for documents', ['urn:collectiondoc:query:docs'])
-etc.
-```
+We can also find all options associated with the `urn`:
 
-Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of all values contained in the document:
+    >>> document.options('urn:collectiondoc:query:docs')
+    {'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
+
+
+What if we want to know which `urns` are listed at a particular endpoint? We must ask the document for its `query_types`:
+
+    >>> for item in document.query_types():
+    ...     print(item)
+    ('Query for users', ['urn:collectiondoc:query:users'])
+    ('Query for schemas', ['urn:collectiondoc:query:schemas'])
+    ('Access documents', ['urn:collectiondoc:hreftpl:docs'])
+    ('Query for documents', ['urn:collectiondoc:query:docs'])
+    etc.
+
+#### All Results
+
+Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of *all* values contained in the document:
 
 ```python
 >>> client.document.collectiondoc
 {ALL-The_Data ...}
 ```
 
-To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the documentation (LINK).
+To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the [documentation](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/).
 
 ## Lower Level requests of PMP API
 
-For most things, you can use the `Client` object, but there are lower-level objects in this application, and these can be used directly should have an application that needs finer control over authenticating or requesting results from the PMP API.
+For most things, you can use the `Client` object, but there are lower-level objects in this application, and these can be used directly should you have an application that needs finer control over authenticating or requesting results from the PMP API.
 
-### Using a PmpAuth object to get an access token
+### Getting an access token
 
 We will need a PmpAuth object to sign all of our requests of the PMP API, so create a new PmpAuth object:
 ```python

@@ -1,28 +1,7 @@
-Description
-============
+.. _quickstart:
 
-This package has been designed to facilitate browsing and retrieving content from the Public Media Platform (PMP) API. It makes it easy to generate signed requests and browser hypermedia resources returned by the PMP API.
-
-For more information about PMP, `read the documentation <https://github.com/publicmediaplatform/pmpdocs/wiki>`_
-
-This application has been created at KBPS Public Broadcasting in San Diego by Erik Aker and it has been licensed under GPL v2.
-
-To Do
------
-
-1. Testing: pmp_client module requires unit-tests
-2. Documentation: Clean and write more.
-3. Create Collectiondoc class for creating new collectiondocs
-
-Installation
-============
-
-py3-pmp-wrapper has been written for Python3.3 and Python3.4. It is not compatible with Python2.7 and below. 
-All references below to installing this application refer only to Python versions 3.3 and 3.4.
-
-
-Distribute & Pip
-----------------
+Quickstart
+==========
 
 To install py3-pmp-wrapper with `pip <https://pip.pypa.io>`_, just run
 this in your terminal::
@@ -33,25 +12,6 @@ or, with `easy_install <http://pypi.python.org/pypi/setuptools>`_::
 
     $ easy_install py3-pmp-wrapper
 
-
-Get the Code
-------------
-
-py3-pmp-wrapper is on GitHub, where the code is
-`available <https://github.com/KPBS/py3-pmp-wrapper>`_.
-
-You can clone the public repository::
-
-    $ git clone https://github.com/KPBS/py3-pmp-wrapper
-
-Once you have a copy of the source, you can embed it in your Python package,
-or install it into your site-packages easily::
-
-    $ python setup.py install
-.. _quickstart:
-
-Quickstart
-==========
 
 Create a PMP Client
 -------------------
@@ -87,7 +47,7 @@ The `Client` will automatically sign all requests and it should renew your acces
 Navigating
 ----------
    
-Using the fetched document's `navigation` object, the `Client` can follow navigation, if it's present:
+Using the fetched document's `navigation` object, the `Client` follow navigation, if it's present:
 
     >>> client.next() # If the document defines a 'next' navigation element, we can follow it
     <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&offset=10>
@@ -145,7 +105,7 @@ What if we want to know which `urns` are listed at a particular endpoint? We mus
     ('Query for documents', ['urn:collectiondoc:query:docs'])
     etc.
 
-Finally, you can always retrieve all of the results inside a document by accessing its `collectiondoc` attribute. This will return a dictionary of all values contained in the document:
+Finally, you can always retrieve all of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of all values contained in the document:
 
     >>> document.collectiondoc
     {ALL-The_Data ...}

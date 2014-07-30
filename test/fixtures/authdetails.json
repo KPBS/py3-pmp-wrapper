@@ -1,0 +1,10 @@
+{
+  "access_token": "SERVER-TOKEN",
+  "token_issue_date": "2014-07-28T21:27:40+00:00",
+  "token_expires_in": "200000",
+  "client_id": "client-id",
+  "client_secret": "client-secret",
+  "token_expires_in": 2000000,
+  "scope": "read",
+  "label": "somethingCool"
+}

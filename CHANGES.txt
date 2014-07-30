@@ -1,3 +1,7 @@
+v0.3.0 July 30, 2014 -- Finished pmp_client.Client module with some debugging. Also debugged collectiondoc.navigabledoc and collectiondoc.pager. Completed tests for pmp_client module.
+
+v0.2.0 July 28, 2014 -- Built NavigableDoc model. pmp_client.Client can now `query` and it returns NavigableDoc elements on all results. Added unittests.
+
 v0.1.0 July 25, 2014 -- Working client that can connect to base-url, request token, and navigate around. Next step: improved querying, href-templating, and models based on document profiles.
 
 v0.0.3 July 24, 2014 -- Added unittests for all modules in pmp_api.core. Cleaned and refactored auth and conn. Refactored auth and separated PmpAccess into separate module. Added a bit of functionality to PmpClient, but this aspect is still in development.

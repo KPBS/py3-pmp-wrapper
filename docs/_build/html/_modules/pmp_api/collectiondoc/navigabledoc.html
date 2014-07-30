@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmp_api.collectiondoc.navigabledoc &mdash; pmp_api  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pmp_api  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pmp_api.collectiondoc.navigabledoc</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: pmp_api.collectiondoc.navigabledoc</span>
+<span class="sd">   :synopsis: Creates an interactive NavigableDoc object</span>
+<span class="sd">   from API results.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.pager</span> <span class="kn">import</span> <span class="n">Pager</span>
+<span class="kn">from</span> <span class="nn">.query</span> <span class="kn">import</span> <span class="n">make_query</span>
+<span class="kn">from</span> <span class="nn">..utils.json_utils</span> <span class="kn">import</span> <span class="n">qfind</span>
+<span class="kn">from</span> <span class="nn">..utils.json_utils</span> <span class="kn">import</span> <span class="n">get_dict</span>
+
+
+<div class="viewcode-block" id="NavigableDoc"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc">[docs]</a><span class="k">class</span> <span class="nc">NavigableDoc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection_result</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span> <span class="o">=</span> <span class="n">collection_result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pager</span> <span class="o">=</span> <span class="n">Pager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pager</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pager</span><span class="o">.</span><span class="n">current</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;Navigable Doc: {}&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span>
+
+<div class="viewcode-block" id="NavigableDoc.query"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns constructed url with query parameters for urn</span>
+<span class="sd">        type requested. To see which params are expected first</span>
+<span class="sd">        run `query_template(rel_type)`.</span>
+
+<span class="sd">        Raises BadQuery if params are not valid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           rel_type -- urn type we want to query</span>
+
+<span class="sd">        Kwargs:</span>
+<span class="sd">           params -- dict of param values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">(</span><span class="n">rel_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="n">make_query</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="n">make_query</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">endpoint</span>
+</div>
+<div class="viewcode-block" id="NavigableDoc.query_types"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.query_types">[docs]</a>    <span class="k">def</span> <span class="nf">query_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns generator of query_types offered by the endpoint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">qfind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">,</span> <span class="s">&#39;rels&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s">&#39;title&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">item</span><span class="p">[</span><span class="s">&#39;title&#39;</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="s">&#39;rels&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">item</span><span class="p">[</span><span class="s">&#39;rels&#39;</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="NavigableDoc.options"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.options">[docs]</a>    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns dictionary of query_options for particular query type.</span>
+<span class="sd">        Raises Exception if `rel_type` is not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">get_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">,</span> <span class="s">&#39;rels&#39;</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">options</span>
+</div>
+<div class="viewcode-block" id="NavigableDoc.template"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.template">[docs]</a>    <span class="k">def</span> <span class="nf">template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Query_template for particular query type.</span>
+<span class="sd">        Raises Exception if `rel_type` is not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">rel_type</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href-template&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="NavigableDoc.items"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All items listed in the collectiondoc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;items&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">items</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="NavigableDoc.links"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.links">[docs]</a>    <span class="k">def</span> <span class="nf">links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All links listed in the collectiondoc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="NavigableDoc.querylinks"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.querylinks">[docs]</a>    <span class="k">def</span> <span class="nf">querylinks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All items associated with `query` key of `links`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;query&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

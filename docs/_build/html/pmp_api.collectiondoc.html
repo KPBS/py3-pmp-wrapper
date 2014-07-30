@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmp_api.collectiondoc package &mdash; pmp_api  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pmp_api  documentation" href="index.html" />
+    <link rel="up" title="pmp_api package" href="pmp_api.html" />
+    <link rel="next" title="pmp_api.core package" href="pmp_api.core.html" />
+    <link rel="prev" title="pmp_api package" href="pmp_api.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pmp_api.core.html" title="pmp_api.core package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmp_api.html" title="pmp_api package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="pmp_api.html" accesskey="U">pmp_api package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pmp-api-collectiondoc-package">
+<h1>pmp_api.collectiondoc package<a class="headerlink" href="#pmp-api-collectiondoc-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pmp_api.collectiondoc.navigabledoc">
+<span id="pmp-api-collectiondoc-navigabledoc-module"></span><h2>pmp_api.collectiondoc.navigabledoc module<a class="headerlink" href="#module-pmp_api.collectiondoc.navigabledoc" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc">
+<em class="property">class </em><tt class="descclassname">pmp_api.collectiondoc.navigabledoc.</tt><tt class="descname">NavigableDoc</tt><big>(</big><em>collection_result</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.items">
+<tt class="descname">items</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>All items listed in the collectiondoc.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.links">
+<tt class="descname">links</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.links" title="Permalink to this definition">¶</a></dt>
+<dd><p>All links listed in the collectiondoc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.options">
+<tt class="descname">options</tt><big>(</big><em>rel_type</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary of query_options for particular query type.
+Raises Exception if <cite>rel_type</cite> is not found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.query">
+<tt class="descname">query</tt><big>(</big><em>rel_type</em>, <em>params=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns constructed url with query parameters for urn
+type requested. To see which params are expected first
+run <cite>query_template(rel_type)</cite>.</p>
+<p>Raises BadQuery if params are not valid.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>rel_type &#8211; urn type we want to query</dd>
+<dt>Kwargs:</dt>
+<dd>params &#8211; dict of param values</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.query_types">
+<tt class="descname">query_types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.query_types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.query_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns generator of query_types offered by the endpoint.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.querylinks">
+<tt class="descname">querylinks</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.querylinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.querylinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>All items associated with <cite>query</cite> key of <cite>links</cite></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.template">
+<tt class="descname">template</tt><big>(</big><em>rel_type</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.template"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query_template for particular query type.
+Raises Exception if <cite>rel_type</cite> is not found.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pmp_api.collectiondoc.pager">
+<span id="pmp-api-collectiondoc-pager-module"></span><h2>pmp_api.collectiondoc.pager module<a class="headerlink" href="#module-pmp_api.collectiondoc.pager" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pmp_api.collectiondoc.pager"></span><p>The <a class="reference internal" href="#pmp_api.collectiondoc.pager.Pager" title="pmp_api.collectiondoc.pager.Pager"><tt class="xref py py-class docutils literal"><span class="pre">Pager</span></tt></a> class is for easily following navigation elements
+returned by collection+doc.json documents.</p>
+<dl class="class">
+<dt id="pmp_api.collectiondoc.pager.Pager">
+<em class="property">class </em><tt class="descclassname">pmp_api.collectiondoc.pager.</tt><tt class="descname">Pager</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/pager.html#Pager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.pager.Pager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>The <a class="reference internal" href="#pmp_api.collectiondoc.pager.Pager" title="pmp_api.collectiondoc.pager.Pager"><tt class="xref py py-class docutils literal"><span class="pre">Pager</span></tt></a> object is for keeping track
+of navigation values from a PMP Hypermedia object.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre> &gt;&gt;&gt; from pmp_api.pmp_client import Pager
+ &gt;&gt;&gt; import requests
+ &gt;&gt;&gt; nav_page = requests.get(&quot;http://some-api.that-returns.json&quot;)
+ &gt;&gt;&gt; results = nav_page.json()
+ &gt;&gt;&gt; pager = Pager(results)
+ &gt;&gt;&gt; pager.navigable
+ True
+ &gt;&gt;&gt; pager._next
+&quot;http://some-api.that-returns.json/some-next-page-of-results&quot;
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pmp_api.collectiondoc.pager.Pager.navigator">
+<tt class="descname">navigator</tt><big>(</big><em>navigable_dict</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/pager.html#Pager.navigator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.pager.Pager.navigator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns navigable_dictionary object which can be searched
+against common navigation values in order to populate class
+attributes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>navigable_dict</strong> (<em>dict</em>) &#8211; dicitionary of JSON values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.pager.Pager.update">
+<tt class="descname">update</tt><big>(</big><em>result_dict</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/pager.html#Pager.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.pager.Pager.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates all page attributes as well as :attribute::navigable
+boolean attribute.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>result_dict</strong> &#8211; dictionary (from JSON)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pmp_api.collectiondoc.query">
+<span id="pmp-api-collectiondoc-query-module"></span><h2>pmp_api.collectiondoc.query module<a class="headerlink" href="#module-pmp_api.collectiondoc.query" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pmp_api.collectiondoc.query"></span><dl class="function">
+<dt id="pmp_api.collectiondoc.query.bad_params">
+<tt class="descclassname">pmp_api.collectiondoc.query.</tt><tt class="descname">bad_params</tt><big>(</big><em>template</em>, <em>var_dict</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/query.html#bad_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.query.bad_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary of parameters that do
+not pass validation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmp_api.collectiondoc.query.make_query">
+<tt class="descclassname">pmp_api.collectiondoc.query.</tt><tt class="descname">make_query</tt><big>(</big><em>template</em>, <em>params=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/query.html#make_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.query.make_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses a uri-template and supplied params in order to create a valid
+endpoint request.</p>
+<p>Raises BadQuery on invalid parameters.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmp_api.collectiondoc.query.validate">
+<tt class="descclassname">pmp_api.collectiondoc.query.</tt><tt class="descname">validate</tt><big>(</big><em>template</em>, <em>var_dict</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/query.html#validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.query.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True/False
+Tests whether a given dictionary <cite>var_dict</cite> is
+valid for a particular uri-template.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pmp_api.collectiondoc">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pmp_api.collectiondoc" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pmp_api.collectiondoc package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pmp_api.collectiondoc.navigabledoc">pmp_api.collectiondoc.navigabledoc module</a></li>
+<li><a class="reference internal" href="#module-pmp_api.collectiondoc.pager">pmp_api.collectiondoc.pager module</a></li>
+<li><a class="reference internal" href="#module-pmp_api.collectiondoc.query">pmp_api.collectiondoc.query module</a></li>
+<li><a class="reference internal" href="#module-pmp_api.collectiondoc">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmp_api.html"
+                        title="previous chapter">pmp_api package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pmp_api.core.html"
+                        title="next chapter">pmp_api.core package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pmp_api.collectiondoc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pmp_api.core.html" title="pmp_api.core package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmp_api.html" title="pmp_api package"
+             >previous</a> |</li>
+        <li><a href="index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="pmp_api.html" >pmp_api package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
