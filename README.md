@@ -133,42 +133,6 @@ Finally, you can always retrieve *all* of the results inside a document by acess
 {ALL-The_Data ...}
 ```
 
-To see more examples and learn more about how to use the `Client` and `NavigableDoc` objects, consult the [documentation](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/).
-
-## Lower Level requests of PMP API
-
-For most things, you can use the `Client` object, but there are lower-level objects in this application, and these can be used directly should you have an application that needs finer control over authenticating or requesting results from the PMP API.
-
-### Getting an access token
-
-We will need a PmpAuth object to sign all of our requests of the PMP API, so create a new PmpAuth object:
-```python
->>> from pmp_api.core.auth import PmpAuth
->>> pmp_auth = PmpAuth(CLIENT_ID, CLIENT_SECRET)
-```
-
-For most applications, we'll only need to do this once per session. A PmpAuth object will remember its `access_token` and it will raise an exception when that token has expired. 
-
-### Making requests
-Now that you have a PmpAuth object with a valid access token, you can create a PmpConnector that will issue signed requests:
-
-```python
->>> from pmp_api.core.conn import PmpConnector
->>> pmp_connect = PmpConnector(pmp_auth)
->>> pmp_connect.get("https://api-pilot.pmp.io/docs")
-{...DICTIONARY OF VALUES IN RESPONSE...}
-```
-
-Every link you'd like to retrieve from the PMP API can be retrieved using your connector object:
-```python
->>> pmp_connect.get("https://api-pilot.pmp.io")
->>> pmp_connect.get("https://api-pilot.pmp.io/docs")
->>> pmp_connect.get("https://api-pilot.pmp.io/schemas")
->>> etc.
-```
-
-This method will automatically return the JSON returned by the endpoint. In addition, the connector will automatically renew the access_token if it expires.
-
 ## Credentials
 
 The PMP API uses OAUTH2, which means that you need a client-id and client-secret in order to receive an access token and to use the application.
