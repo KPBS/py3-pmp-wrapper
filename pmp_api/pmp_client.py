@@ -102,7 +102,7 @@ class Client(object):
             # our first request only should be None
             self.current_page = endpoint
             results = self.connector.get(endpoint)
-        elif len(self.history) > 1 and self.history[-1] == endpoint:
+        elif len(self.history) > 0 and self.history[-1] == endpoint:
             self.forward_stack.append(self.current_page)
             self.current_page = self.history.pop()
             results = self.connector.get(self.current_page)
