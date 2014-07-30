@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Quickstart &mdash; pmp_api  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pmp_api  documentation" href="index.html" />
+    <link rel="next" title="Installation" href="install.html" />
+    <link rel="prev" title="Description" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Description"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pmp_api  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="quickstart">
+<span id="id1"></span><h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<p>To install py3-pmp-wrapper with <a class="reference external" href="https://pip.pypa.io">pip</a>, just run
+this in your terminal:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install py3-pmp-wrapper
+</pre></div>
+</div>
+<p>or, with <a class="reference external" href="http://pypi.python.org/pypi/setuptools">easy_install</a>:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ easy_install py3-pmp-wrapper
+</pre></div>
+</div>
+<div class="section" id="create-a-pmp-client">
+<h2>Create a PMP Client<a class="headerlink" href="#create-a-pmp-client" title="Permalink to this headline">¶</a></h2>
+<p>After the application has been installed, you can create a <cite>Client</cite> object:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pmp_api.pmp_client</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s">&quot;https://api-pilot.pmp.io&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="authenticate-your-client">
+<h2>Authenticate Your Client<a class="headerlink" href="#authenticate-your-client" title="Permalink to this headline">¶</a></h2>
+<p>With a working client, you will need to authenticate using your client-id and client-secret</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">gain_access</span><span class="p">(</span><span class="n">CLIENT</span><span class="o">-</span><span class="n">ID</span><span class="p">,</span> <span class="n">CLIENT</span><span class="o">-</span><span class="n">SECRET</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-requests">
+<h2>Make Requests<a class="headerlink" href="#make-requests" title="Permalink to this headline">¶</a></h2>
+<p>Now you&#8217;re ready to make requests:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">home_doc</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="c"># Get homedoc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random_request</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;https://Some/arbitrary/endpoint?params=someparam&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">random_request</span>
+<span class="go">&lt;Navigable Doc: https://Some/arbitrary/endpoint?params=someparam&gt;</span>
+</pre></div>
+</div>
+<p>The client will automatically sign all requests and it should renew your access token if it expires.</p>
+<p>Most of the useful navigation is done via <cite>urn</cite>, the primary method for accessing content, and the Client object provides a number of ways to get information in response to a <cite>urn</cite>. For example, let&#8217;s look at <cite>urn:collectiondoc:query:docs</cite>, which contains information for querying documents.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tag&quot;</span><span class="p">:</span> <span class="s">&quot;samplecontent&quot;</span><span class="p">,</span> <span class="s">&quot;profile&quot;</span><span class="p">:</span> <span class="s">&quot;story&quot;</span><span class="p">})</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span> <span class="c"># Most recent result is saved here</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="c"># If the document defines a &#39;next&#39; navigation element, we can follow it</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&amp;offset=10&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">prev</span><span class="p">()</span> <span class="c"># Same as above, returns None if nothing there...</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>We can also go <cite>back</cite> or <cite>forward</cite>, like a browser, re-requesting the previous document:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">back</span><span class="p">()</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="navigabledoc-objects">
+<h2>NavigableDoc objects<a class="headerlink" href="#navigabledoc-objects" title="Permalink to this headline">¶</a></h2>
+<p>To really get interesting information back, we need to have some way of managing it. For this reason, the <cite>Client</cite> object returns <cite>NavigableDoc</cite> elements. These have a number of methods and properties, which should make it easier to extract information from the document.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tag&quot;</span><span class="p">:</span> <span class="s">&quot;samplecontent&quot;</span><span class="p">,</span> <span class="s">&quot;profile&quot;</span><span class="p">:</span> <span class="s">&quot;story&quot;</span><span class="p">})</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt; # returns NavigableDoc</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">links</span>
+<span class="go">{&#39;item&#39;: [{&#39;href&#39;: &#39;https://api-pilot.pmp.io/docs/SOMEGUID ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">items</span>
+<span class="go">[{&#39;attributes&#39;: {&#39;valid&#39;: {&#39;to&#39;: &#39;3014-07-29T18:08:11+00:00&#39;, &#39;from&#39;: ...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">querylinks</span>
+<span class="go">[{&#39;rels&#39;: [&#39;urn:collectiondoc:query:users&#39;], &#39;href-template&#39;: ...</span>
+</pre></div>
+</div>
+<p>In order to get interesting results back, we generally want to issue queries, but it can be tough to know how to make queries. The <cite>NavigableDoc</cite> object can help with that.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">template</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">)</span>
+<span class="go">&#39;https://api-pilot.pmp.io/docs{?guid,limit,offset,tag,collection,text,searchsort,has,author,distributor,distributorgroup,startdate,enddate,profile,language}&#39;</span>
+</pre></div>
+</div>
+<p>In addition, we can find options associated with the <cite>urn</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">)</span>
+<span class="go">{&#39;rels&#39;: [&#39;urn:collectiondoc:query:docs&#39;], &#39;href-template&#39;: ...</span>
+</pre></div>
+</div>
+<p>What if we want to know which <cite>urns</cite> are listed at a particular endpoint? We must ask the document for its <cite>query_types</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">query_types</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+<span class="go">(&#39;Query for users&#39;, [&#39;urn:collectiondoc:query:users&#39;])</span>
+<span class="go">(&#39;Query for schemas&#39;, [&#39;urn:collectiondoc:query:schemas&#39;])</span>
+<span class="go">(&#39;Access documents&#39;, [&#39;urn:collectiondoc:hreftpl:docs&#39;])</span>
+<span class="go">(&#39;Query for documents&#39;, [&#39;urn:collectiondoc:query:docs&#39;])</span>
+<span class="go">etc.</span>
+</pre></div>
+</div>
+<p>Finally, you can always retrieve all of the results inside a document by acessing its <cite>collectiondoc</cite> attribute. This will return a dictionary of all values contained in the document:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">collectiondoc</span>
+<span class="go">{ALL-The_Data ...}</span>
+</pre></div>
+</div>
+<p>This should cover most use-cases for browsing PMP API content.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#create-a-pmp-client">Create a PMP Client</a></li>
+<li><a class="reference internal" href="#authenticate-your-client">Authenticate Your Client</a></li>
+<li><a class="reference internal" href="#make-requests">Make Requests</a></li>
+<li><a class="reference internal" href="#navigabledoc-objects">NavigableDoc objects</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Description</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="next chapter">Installation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/quickstart.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Description"
+             >previous</a> |</li>
+        <li><a href="index.html">pmp_api  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

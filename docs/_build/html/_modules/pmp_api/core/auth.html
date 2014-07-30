@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmp_api.core.auth &mdash; pmp_api  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="pmp_api  documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pmp_api.core.auth</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: pmp_api.core.auth</span>
+<span class="sd">   :synopsis: Core authorization object for the application</span>
+
+<span class="sd">:class:`PmpAuth &lt;PmpAuth&gt;` classes may be used to sign all requests</span>
+<span class="sd">with PMP API and they can also generate and revoke access-tokens.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64encode</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NoToken</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ExpiredToken</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">BadRequest</span>
+
+
+<div class="viewcode-block" id="PmpAuth"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth">[docs]</a><span class="k">class</span> <span class="nc">PmpAuth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is the authorization class for interacting with PMP API.</span>
+
+<span class="sd">    With a working client-id and client-secret, the :class:`PmpAuth &lt;PmpAuth&gt;`</span>
+<span class="sd">    retrieves access tokens and it uses those tokens to  authenticate</span>
+<span class="sd">    all requests made with the PMP API.</span>
+
+<span class="sd">    Usage::</span>
+<span class="sd">        </span>
+<span class="sd">      &gt;&gt;&gt; from pmp_api.core.auth import PmpAuth</span>
+<span class="sd">      &gt;&gt;&gt; auth = PmpAuth(Client_ID, CLIENT_SECRET)</span>
+<span class="sd">      &gt;&gt;&gt; auth.get_access_token(AUTH_TOKEN_ENDPOINT)</span>
+<span class="sd">      &#39;ACCESS-TOKEN&#39;</span>
+
+
+<span class="sd">    :class:`PmpAuth &lt;PmpAuth&gt;` objects must be instantiated with a working</span>
+<span class="sd">    client_id/client_secret</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    `client-id`</span>
+<span class="sd">    `client-secret`</span>
+
+<span class="sd">    Methods:</span>
+
+<span class="sd">    `get_access_token(endpoint)` -- retrieves new access token by posting</span>
+<span class="sd">    to the included endpoint</span>
+
+<span class="sd">    `sign_request(request_object)` -- uses access_token to sign requests for</span>
+<span class="sd">    the resource</span>
+
+<span class="sd">    returns:</span>
+<span class="sd">    PmPAuth object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token_expires</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token_issued</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">_auth_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns Basic authorization headers as specified in PMP spec.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unencoded_sig</span> <span class="o">=</span> <span class="s">&quot;{}:{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">)</span>
+        <span class="n">unencoded_sig</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">unencoded_sig</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span><span class="p">:</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">unencoded_sig</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="n">b64encode</span><span class="p">(</span><span class="n">unencoded_sig</span><span class="p">)</span>
+
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s">&quot;Basic {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signature</span><span class="p">),</span>
+                   <span class="s">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">headers</span>
+
+<div class="viewcode-block" id="PmpAuth.delete_access_token"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth.delete_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">delete_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method is likely unnecessary, but has been provided for</span>
+<span class="sd">        completeness as specified in the documentation.</span>
+
+<span class="sd">        Deletes access token for this account.</span>
+
+<span class="sd">        returns: True|False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;No access_token_url provided&quot;</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">endpoint</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span>
+
+        <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_header</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span>
+                                   <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">204</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="PmpAuth.get_access_token"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth.get_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c"># Pending documentation, this may become deprecated.</span>
+        <span class="c"># This method works at the POST-to (&#39;publish&#39;) server address as per</span>
+        <span class="c"># docs</span>
+        <span class="c"># See alternate get_access_token2 below</span>
+        <span class="sd">&quot;&quot;&quot;Method for retrieving an access token for use with PMP API</span>
+
+<span class="sd">        See: https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http</span>
+
+<span class="sd">        returns:</span>
+<span class="sd">        access_token</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;No access_token_url provided&quot;</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">endpoint</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;grant_type&#39;</span><span class="p">:</span> <span class="s">&#39;client_credentials&#39;</span><span class="p">}</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_auth_header</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span>
+                                 <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;access_token&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="s">&quot;Access Token missing: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span>
+
+            <span class="n">time_format</span> <span class="o">=</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%H:%M:%S+00:00&quot;</span>
+            <span class="n">issue_time</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;token_issue_date&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">token_issued</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">issue_time</span><span class="p">,</span>
+                                                           <span class="n">time_format</span><span class="p">)</span>
+
+            <span class="n">expiration</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;token_expires_in&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">expires</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expiration</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">token_expires</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">expires</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">endpoint</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+</div>
+<div class="viewcode-block" id="PmpAuth.get_access_token2"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth.get_access_token2">[docs]</a>    <span class="k">def</span> <span class="nf">get_access_token2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">access_token_url</span><span class="p">):</span>
+        <span class="c"># For the access_token urn given by homedoc, this</span>
+        <span class="c"># method works, based on the following example:</span>
+        <span class="c"># curl -i &quot;https://api-pilot.pmp.io/auth/access_token&quot; -u \</span>
+        <span class="c">#     &quot;clientid:clientsecret&quot; -H \</span>
+        <span class="c">#     &quot;Content-Type: application/x-www-form-urlencoded&quot; -X POST</span>
+        <span class="sd">&quot;&quot;&quot;Alternate access_token request method provided due to shifting spec.</span>
+<span class="sd">        Using an `access_token_url` this method requests an access token and </span>
+<span class="sd">        parses the response object as a result.</span>
+
+<span class="sd">        See: https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           access_token_url: http string taken from PMP API Home-Doc</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s">&quot;application/x-www-form-urlencoded&quot;</span><span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">access_token_url</span><span class="p">,</span>
+                                 <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">),</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;access_token&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Access Token missing: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">access_token_url</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+
+            <span class="n">time_format</span> <span class="o">=</span> <span class="s">&quot;%Y-%m-</span><span class="si">%d</span><span class="s">T%H:%M:%S+00:00&quot;</span>
+            <span class="n">issue_time</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;token_issue_date&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">token_issued</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">issue_time</span><span class="p">,</span>
+                                                           <span class="n">time_format</span><span class="p">)</span>
+
+            <span class="n">expiration</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;token_expires_in&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="n">expires</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">expiration</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">token_expires</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">expires</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">access_token_url</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+</div>
+<div class="viewcode-block" id="PmpAuth.sign_request"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth.sign_request">[docs]</a>    <span class="k">def</span> <span class="nf">sign_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provided with a :class:requests.Request object, this method will sign a</span>
+<span class="sd">        request for the PMP API. Raises ExpiredToken if token has expired</span>
+<span class="sd">        before request has been made.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           request_object -- instance of `requests.Request`</span>
+
+<span class="sd">        returns:</span>
+<span class="sd">           instance of `requests.Request` (signed)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="s">&quot;Access Token missing and needed to sign request&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_expires</span> <span class="o">&lt;</span> <span class="n">now</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Access token expired: create new access token&quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; You may use get_access_token method of PmpAuth object.&quot;</span>
+            <span class="k">raise</span> <span class="n">ExpiredToken</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+
+        <span class="n">token_signed</span> <span class="o">=</span> <span class="s">&#39;Bearer {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
+        <span class="n">request_obj</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token_signed</span>
+        <span class="k">return</span> <span class="n">request_obj</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pmp_api  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

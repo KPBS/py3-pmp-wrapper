@@ -1,6 +1,8 @@
 # py3-pmp-wrapper
 
-An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located [here](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/). To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
+An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located [here](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/). 
+
+To find out more about the Public Media Platform API, [consult the documentation](https://github.com/publicmediaplatform/pmpdocs/wiki).
 
 ## Installation
 
@@ -21,7 +23,7 @@ First, create a `pmp_client.Client` object and pass it the entry-point to the ap
 
 #### Generate Access Token
 
-After that, you will need to authenticate your client. To authenticate, pass in your client-id and client-secret to the `gain_access` method. You should already have a client-id and/or client-secret, but if not see below. 
+After that, you will need to authenticate your client. To authenticate, pass in your client-id and client-secret to the `gain_access` method. You should already have a client-id and client-secret, but if not see below. 
 
 ```python
 >>> client.gain_access(CLIENT-ID, CLIENT-SECRET) # This is NOT a username/password combination
@@ -36,32 +38,46 @@ Now, we're ready to make requests of the PMP API:
 >>> random_request = client.get("https://Some/arbitrary/endpoint?params=someparam")
 >>> random_request
 <Navigable Doc: https://Some/arbitrary/endpoint?params=someparam>
-```
-
-We can also go `back` or `forward`, like a browser, re-requesting the previous document:
-
-```python
->>> client.back() 
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
+>>> client.document # Most recent result is saved here
+<NavigableDoc: https://Some/arbitrary/endpoint?params=someparam>
 ```
 
 The client will automatically sign all requests and it should renew your access token if it expires. 
 
-#### Using URNs
-
-Most of the useful navigation is done via `urn`, the primary method for accessing content, and the `Client` object provides a number of ways to get information in response to a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
+#### Navigating
+   
+Using the fetched document's `navigation` object, the `Client` can follow navigation, if it's present:
 
 ```python
->>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
->>> client.document # Most recent result is saved here
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
 >>> client.next() # If the document defines a 'next' navigation element, we can follow it
 <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&offset=10>
 >>> client.prev() # Same as above, returns None if nothing there...
 >>>
+>>> client.last()  # requests 'last' page of results as given by document
+>>> client.first() # requests 'first' page of results as given by document
 ```
 
+We can also go `back` or `forward`, like a browser, re-requesting previous documents:
+
+```python
+>>> client.document
+<NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
+>>> client.back()  # This issues a new request
+<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
+>>> client.forward() 
+<NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
+```
+
+#### Using URNs
+
+Most of the useful navigation is done via `urn`, the primary method for accessing content, and the Client object provides a `query` method for use with a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
+
+```python
+>>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
+<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
+>>> client.document.items
+{ ITEMS ... }
+```
 
 ## NavigableDoc objects
 
@@ -78,49 +94,39 @@ To really get interesting information back, we need to have some way of managing
 [{'rels': ['urn:collectiondoc:query:users'], 'href-template': ...
 ```
 
-The client object will remember the *last* result it fetched for you as well inside its `document` attribute, so you can also do the following:
-
-```python
->>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
-<NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID> # returns NavigableDoc
->>> client.document.links
-{'item': [{'href': 'https://api-pilot.pmp.io/docs/SOMEGUID ...
-```
-
-### Getting More Information
-
-What if we want to know which `urn`s are listed at a particular endpoint? We can use the `NavigableDoc`'s `query_types` method:
-
-```python
->>> for item in client.document.query_types():
-...     print(item)
-('Query for users', ['urn:collectiondoc:query:users'])
-('Query for schemas', ['urn:collectiondoc:query:schemas'])
-('Access documents', ['urn:collectiondoc:hreftpl:docs'])
-('Query for documents', ['urn:collectiondoc:query:docs'])
-etc.
-```
-
 #### Querying 
 
-In order to get interesting results back, we generally want to issue queries, but it can be tough to know how to make queries. The `NavigableDoc` has a `template` method that  will reveal what params are available in a query:
+In order to get interesting results back, we generally want to issue queries, but it can be tough to remember how to make queries. The `NavigableDoc` has a `template` method that will reveal what params are available for a query:
 
 ```python
 >>> document.template('urn:collectiondoc:query:docs')
 'https://api-pilot.pmp.io/docs{?guid,limit,offset,tag,collection,text,searchsort,has,author,distributor,distributorgroup,startdate,enddate,profile,language}'
+>>> client.query('urn:collectiondoc:query:docs', params={'has': 'audio', 'language': 'en'})
 ```
 
-#### Options
+(For values accepted by query keys, consult the [PMP documentation](https://github.com/publicmediaplatform/pmpdocs/wiki)
 
-In addition, we can find options associated with the `urn`:
-```python
->>> client.document.options('urn:collectiondoc:query:docs')
-{'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
-```
+#### Options and Query-Types
+
+We can also find all options associated with the `urn`:
+
+    >>> document.options('urn:collectiondoc:query:docs')
+    {'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
+
+
+What if we want to know which `urns` are listed at a particular endpoint? We must ask the document for its `query_types`:
+
+    >>> for item in document.query_types():
+    ...     print(item)
+    ('Query for users', ['urn:collectiondoc:query:users'])
+    ('Query for schemas', ['urn:collectiondoc:query:schemas'])
+    ('Access documents', ['urn:collectiondoc:hreftpl:docs'])
+    ('Query for documents', ['urn:collectiondoc:query:docs'])
+    etc.
 
 #### All Results
 
-Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of all values contained in the document:
+Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of *all* values contained in the document:
 
 ```python
 >>> client.document.collectiondoc

@@ -173,4 +173,4 @@ class Client(object):
         if len(self.forward_stack) < 1:
             return
         else:
-            return self.get(self.history[-1])
+            return self.get(self.forward_stack.pop())

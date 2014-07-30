@@ -6,7 +6,7 @@ import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from wsgiref.simple_server import make_server
-from .server import wsgi_server
+from .server import run
 
 from pmp_api.pmp_client import Client
 from pmp_api.core.exceptions import ExpiredToken
