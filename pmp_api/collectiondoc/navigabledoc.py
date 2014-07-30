@@ -17,7 +17,7 @@ class NavigableDoc(object):
     def __init__(self, collection_result):
         self.collectiondoc = collection_result
         self.pager = Pager()
-        self.pager.update(self.collectiondoc)
+        self.pager.update(self.links)
         self.url = self.pager.current
 
     def __repr__(self):
