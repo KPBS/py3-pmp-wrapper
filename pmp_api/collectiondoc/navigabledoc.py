@@ -68,7 +68,7 @@ class NavigableDoc(object):
         """Returns dictionary of query_options for particular query type.
         """
         options = list(filter_dict(self.collectiondoc, 'rels', rel_type))
-         if len(options) == 1:
+        if len(options) == 1:
             return options[0]
 
     def template(self, rel_type):

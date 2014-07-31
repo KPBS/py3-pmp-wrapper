@@ -7,4 +7,4 @@ https://github.com/publicmediaplatform/pmpdocs
 from .core import exceptions
 from .utils import json_utils
 
-__version__ = '0.3.9'
+__version__ = '0.4.0'
