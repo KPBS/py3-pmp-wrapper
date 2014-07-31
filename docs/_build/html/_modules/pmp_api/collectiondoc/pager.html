@@ -99,13 +99,12 @@
                 <span class="k">return</span> <span class="bp">None</span>
         <span class="k">return</span> <span class="n">_get_page</span>
 </div>
-<div class="viewcode-block" id="Pager.update"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.pager.Pager.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Pager.update"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.pager.Pager.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nav</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Updates all page attributes as well as :attribute::navigable</span>
 <span class="sd">        boolean attribute.</span>
 
 <span class="sd">        :param result_dict: dictionary (from JSON)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">nav</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">qfind</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="s">&#39;navigation&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nav</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">navigable</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="n">navigator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">navigator</span><span class="p">(</span><span class="n">nav</span><span class="p">)</span>

@@ -85,51 +85,68 @@ this in your terminal:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">random_request</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;https://Some/arbitrary/endpoint?params=someparam&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">random_request</span>
 <span class="go">&lt;Navigable Doc: https://Some/arbitrary/endpoint?params=someparam&gt;</span>
+<span class="go"> &gt;&gt;&gt; client.document # Most recent result is saved here</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam&gt;</span>
 </pre></div>
 </div>
-<p>The client will automatically sign all requests and it should renew your access token if it expires.</p>
-<p>Most of the useful navigation is done via <cite>urn</cite>, the primary method for accessing content, and the Client object provides a number of ways to get information in response to a <cite>urn</cite>. For example, let&#8217;s look at <cite>urn:collectiondoc:query:docs</cite>, which contains information for querying documents.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tag&quot;</span><span class="p">:</span> <span class="s">&quot;samplecontent&quot;</span><span class="p">,</span> <span class="s">&quot;profile&quot;</span><span class="p">:</span> <span class="s">&quot;story&quot;</span><span class="p">})</span>
-<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span> <span class="c"># Most recent result is saved here</span>
-<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="c"># If the document defines a &#39;next&#39; navigation element, we can follow it</span>
+<p>The <cite>Client</cite> will automatically sign all requests and it should renew your access token if it expires.</p>
+</div>
+<div class="section" id="navigating">
+<h2>Navigating<a class="headerlink" href="#navigating" title="Permalink to this headline">¶</a></h2>
+<p>Using the fetched document&#8217;s <cite>navigation</cite> object, the <cite>Client</cite> follow navigation, if it&#8217;s present:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="c"># If the document defines a &#39;next&#39; navigation element, we can follow it</span>
 <span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&amp;offset=10&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">prev</span><span class="p">()</span> <span class="c"># Same as above, returns None if nothing there...</span>
 <span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>  <span class="c"># requests &#39;last&#39; page of results as given by document</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="c"># requests &#39;first&#39; page of results as given by document</span>
 </pre></div>
 </div>
 <p>We can also go <cite>back</cite> or <cite>forward</cite>, like a browser, re-requesting the previous document:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">back</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">back</span><span class="p">()</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+<span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Keep in mind: each request here fetches a new document and sets the <cite>client.document</cite> attribute to the new <strong>current</strong> document. This means that future calls to <cite>query</cite> will use the <strong>current</strong> document.</p>
+</div>
+<p>Most of the useful navigation is done via <cite>urn</cite>, the primary method for accessing content, and the Client object provides a <cite>query</cite> method for use with a <cite>urn</cite>. For example, let&#8217;s look at <cite>urn:collectiondoc:query:docs</cite>, which contains information for querying documents.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">document</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tag&quot;</span><span class="p">:</span> <span class="s">&quot;samplecontent&quot;</span><span class="p">,</span> <span class="s">&quot;profile&quot;</span><span class="p">:</span> <span class="s">&quot;story&quot;</span><span class="p">})</span>
 <span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt;</span>
 </pre></div>
 </div>
 </div>
+</div>
 <div class="section" id="navigabledoc-objects">
-<h2>NavigableDoc objects<a class="headerlink" href="#navigabledoc-objects" title="Permalink to this headline">¶</a></h2>
+<h1>NavigableDoc objects<a class="headerlink" href="#navigabledoc-objects" title="Permalink to this headline">¶</a></h1>
 <p>To really get interesting information back, we need to have some way of managing it. For this reason, the <cite>Client</cite> object returns <cite>NavigableDoc</cite> elements. These have a number of methods and properties, which should make it easier to extract information from the document.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tag&quot;</span><span class="p">:</span> <span class="s">&quot;samplecontent&quot;</span><span class="p">,</span> <span class="s">&quot;profile&quot;</span><span class="p">:</span> <span class="s">&quot;story&quot;</span><span class="p">})</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">document</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;tag&quot;</span><span class="p">:</span> <span class="s">&quot;samplecontent&quot;</span><span class="p">,</span> <span class="s">&quot;profile&quot;</span><span class="p">:</span> <span class="s">&quot;story&quot;</span><span class="p">})</span>
 <span class="go">&lt;NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID&gt; # returns NavigableDoc</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">links</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">document</span><span class="o">.</span><span class="n">links</span>
 <span class="go">{&#39;item&#39;: [{&#39;href&#39;: &#39;https://api-pilot.pmp.io/docs/SOMEGUID ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">items</span>
 <span class="go">[{&#39;attributes&#39;: {&#39;valid&#39;: {&#39;to&#39;: &#39;3014-07-29T18:08:11+00:00&#39;, &#39;from&#39;: ...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">querylinks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">document</span><span class="o">.</span><span class="n">querylinks</span>
 <span class="go">[{&#39;rels&#39;: [&#39;urn:collectiondoc:query:users&#39;], &#39;href-template&#39;: ...</span>
 </pre></div>
 </div>
 <p>In order to get interesting results back, we generally want to issue queries, but it can be tough to know how to make queries. The <cite>NavigableDoc</cite> object can help with that.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">template</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">document</span><span class="o">.</span><span class="n">template</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">)</span>
 <span class="go">&#39;https://api-pilot.pmp.io/docs{?guid,limit,offset,tag,collection,text,searchsort,has,author,distributor,distributorgroup,startdate,enddate,profile,language}&#39;</span>
 </pre></div>
 </div>
 <p>In addition, we can find options associated with the <cite>urn</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">document</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="s">&#39;urn:collectiondoc:query:docs&#39;</span><span class="p">)</span>
 <span class="go">{&#39;rels&#39;: [&#39;urn:collectiondoc:query:docs&#39;], &#39;href-template&#39;: ...</span>
 </pre></div>
 </div>
 <p>What if we want to know which <cite>urns</cite> are listed at a particular endpoint? We must ask the document for its <cite>query_types</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">query_types</span><span class="p">():</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">document</span><span class="o">.</span><span class="n">query_types</span><span class="p">():</span>
 <span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 <span class="go">(&#39;Query for users&#39;, [&#39;urn:collectiondoc:query:users&#39;])</span>
 <span class="go">(&#39;Query for schemas&#39;, [&#39;urn:collectiondoc:query:schemas&#39;])</span>
@@ -139,12 +156,11 @@ this in your terminal:</p>
 </pre></div>
 </div>
 <p>Finally, you can always retrieve all of the results inside a document by acessing its <cite>collectiondoc</cite> attribute. This will return a dictionary of all values contained in the document:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">collectiondoc</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">document</span><span class="o">.</span><span class="n">collectiondoc</span>
 <span class="go">{ALL-The_Data ...}</span>
 </pre></div>
 </div>
 <p>This should cover most use-cases for browsing PMP API content.</p>
-</div>
 </div>
 
 
@@ -159,9 +175,10 @@ this in your terminal:</p>
 <li><a class="reference internal" href="#create-a-pmp-client">Create a PMP Client</a></li>
 <li><a class="reference internal" href="#authenticate-your-client">Authenticate Your Client</a></li>
 <li><a class="reference internal" href="#make-requests">Make Requests</a></li>
-<li><a class="reference internal" href="#navigabledoc-objects">NavigableDoc objects</a></li>
+<li><a class="reference internal" href="#navigating">Navigating</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#navigabledoc-objects">NavigableDoc objects</a></li>
 </ul>
 
   <h4>Previous topic</h4>

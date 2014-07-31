@@ -57,6 +57,8 @@ Using the fetched document's `navigation` object, the `Client` can follow naviga
 >>> client.first() # requests 'first' page of results as given by document
 ```
 
+> Keep in mind: each request here fetches a new document and sets the `client.document` attribute to the current document. 
+
 We can also go `back` or `forward`, like a browser, re-requesting previous documents:
 
 ```python

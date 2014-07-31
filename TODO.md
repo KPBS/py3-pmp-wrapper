@@ -1,4 +1,5 @@
 Debug: test_paging_docs_doc: Sometimes gives unexpected results. Could be from dictionary values/unsorted. Could be looming bug in there.
+Consider: `has_token` boolean attribute for client. Useful or not?  
 Look at document profiles and consider models for relevant ones.
 Alternately, look at some document factory, which can take values and create something useful (will still have to conform to a profile?)
 Consider the problems related to PUT/POSTing values to the server: how to specify interrelated objects, for example? 

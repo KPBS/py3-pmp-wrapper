@@ -56,14 +56,18 @@ Using the fetched document's `navigation` object, the `Client` follow navigation
     >>> client.last()  # requests 'last' page of results as given by document
     >>> client.first() # requests 'first' page of results as given by document
 
+
 We can also go `back` or `forward`, like a browser, re-requesting the previous document:
 
+
      >>> client.document
-    <NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
-    >>> client.back() 
-    <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
-    >>> client.forward()
-    <NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
+     <NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
+     >>> client.back() 
+     <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
+     >>> client.forward()
+     <NavigableDoc: https://api-pilot.pmp.io/docs?params=someparam>
+
+.. note:: Keep in mind: each request here fetches a new document and sets the `client.document` attribute to the new **current** document. This means that future calls to `query` will use the **current** document.
 
 
 Most of the useful navigation is done via `urn`, the primary method for accessing content, and the Client object provides a `query` method for use with a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
