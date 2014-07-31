@@ -113,11 +113,18 @@ class TestPmpClient(TestCase):
             with self.assertRaises(NoToken):
                 client.gain_access('client-id', 'client-secret')
 
-
     def test_get_without_connector_raise_no_auth_token(self):
         client = Client(self.test_url)
         with self.assertRaises(NoToken):
             client.get(self.test_url)
+
+    def test_get_no_result(self):
+        client = Client(self.test_entry_point)
+        mock_connector = Mock(**{'get.return_value': None})
+        client.connector = mock_connector
+        result = client.get(self.data_url)
+        self.assertEqual(result, None)
+        self.assertEqual(client.document, None)
 
     def test_client_pager(self):
         client = Client(self.test_entry_point)

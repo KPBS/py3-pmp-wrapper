@@ -7,11 +7,13 @@
 from .pager import Pager
 from .query import make_query
 from ..utils.json_utils import qfind
-from ..utils.json_utils import get_dict
+from ..utils.json_utils import filter_dict
 
 
 class NavigableDoc(object):
-    """
+    """:class:NavigableDoc <NavigableDoc>` is for easily parsing
+    and navigation collection+doc JSON documents returned from the
+    PMP API. Each document should have
     """
 
     def __init__(self, collection_result):
@@ -25,6 +27,9 @@ class NavigableDoc(object):
 
     def __str__(self):
         return self.collectiondoc
+
+    def get(self):
+        return self.collectiondoc.get
 
     def query(self, rel_type, params=None):
         """Returns constructed url with query parameters for urn
@@ -40,6 +45,9 @@ class NavigableDoc(object):
            params -- dict of param values
         """
         template = self.template(rel_type)
+        if template is None:
+            return
+
         if params is not None:
             endpoint = make_query(template, params)
         else:
@@ -58,24 +66,30 @@ class NavigableDoc(object):
 
     def options(self, rel_type):
         """Returns dictionary of query_options for particular query type.
-        Raises Exception if `rel_type` is not found.
         """
-        options = get_dict(self.collectiondoc, 'rels', rel_type)
-        return options
+        options = list(filter_dict(self.collectiondoc, 'rels', rel_type))
+         if len(options) == 1:
+            return options[0]
 
     def template(self, rel_type):
         """Query_template for particular query type.
         Raises Exception if `rel_type` is not found.
         """
-        return self.options(rel_type).get('href-template', None)
+        options = self.options(rel_type)
+        if options:
+            return options.get('href-template', None)
+
+    @property
+    def attributes(self):
+        """All attributes listed in the collectiondoc.
+        """
+        return self.collectiondoc.get('attributes', None)
 
     @property
     def items(self):
         """All items listed in the collectiondoc.
         """
-        items = self.collectiondoc.get('items', False)
-        if items:
-            return items
+        return self.collectiondoc.get('items', None)
 
     @property
     def links(self):

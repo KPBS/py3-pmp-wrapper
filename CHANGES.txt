@@ -1,3 +1,5 @@
+v0.3.8 July 31, 2014 -- Changed internal behavior of NavigableDoc object. Added unittests.
+
 v0.3.5 July 31, 2014 -- Made Client.gain_access method save homedoc as self.document. This is the first function anyone will run, so might as well make it useful. Added unittest to ensure this attribute is getting set.
 
 v0.3.0 July 30, 2014 -- Finished pmp_client.Client module with some debugging. Also debugged collectiondoc.navigabledoc and collectiondoc.pager. Completed tests for pmp_client module.

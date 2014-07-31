@@ -19,5 +19,9 @@ class ExpiredToken(Exception):
     pass
 
 
+class NoResult(Exception):
+    pass
+
+
 class NoToken(Exception):
     pass

@@ -5,15 +5,9 @@
 This module includes functions for parsing nested dictionaries returned
 by the PMP API
 """
+from functools import wraps
 from itertools import dropwhile
-
-
-class SearchResultsAmbiguous(Exception):
-    pass
-
-
-class NoResult(Exception):
-    pass
+from pmp_api.core.exceptions import NoResult
 
 
 def qfind(json_dict, key):
@@ -67,16 +61,19 @@ def returnfirst(func):
     Args:
        `func` -- function that returns iterator
     """
+    @wraps
     def inner(*args, **kwargs):
         try:
             result, *_ = func(*args, **kwargs)
             return result
         except ValueError:
-            errmsg = "Result empty for provided arguments: {} {}"
+            errmsg = "Result empty for provided arguments"
             raise NoResult(errmsg.format(args, kwargs))
     return inner
 
 
+# This is more trouble than it's worth probably.
+# Currently not used anywhere
 @returnfirst
 def get_dict(json_dict, key, val):
     """Returns first dictionary that matches `key` - `val`

@@ -112,9 +112,10 @@ class Client(object):
             self.current_page = endpoint
             results = self.connector.get(endpoint)
 
-        self.document = NavigableDoc(results)
-        self.pager = self.document.pager
-        return self.document
+        if results is not None:
+            self.document = NavigableDoc(results)
+            self.pager = self.document.pager
+            return self.document
 
     def query(self, rel_type, params=None):
         """Issues request for a query using urn with params to create
