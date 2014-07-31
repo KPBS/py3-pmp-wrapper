@@ -68,6 +68,18 @@ class TestPmpClient(TestCase):
             client.gain_access('client-id', 'client-secret')
             mocker.assert_called_with(expected_url)
 
+    def test_gain_access_makes_pager(self):
+        client = Client(self.test_entry_point)
+        resp = requests.get(self.test_entry_point).json()
+        expected_doc = NavigableDoc(resp)
+        with open(self.home_doc, 'r') as jfile:
+            values = json.loads(jfile.read())        
+        with patch.object(PmpAuth, 'get_access_token2', return_value=values) as mocker:
+            client.gain_access('client-id', 'client-secret')
+            self.assertEqual(expected_doc.links, client.document.links)
+            self.assertEqual(expected_doc.items, client.document.items)
+            self.assertEqual(expected_doc.querylinks, client.document.querylinks)
+
     def test_get_without_connector_raise_no_auth_token(self):
         client = Client(self.test_url)
         with self.assertRaises(NoToken):

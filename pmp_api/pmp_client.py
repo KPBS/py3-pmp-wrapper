@@ -23,7 +23,6 @@ from .core.auth import PmpAuth
 from .core.conn import PmpConnector
 from .core.exceptions import NoToken
 from .collectiondoc.navigabledoc import NavigableDoc
-from .utils.json_utils import get_dict
 
 
 class Client(object):
@@ -67,14 +66,11 @@ class Client(object):
         Finds the urn `urn:collectiondoc:form:issuetoken` and requests a
         token using the protocol listed there.
         """
+        AUTH_URN = "urn:collectiondoc:form:issuetoken"
         resp = requests.get(self.entry_point)
         home_doc = resp.json()
-        # get_dict is fragile, but we want to know if this urn is not present.
-        # if not, we probably want to raise EmptyResponse exception, which will
-        # be raised by the function itself.
-        auth_schema = get_dict(home_doc,
-                               'rels',
-                               "urn:collectiondoc:form:issuetoken")
+        self.document = NavigableDoc(home_doc)
+        auth_schema = self.document.options(AUTH_URN)
         access_token_url = auth_schema.get('href', None)
         authorizer = PmpAuth(client_id, client_secret)
         try:

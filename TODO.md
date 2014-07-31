@@ -1,15 +1,6 @@
-After buildingserver for TESTING, build server for browsing API
-    Things it can do:
-        DOC Browsing: can follow any link and sign all requests
-        Can allow for input on any href-template and then turn that into a followable link
-
-Follow method API for npr.pmpbelt
-https://github.com/npr/pmpbelt
-
-
-Build tests for pmp_client.Client
-
-Build tests for json_utils
-Goal: Give a profile schema to a program and have it automatically serialize values. How?
-Work on serializing and deserializing values from a collection-doc
-Begin working on writing/editing, PUTtin documents into PMP
+Debug: test_paging_docs_doc: Sometimes gives unexpected results. Could be from dictionary values/unsorted. Could be looming bug in there.
+Look at document profiles and consider models for relevant ones.
+Alternately, look at some document factory, which can take values and create something useful (will still have to conform to a profile?)
+Consider the problems related to PUT/POSTing values to the server: how to specify interrelated objects, for example? 
+    Begin working on API to put values to the server. Should client handle this? Continue with philosophy that documents should be dumb objects with no network capabilities in order to simplify future problem spaces.
+ 
