@@ -64,7 +64,9 @@ class TestPmpClient(TestCase):
             values = json.loads(jfile.read())
         expected_url = 'http://127.0.0.1:8080/auth/access_token?json_response'
         expected_url += '=fixtures/authdetails.json'
-        with patch.object(PmpAuth, 'get_access_token2', return_value=values) as mocker:
+        with patch.object(PmpAuth, 'get_access_token2',
+                          return_value=values) as mocker:
+
             client.gain_access('client-id', 'client-secret')
             mocker.assert_called_with(expected_url)
 
@@ -74,11 +76,43 @@ class TestPmpClient(TestCase):
         expected_doc = NavigableDoc(resp)
         with open(self.home_doc, 'r') as jfile:
             values = json.loads(jfile.read())        
-        with patch.object(PmpAuth, 'get_access_token2', return_value=values) as mocker:
+        with patch.object(PmpAuth, 'get_access_token2',
+                          return_value=values) as mocker:
+
             client.gain_access('client-id', 'client-secret')
             self.assertEqual(expected_doc.links, client.document.links)
             self.assertEqual(expected_doc.items, client.document.items)
             self.assertEqual(expected_doc.querylinks, client.document.querylinks)
+
+    def test_gain_bad_url_raise_no_token(self):
+        client = Client(self.test_entry_point)
+        bad_vals_no_href = {'rels': ['urn:collectiondoc:form:issuetoken'],
+                            'hints': {'docs':
+                                      'http://docs.pmp.io/wiki/Authentication-Model#token-management',
+                                      'allow': ['POST']},
+                            'title': 'Issue OAuth2 Token',
+                            'nohref': ''}
+        bad_vals = {'rels': ['urn:collectiondoc:form:issuetoken'],
+                            'hints': {'docs':
+                                      'http://docs.pmp.io/wiki/Authentication-Model#token-management',
+                                      'allow': ['POST']},
+                            'title': 'Issue OAuth2 Token',
+                            'href': ''}
+
+        with patch.object(NavigableDoc,
+                          'options',
+                          return_value=bad_vals_no_href) as mocker:
+
+            with self.assertRaises(NoToken):
+                client.gain_access('client-id', 'client-secret')
+
+        with patch.object(NavigableDoc,
+                          'options',
+                          return_value=bad_vals) as mocker:
+
+            with self.assertRaises(NoToken):
+                client.gain_access('client-id', 'client-secret')
+
 
     def test_get_without_connector_raise_no_auth_token(self):
         client = Client(self.test_url)

@@ -72,6 +72,11 @@ class Client(object):
         self.document = NavigableDoc(home_doc)
         auth_schema = self.document.options(AUTH_URN)
         access_token_url = auth_schema.get('href', None)
+        if not access_token_url:
+            errmsg = "Missing authentication URL at endpoint."
+            errmsg += " Review API values at {0} with options {1}"
+            raise NoToken(errmsg.format(AUTH_URN, str(auth_schema)))
+
         authorizer = PmpAuth(client_id, client_secret)
         try:
             authorizer.get_access_token2(access_token_url)
