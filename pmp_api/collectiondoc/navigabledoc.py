@@ -21,15 +21,13 @@ class NavigableDoc(object):
         self.pager = Pager()
         self.pager.update(self.links)
         self.url = self.pager.current
+        self.get = self.collectiondoc.get
 
     def __repr__(self):
         return "<Navigable Doc: {}>".format(self.url)
 
     def __str__(self):
         return self.collectiondoc
-
-    def get(self):
-        return self.collectiondoc.get
 
     def query(self, rel_type, params=None):
         """Returns constructed url with query parameters for urn
