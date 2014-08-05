@@ -1,3 +1,7 @@
+v0.4.2 August 5, 2014 -- Bug in Pager/NavigableDoc that sets incorrect current page addressed.
+
+v0.4.1 August 5, 2014 -- NavigableDoc tests completed with bugs address in NavigableDoc.
+
 v0.4.0 July 31 2014 -- Working Client and NavigableDoc. Tests 98% coverage.
 
 v0.3.9 July 31 2014 -- Bugs in Tests
