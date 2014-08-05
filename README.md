@@ -1,4 +1,4 @@
-# py3-pmp-wrapper
+# py3-pmp-wrapper 
 
 An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located [here](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/). 
 
@@ -170,3 +170,4 @@ If you do not have a client_id/client_secret for your application, you can creat
 (CLIENT_ID, CLIENT_SECRET)
 ```
 
+![Build Status](https://travis-ci.org/KPBS/py3-pmp-wrapper.svg?branch=master)
