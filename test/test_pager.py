@@ -1,6 +1,7 @@
 from unittest import TestCase
 import os
 import json
+from pmp_api import NavigableDoc
 
 
 class TestPager(TestCase):
@@ -11,15 +12,15 @@ class TestPager(TestCase):
         homedoc = os.path.join(fixtures, 'homedoc.json')
         docsdoc = os.path.join(fixtures, 'test_data.json')
         with open(homedoc, 'r') as h:
-            self.homedata = json.loads(h.read())
+            self.homedata = NavigableDoc(json.loads(h.read()))
         with open(docsdoc, 'r') as d:
-            self.docsdata = json.loads(d.read())
+            self.docsdata = NavigableDoc(json.loads(d.read()))
 
     def test_paging_home_doc(self):
         from pmp_api.collectiondoc.pager import Pager
         self.pager = Pager()
-        self.pager.update(self.homedata)
-        self.assertTrue(self.pager.navigable)
+        self.pager.update(self.homedata.links.get('navigation'))
+        self.assertFalse(self.pager.navigable)
 
     def test_paging_docs_doc(self):
         from pmp_api.collectiondoc.pager import Pager
@@ -29,7 +30,7 @@ class TestPager(TestCase):
                        'first': "http://127.0.0.1:8080/docs?",
                        'last': "http://127.0.0.1:8080/docs?offset=42920",
                        'current': "http://127.0.0.1:8080/docs?offset=10"}
-        self.pager.update(self.docsdata)
+        self.pager.update(self.docsdata.links.get('navigation'))
         self.assertTrue(self.pager.navigable)
         self.assertEqual(actual_vals['prev'], self.pager.prev)
         self.assertEqual(actual_vals['next'], self.pager.next)

@@ -56,6 +56,8 @@ class Pager(object):
 
         :param result_dict: dictionary (from JSON)
         """
+        if nav is None:
+            return
         if len(nav) > 1:
             self.navigable = True
             navigator = self.navigator(nav)
