@@ -17,7 +17,7 @@ pip install py3-pmp-wrapper
 First, create a `pmp_client.Client` object and pass it the entry-point to the application:
 
 ```python
->>> from pmp_api.pmp_client import Client
+>>> from pmp_api import Client
 >>> client = Client("https://api-pilot.pmp.io")
 ```
 
@@ -112,19 +112,22 @@ In order to get interesting results back, we generally want to issue queries, bu
 
 We can also find all options associated with the `urn`:
 
-    >>> document.options('urn:collectiondoc:query:docs')
-    {'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
-
+```python
+>>> document.options('urn:collectiondoc:query:docs')
+{'rels': ['urn:collectiondoc:query:docs'], 'href-template': ...
+```
 
 What if we want to know which `urns` are listed at a particular endpoint? We must ask the document for its `query_types`:
 
-    >>> for item in document.query_types():
-    ...     print(item)
-    ('Query for users', ['urn:collectiondoc:query:users'])
-    ('Query for schemas', ['urn:collectiondoc:query:schemas'])
-    ('Access documents', ['urn:collectiondoc:hreftpl:docs'])
-    ('Query for documents', ['urn:collectiondoc:query:docs'])
-    etc.
+```python
+>>> for item in document.query_types():
+...     print(item)
+('Query for users', ['urn:collectiondoc:query:users'])
+('Query for schemas', ['urn:collectiondoc:query:schemas'])
+('Access documents', ['urn:collectiondoc:hreftpl:docs'])
+('Query for documents', ['urn:collectiondoc:query:docs'])
+etc.
+```
 
 #### All Results
 

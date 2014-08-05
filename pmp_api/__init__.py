@@ -6,5 +6,7 @@ https://github.com/publicmediaplatform/pmpdocs
 
 from .core import exceptions
 from .utils import json_utils
+from .pmp_client import Client
+from .collectiondoc.navigabledoc import NavigableDoc
 
 __version__ = '0.4.1'
