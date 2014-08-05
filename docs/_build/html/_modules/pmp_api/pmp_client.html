@@ -161,9 +161,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">current_page</span> <span class="o">=</span> <span class="n">endpoint</span>
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">document</span> <span class="o">=</span> <span class="n">NavigableDoc</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">pager</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span>
+        <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">document</span> <span class="o">=</span> <span class="n">NavigableDoc</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">pager</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span>
 </div>
 <div class="viewcode-block" id="Client.query"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Issues request for a query using urn with params to create</span>

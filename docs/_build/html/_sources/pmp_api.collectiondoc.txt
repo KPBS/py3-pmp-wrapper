@@ -1,9 +1,6 @@
 pmp_api.collectiondoc package
 =============================
 
-Submodules
-----------
-
 pmp_api.collectiondoc.navigabledoc module
 -----------------------------------------
 

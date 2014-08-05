@@ -6,13 +6,10 @@ Subpackages
 
 .. toctree::
 
-    pmp_api.browser
     pmp_api.collectiondoc
     pmp_api.core
     pmp_api.utils
 
-Submodules
-----------
 
 pmp_api.pmp_client module
 -------------------------

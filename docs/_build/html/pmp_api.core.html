@@ -56,16 +56,13 @@
             
   <div class="section" id="pmp-api-core-package">
 <h1>pmp_api.core package<a class="headerlink" href="#pmp-api-core-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="module-pmp_api.core.access">
 <span id="pmp-api-core-access-module"></span><h2>pmp_api.core.access module<a class="headerlink" href="#module-pmp_api.core.access" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-pmp_api.core.access"></span><p>The <a class="reference internal" href="#pmp_api.core.access.PmpAccess" title="pmp_api.core.access.PmpAccess"><tt class="xref py py-class docutils literal"><span class="pre">PmpAccess</span></tt></a> object can generate and revoke credentials
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">PmpAccess</span></tt> object can generate and revoke credentials
 (client-id, client-secret) for use with PMP API.</p>
 <dl class="class">
-<dt id="pmp_api.core.access.PmpAccess">
-<em class="property">class </em><tt class="descclassname">pmp_api.core.access.</tt><tt class="descname">PmpAccess</tt><big>(</big><em>username</em>, <em>password</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/access.html#PmpAccess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.access.PmpAccess" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">pmp_api.core.access.</tt><tt class="descname">PmpAccess</tt><big>(</big><em>username</em>, <em>password</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/access.html#PmpAccess"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
 <p>Access class for Public Media Platform credentials.
 See: <a class="reference external" href="https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API">https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API</a></p>
@@ -76,8 +73,8 @@ remove_credentials &#8211; revokes client_id/client_secret for account</p>
 <p>returns:
 <cite>pmp_api.auth.PmpAuthorization</cite> instance</p>
 <dl class="method">
-<dt id="pmp_api.core.access.PmpAccess.generate_new_credentials">
-<tt class="descname">generate_new_credentials</tt><big>(</big><em>endpoint</em>, <em>label</em>, <em>scope='read'</em>, <em>token_expiry='200000'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/access.html#PmpAccess.generate_new_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.access.PmpAccess.generate_new_credentials" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">generate_new_credentials</tt><big>(</big><em>endpoint</em>, <em>label</em>, <em>scope='read'</em>, <em>token_expiry='200000'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/access.html#PmpAccess.generate_new_credentials"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Method for creating new credentials for an account. This
 should not need to be used often (if at all). Credentials
 can also be generated with a curl post to the PMP
@@ -92,8 +89,8 @@ Auth endpoint with the proper parameters (see auth link from docs)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmp_api.core.access.PmpAccess.remove_credentials">
-<tt class="descname">remove_credentials</tt><big>(</big><em>endpoint</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/access.html#PmpAccess.remove_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.access.PmpAccess.remove_credentials" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">remove_credentials</tt><big>(</big><em>endpoint</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/access.html#PmpAccess.remove_credentials"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Revokes credentials for the PmpAuth object&#8217;s username/password. This
 may be necessary if credentials are ever compromised.</p>
 <p>To revoke credentials, pass in endpoint
@@ -107,14 +104,14 @@ with the client_id at the end:</p>
 </div>
 <div class="section" id="module-pmp_api.core.auth">
 <span id="pmp-api-core-auth-module"></span><h2>pmp_api.core.auth module<a class="headerlink" href="#module-pmp_api.core.auth" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-pmp_api.core.auth"></span><p><a class="reference internal" href="#pmp_api.core.auth.PmpAuth" title="pmp_api.core.auth.PmpAuth"><tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt></a> classes may be used to sign all requests
+<p><tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt> classes may be used to sign all requests
 with PMP API and they can also generate and revoke access-tokens.</p>
 <dl class="class">
-<dt id="pmp_api.core.auth.PmpAuth">
-<em class="property">class </em><tt class="descclassname">pmp_api.core.auth.</tt><tt class="descname">PmpAuth</tt><big>(</big><em>client_id</em>, <em>client_secret</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.auth.PmpAuth" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">pmp_api.core.auth.</tt><tt class="descname">PmpAuth</tt><big>(</big><em>client_id</em>, <em>client_secret</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
 <p>This is the authorization class for interacting with PMP API.</p>
-<p>With a working client-id and client-secret, the <a class="reference internal" href="#pmp_api.core.auth.PmpAuth" title="pmp_api.core.auth.PmpAuth"><tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt></a>
+<p>With a working client-id and client-secret, the <tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt>
 retrieves access tokens and it uses those tokens to  authenticate
 all requests made with the PMP API.</p>
 <p>Usage:</p>
@@ -124,7 +121,7 @@ all requests made with the PMP API.</p>
 <span class="go">&#39;ACCESS-TOKEN&#39;</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="#pmp_api.core.auth.PmpAuth" title="pmp_api.core.auth.PmpAuth"><tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt></a> objects must be instantiated with a working
+<p><tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt> objects must be instantiated with a working
 client_id/client_secret</p>
 <p>Args:
 <cite>client-id</cite>
@@ -137,8 +134,8 @@ the resource</p>
 <p>returns:
 PmPAuth object</p>
 <dl class="method">
-<dt id="pmp_api.core.auth.PmpAuth.delete_access_token">
-<tt class="descname">delete_access_token</tt><big>(</big><em>endpoint=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.delete_access_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.auth.PmpAuth.delete_access_token" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">delete_access_token</tt><big>(</big><em>endpoint=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.delete_access_token"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>This method is likely unnecessary, but has been provided for
 completeness as specified in the documentation.</p>
 <p>Deletes access token for this account.</p>
@@ -146,8 +143,8 @@ completeness as specified in the documentation.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmp_api.core.auth.PmpAuth.get_access_token">
-<tt class="descname">get_access_token</tt><big>(</big><em>endpoint=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.get_access_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.auth.PmpAuth.get_access_token" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">get_access_token</tt><big>(</big><em>endpoint=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.get_access_token"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Method for retrieving an access token for use with PMP API</p>
 <p>See: <a class="reference external" href="https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http">https://github.com/publicmediaplatform/pmpdocs/wiki/Authenticating-with-the-API#grabbing-an-access-token-over-http</a></p>
 <p>returns:
@@ -155,8 +152,8 @@ access_token</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmp_api.core.auth.PmpAuth.get_access_token2">
-<tt class="descname">get_access_token2</tt><big>(</big><em>access_token_url</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.get_access_token2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.auth.PmpAuth.get_access_token2" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">get_access_token2</tt><big>(</big><em>access_token_url</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.get_access_token2"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Alternate access_token request method provided due to shifting spec.
 Using an <cite>access_token_url</cite> this method requests an access token and 
 parses the response object as a result.</p>
@@ -168,8 +165,8 @@ parses the response object as a result.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmp_api.core.auth.PmpAuth.sign_request">
-<tt class="descname">sign_request</tt><big>(</big><em>request_obj</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.sign_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.auth.PmpAuth.sign_request" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">sign_request</tt><big>(</big><em>request_obj</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/auth.html#PmpAuth.sign_request"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Provided with a :class:requests.Request object, this method will sign a
 request for the PMP API. Raises ExpiredToken if token has expired
 before request has been made.</p>
@@ -186,12 +183,12 @@ before request has been made.</p>
 </div>
 <div class="section" id="module-pmp_api.core.conn">
 <span id="pmp-api-core-conn-module"></span><h2>pmp_api.core.conn module<a class="headerlink" href="#module-pmp_api.core.conn" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-pmp_api.core.conn"></span><p>The <a class="reference internal" href="#pmp_api.core.conn.PmpConnector" title="pmp_api.core.conn.PmpConnector"><tt class="xref py py-class docutils literal"><span class="pre">PmpConnector</span></tt></a> object takes a
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">PmpConnector</span></tt> object takes a
 <tt class="xref py py-class docutils literal"><span class="pre">PmpAuth</span></tt> object and uses it to issue signed
 requests for all PMP endpoints.</p>
 <dl class="class">
-<dt id="pmp_api.core.conn.PmpConnector">
-<em class="property">class </em><tt class="descclassname">pmp_api.core.conn.</tt><tt class="descname">PmpConnector</tt><big>(</big><em>auth_object</em>, <em>base_url='https://api-pilot.pmp.io'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/conn.html#PmpConnector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.conn.PmpConnector" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><tt class="descclassname">pmp_api.core.conn.</tt><tt class="descname">PmpConnector</tt><big>(</big><em>auth_object</em>, <em>base_url='https://api-pilot.pmp.io'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/conn.html#PmpConnector"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
 <p>PmpConnector class for issuing signed requests of the PMP Api.</p>
 <p>Objects of this class must be instantiated with an already
@@ -215,8 +212,8 @@ attempt to renew its access token if the token has expired.</p>
 <dd><cite>base_url</cite> &#8211; url to make requests of PMP API</dd>
 </dl>
 <dl class="method">
-<dt id="pmp_api.core.conn.PmpConnector.get">
-<tt class="descname">get</tt><big>(</big><em>endpoint</em>, <em>content_type='collection+json'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/conn.html#PmpConnector.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.conn.PmpConnector.get" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">get</tt><big>(</big><em>endpoint</em>, <em>content_type='collection+json'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/core/conn.html#PmpConnector.get"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Returns dictionary of results from requested PMP endopint.
 If the access_token has expired, this method will attempt to renew
 the token and raise <cite>ExpiredToken</cite> if cannot do so.</p>
@@ -231,42 +228,48 @@ the token and raise <cite>ExpiredToken</cite> if cannot do so.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-pmp_api.core.exceptions">
-<span id="pmp-api-core-exceptions-module"></span><h2>pmp_api.core.exceptions module<a class="headerlink" href="#module-pmp_api.core.exceptions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pmp-api-core-exceptions-module">
+<h2>pmp_api.core.exceptions module<a class="headerlink" href="#pmp-api-core-exceptions-module" title="Permalink to this headline">¶</a></h2>
 <p>Custom exceptions raised by pmp_api module.</p>
 <dl class="exception">
-<dt id="pmp_api.core.exceptions.BadQuery">
-<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">BadQuery</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#BadQuery"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.exceptions.BadQuery" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">BadQuery</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#BadQuery"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="pmp_api.core.exceptions.BadRequest">
-<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">BadRequest</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#BadRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.exceptions.BadRequest" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">BadRequest</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#BadRequest"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="pmp_api.core.exceptions.EmptyResponse">
-<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">EmptyResponse</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#EmptyResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.exceptions.EmptyResponse" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">EmptyResponse</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#EmptyResponse"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="pmp_api.core.exceptions.ExpiredToken">
-<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">ExpiredToken</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#ExpiredToken"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.exceptions.ExpiredToken" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">ExpiredToken</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#ExpiredToken"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="pmp_api.core.exceptions.NoToken">
-<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">NoToken</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#NoToken"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.core.exceptions.NoToken" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">NoResult</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#NoResult"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt>
+<em class="property">exception </em><tt class="descclassname">pmp_api.core.exceptions.</tt><tt class="descname">NoToken</tt><a class="reference internal" href="_modules/pmp_api/core/exceptions.html#NoToken"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-pmp_api.core">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pmp_api.core" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -279,12 +282,11 @@ the token and raise <cite>ExpiredToken</cite> if cannot do so.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">pmp_api.core package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pmp_api.core.access">pmp_api.core.access module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.core.auth">pmp_api.core.auth module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.core.conn">pmp_api.core.conn module</a></li>
-<li><a class="reference internal" href="#module-pmp_api.core.exceptions">pmp_api.core.exceptions module</a></li>
-<li><a class="reference internal" href="#module-pmp_api.core">Module contents</a></li>
+<li><a class="reference internal" href="#pmp-api-core-exceptions-module">pmp_api.core.exceptions module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>

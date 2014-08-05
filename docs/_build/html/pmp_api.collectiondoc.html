@@ -56,15 +56,21 @@
             
   <div class="section" id="pmp-api-collectiondoc-package">
 <h1>pmp_api.collectiondoc package<a class="headerlink" href="#pmp-api-collectiondoc-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
 <div class="section" id="module-pmp_api.collectiondoc.navigabledoc">
 <span id="pmp-api-collectiondoc-navigabledoc-module"></span><h2>pmp_api.collectiondoc.navigabledoc module<a class="headerlink" href="#module-pmp_api.collectiondoc.navigabledoc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc">
 <em class="property">class </em><tt class="descclassname">pmp_api.collectiondoc.navigabledoc.</tt><tt class="descname">NavigableDoc</tt><big>(</big><em>collection_result</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<p>:class:NavigableDoc &lt;NavigableDoc&gt;` is for easily parsing
+and navigation collection+doc JSON documents returned from the
+PMP API. Each document should have</p>
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.attributes">
+<tt class="descname">attributes</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>All attributes listed in the collectiondoc.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.items">
 <tt class="descname">items</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.items" title="Permalink to this definition">¶</a></dt>
@@ -80,8 +86,7 @@
 <dl class="method">
 <dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.options">
 <tt class="descname">options</tt><big>(</big><em>rel_type</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns dictionary of query_options for particular query type.
-Raises Exception if <cite>rel_type</cite> is not found.</p>
+<dd><p>Returns dictionary of query_options for particular query type.</p>
 </dd></dl>
 
 <dl class="method">
@@ -217,7 +222,6 @@ valid for a particular uri-template.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">pmp_api.collectiondoc package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc.navigabledoc">pmp_api.collectiondoc.navigabledoc module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc.pager">pmp_api.collectiondoc.pager module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc.query">pmp_api.collectiondoc.query module</a></li>

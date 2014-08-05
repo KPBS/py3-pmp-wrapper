@@ -164,6 +164,6 @@ If you do not have a client_id/client_secret for your application, you can creat
 >>> from pmp_api.core.access import PmpAccess
 >>> pmp_access = PmpAccess(username, password)
 >>> pmp_access.generate_new_credentials(PMP_API_AUTHENTICATION_ENDPOINT, LABEL)
-(CLIENT_ID, CLIENT_SECRET, EXPIRATION)
+(CLIENT_ID, CLIENT_SECRET)
 ```
 
