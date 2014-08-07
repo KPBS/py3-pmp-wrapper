@@ -5,8 +5,6 @@
 The :class:`Pager <Pager>` class is for easily following navigation elements
 returned by collection+doc.json documents.
 """
-
-from ..utils.json_utils import qfind
 from ..utils.json_utils import filter_dict
 
 
@@ -58,9 +56,9 @@ class Pager(object):
         """
         if nav is None:
             return
-        if len(nav) > 1:
-            self.navigable = True
+        if len(nav) >= 1:
             navigator = self.navigator(nav)
+            self.navigable = True
             self.prev = navigator('prev')
             self.next = navigator('next')
             self.last = navigator('last')

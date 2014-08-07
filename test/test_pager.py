@@ -16,24 +16,29 @@ class TestPager(TestCase):
         with open(docsdoc, 'r') as d:
             self.docsdata = NavigableDoc(json.loads(d.read()))
 
-    def test_paging_home_doc(self):
+    def test_paging_current_page(self):
         from pmp_api.collectiondoc.pager import Pager
-        self.pager = Pager()
-        self.pager.update(self.homedata.links.get('navigation'))
-        self.assertFalse(self.pager.navigable)
+        hurl = 'http://127.0.0.1:8080/docs?guid=04224975-e93c-4b17-9df9-'
+        hurl += '96db37d318f3'
+        pager = Pager()
+        pager.update(self.homedata.links.get('navigation'))
+        self.assertEqual(pager.current, hurl)
+        durl = 'http://127.0.0.1:8080/docs?offset=10'
+        pager.update(self.docsdata.links.get('navigation'))
+        self.assertEqual(pager.current, durl)
 
     def test_paging_docs_doc(self):
         from pmp_api.collectiondoc.pager import Pager
-        self.pager = Pager()
+        pager = Pager()
         actual_vals = {'next': "http://127.0.0.1:8080/docs?offset=20",
                        'prev': "http://127.0.0.1:8080/docs?",
                        'first': "http://127.0.0.1:8080/docs?",
                        'last': "http://127.0.0.1:8080/docs?offset=42920",
                        'current': "http://127.0.0.1:8080/docs?offset=10"}
-        self.pager.update(self.docsdata.links.get('navigation'))
-        self.assertTrue(self.pager.navigable)
-        self.assertEqual(actual_vals['prev'], self.pager.prev)
-        self.assertEqual(actual_vals['next'], self.pager.next)
-        self.assertEqual(actual_vals['last'], self.pager.last)
-        self.assertEqual(actual_vals['first'], self.pager.first)
-        self.assertEqual(actual_vals['current'], self.pager.current)
+        pager.update(self.docsdata.links.get('navigation'))
+        self.assertTrue(pager.navigable)
+        self.assertEqual(actual_vals['prev'], pager.prev)
+        self.assertEqual(actual_vals['next'], pager.next)
+        self.assertEqual(actual_vals['last'], pager.last)
+        self.assertEqual(actual_vals['first'], pager.first)
+        self.assertEqual(actual_vals['current'], pager.current)

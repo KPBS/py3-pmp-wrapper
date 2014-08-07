@@ -25,6 +25,11 @@ class TestNavigableDoc(TestCase):
         self.docs_query = ('Query for documents',
                            ['urn:collectiondoc:query:docs'])
 
+    def test_current_page_init(self):
+        url = 'http://127.0.0.1:8080/docs?guid=04224975-e93c-4b17-9df9-'
+        url += '96db37d318f3'
+        self.assertEqual(self.homedoc.url, url)
+
     def test_query_types(self):
         queries = self.homedoc.query_types()
         first, second, third, *rest = queries
