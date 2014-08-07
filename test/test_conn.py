@@ -5,6 +5,7 @@ import datetime
 import requests
 
 from pmp_api.core.conn import PmpConnector
+from pmp_api.core.exceptions import BadRequest
 from pmp_api.core.exceptions import ExpiredToken
 from pmp_api.core.exceptions import EmptyResponse
 
@@ -35,7 +36,8 @@ class TestPmpConnector(TestCase):
         session = Mock(**{'send.return_value': response,
                           'prepare_request.return_value': self.signed_request})
         with patch.object(requests, 'Session', return_value=session) as mocker:
-            self.assertEqual(self.pconn.get("http://www.google.com"), None)
+            with self.assertRaises(BadRequest):
+                self.pconn.get("http://www.google.com")
 
     def test_simple_get(self):
         response = Mock(**self.attribs)
@@ -77,3 +79,22 @@ class TestPmpConnector(TestCase):
         with patch.object(requests, 'Session', return_value=session) as mocker:
             with self.assertRaises(ExpiredToken):
                 pconn.get("http://www.google.com")
+
+    # def test_get_with_expired_token_make_request(self):
+    #     auth_vals1 = {'client_id': 'client-id',
+    #                   'client_secret': 'client-secret',
+    #                   'access_token': 'bd50df0000000000',
+    #                   'access_token_url': 'http:://www.google.com',
+    #                   'sign_request.side_effect': ExpiredToken}
+    #     auth_vals2 = auth_vals1.copy()
+    #     auth_vals2['sign_request.side_effect'] = None
+    #     auth_vals2['sign_request.return_value'] = self.signed_request
+    #     auth_vals2['access_token'] = 'SECOND TRY TOKEN'
+    #     authorizer1 = Mock(**auth_vals1)
+    #     response = Mock(**self.attribs)
+    #     session = Mock(**{'send.return_value': response,
+    #                       'prepare_request.return_value': self.signed_request})
+    #     pconn = self.pconn
+    #     pconn.authorizer = authorizer1
+    #     with patch.object(requests, 'Session', return_value=session) as mocker:
+    #         pconn.get("http://www.google.com")

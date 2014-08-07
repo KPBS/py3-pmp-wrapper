@@ -302,3 +302,29 @@ class PmpAuthTestGetToken(TestCase):
         with patch.object(requests, 'post', return_value=response) as mocker:
             with self.assertRaises(NoToken):
                 self.authorizer.get_access_token2(token_url)
+
+    def test_get_token_bad_status_response(self):
+        token_url = "http://www.google.com"
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'token_expires_in': self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': False,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            with self.assertRaises(NoToken):
+                self.authorizer.get_access_token(token_url)
+
+    def test_get_token2_bad_status_response(self):
+        token_url = "http://www.google.com"
+        issued = datetime.datetime.strftime(self.token_issued,
+                                            self.time_format)
+        test_vals = {'token_expires_in': self.expiry,
+                     'token_issue_date': issued}
+        response_vals = {'ok': False,
+                         'json.return_value': test_vals}
+        response = Mock(**response_vals)
+        with patch.object(requests, 'post', return_value=response) as mocker:
+            with self.assertRaises(NoToken):
+                self.authorizer.get_access_token2(token_url)

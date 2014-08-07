@@ -9,6 +9,7 @@ requests for all PMP endpoints.
 
 import requests
 
+from .exceptions import BadRequest
 from .exceptions import EmptyResponse
 from .exceptions import ExpiredToken
 
@@ -84,3 +85,8 @@ class PmpConnector(object):
             except ValueError:
                 errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
                 raise EmptyResponse(errmsg)
+        else:
+            errmsg = "Bad response from server: "
+            errmsg += "code: {} content: {}".format(response.status_code,
+                                                    response.content)
+            raise BadRequest()

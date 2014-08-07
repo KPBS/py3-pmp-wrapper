@@ -139,6 +139,11 @@ class PmpAuth(object):
             self.access_token_url = endpoint
 
             return self.access_token
+        else:
+            errmsg = "Bad response from server on access_token request: "
+            errmsg += "code: {} content: {}".format(response.status_code,
+                                                    response.content)
+            raise NoToken(errmsg)
 
     def get_access_token2(self, access_token_url):
         # For the access_token urn given by homedoc, this
@@ -178,6 +183,11 @@ class PmpAuth(object):
             self.access_token_url = access_token_url
 
             return self.access_token
+        else:
+            errmsg = "Bad response from server on access_token request: "
+            errmsg += "code: {} content: {}".format(response.status_code,
+                                                    response.content)
+            raise NoToken(errmsg)
 
     def sign_request(self, request_obj):
         """Provided with a :class:requests.Request object, this method will sign a
