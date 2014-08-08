@@ -1,4 +1,4 @@
-# py3-pmp-wrapper 
+# py3-pmp-wrapper ![Build Status](https://travis-ci.org/KPBS/py3-pmp-wrapper.svg?branch=master)
 
 An application for interacting with the Public Media Platform (PMP) API. This application has been written for Python 3.3 and has been tested with Python3.3 and Python3.4. The full documentation for this application is located [here](http://api.kpbs.org/media/docs/py3-pmp-wrapper/docs/). 
 
@@ -18,7 +18,7 @@ First, create a `pmp_client.Client` object and pass it the entry-point to the ap
 
 ```python
 >>> from pmp_api import Client
->>> client = Client("https://api-pilot.pmp.io")
+>>> client = Client("https://api.pmp.io")
 ```
 
 #### Generate Access Token
@@ -169,5 +169,3 @@ If you do not have a client_id/client_secret for your application, you can creat
 >>> pmp_access.generate_new_credentials(PMP_API_AUTHENTICATION_ENDPOINT, LABEL)
 (CLIENT_ID, CLIENT_SECRET)
 ```
-
-![Build Status](https://travis-ci.org/KPBS/py3-pmp-wrapper.svg?branch=master)

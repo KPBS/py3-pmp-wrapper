@@ -6,8 +6,10 @@ The :class:`PmpConnector <PmpConnector>` object takes a
 :class:`PmpAuth <PmpAuth>` object and uses it to issue signed
 requests for all PMP endpoints.
 """
-
+import datetime
 import requests
+
+from operator import lt
 
 from .exceptions import BadRequest
 from .exceptions import EmptyResponse
@@ -38,10 +40,17 @@ class PmpConnector(object):
       `base_url` -- url to make requests of PMP API
 
     """
-    def __init__(self, auth_object, base_url="https://api-pilot.pmp.io"):
+    def __init__(self, auth_object, base_url="https://api-sandbox.pmp.io"):
         self.authorizer = auth_object
         self.base_url = base_url
         self.last_url = None
+
+    @property
+    def authorized(self):
+        has_token = bool(self.authorizer.access_token)
+        not_expired = lt(datetime.datetime.utcnow(),
+                         self.authorizer.token_expires)
+        return has_token and not_expired
 
     def get(self, endpoint, content_type='collection+json'):
         """Returns dictionary of results from requested PMP endopint.
@@ -86,7 +95,7 @@ class PmpConnector(object):
                 errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
                 raise EmptyResponse(errmsg)
         else:
-            errmsg = "Bad response from server: "
-            errmsg += "code: {} content: {}".format(response.status_code,
-                                                    response.content)
-            raise BadRequest()
+            errmsg = "Bad response from server on request for endpoint: {}"
+            errmsg += " Response status code: {}"
+            raise BadRequest(errmsg.format(endpoint,
+                                           response.status_code))

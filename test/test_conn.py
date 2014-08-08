@@ -80,6 +80,33 @@ class TestPmpConnector(TestCase):
             with self.assertRaises(ExpiredToken):
                 pconn.get("http://www.google.com")
 
+    def test_authorized_no_token(self):
+        now = datetime.datetime.utcnow()
+        future_expiry = now + datetime.timedelta(hours=1)
+        auth_vals = {'access_token': None,
+                     'token_expires': future_expiry}
+        auth = Mock(**auth_vals)
+        connector = PmpConnector(auth)
+        self.assertFalse(connector.authorized)
+
+    def test_authorized_token_expired(self):
+        now = datetime.datetime.utcnow()
+        past_expiry = now + datetime.timedelta(hours=1)
+        auth_vals = {'access_token': None,
+                     'token_expires': past_expiry}
+        auth = Mock(**auth_vals)
+        connector = PmpConnector(auth)
+        self.assertFalse(connector.authorized)
+
+    def test_authorized_should_be_authorized(self):
+        now = datetime.datetime.utcnow()
+        future_expiry = now + datetime.timedelta(hours=1)
+        auth_vals = {'access_token': 'SOME VAL',
+                     'token_expires': future_expiry}
+        auth = Mock(**auth_vals)
+        connector = PmpConnector(auth)
+        self.assertTrue(connector.authorized)
+
     # def test_get_with_expired_token_make_request(self):
     #     auth_vals1 = {'client_id': 'client-id',
     #                   'client_secret': 'client-secret',

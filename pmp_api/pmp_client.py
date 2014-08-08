@@ -16,7 +16,6 @@ object can also navigate 'forward' and 'back', similar to a browser.
 All results returned from PMP endpoints are returned as :class:`NavigableDoc`
 objects, so the API for :class:`NavigableDoc` is important to look at as well.
 """
-
 import requests
 
 from .core.auth import PmpAuth
@@ -85,6 +84,10 @@ class Client(object):
             errmsg = "Client connection failed. Check entry_point or"
             errmsg += " authentication schema used."
             raise NoToken(errmsg)
+
+    @property
+    def authorized(self):
+        return self.connector.authorized
 
     def get(self, endpoint):
         """Returns NavigableDoc object obtained from requested endpoint.
