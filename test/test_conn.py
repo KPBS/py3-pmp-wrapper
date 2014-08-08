@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, call
 
 import datetime
 import requests
@@ -80,6 +80,32 @@ class TestPmpConnector(TestCase):
             with self.assertRaises(ExpiredToken):
                 pconn.get("http://www.google.com")
 
+    def test_get_with_expired_token_renewal(self):
+        """If the token is expired but there is an access_token_url
+        provided, the PmpConnector object will attempt to authenticate
+        against the url and auto-reset the access token.
+
+        This test looks to see if the authorizer has been called three
+        times, including a call to `get_access_token`, which only
+        happens in that particular branch of the function.
+        """
+        auth_vals = {'client_id': 'client-id',
+                     'client_secret': 'client-secret',
+                     'access_token': 'bd50df0000000000',
+                     'access_token_url': 'http:://www.google.com',
+                     'sign_request.side_effect': [ExpiredToken, None]}
+        authorizer = Mock(**auth_vals)
+        response = Mock(**self.attribs)
+        session = Mock(**{'send.return_value': response,
+                          'prepare_request.return_value': self.signed_request})
+        pconn = self.pconn
+        pconn.authorizer = authorizer
+        with patch.object(requests, 'Session', return_value=session) as mocker:
+            pconn.get("http://www.google.com")
+            self.assertEqual(len(authorizer.mock_calls), 3)
+            self.assertEqual(authorizer.mock_calls[1],
+                             call.get_access_token2('http:://www.google.com'))
+
     def test_authorized_no_token(self):
         now = datetime.datetime.utcnow()
         future_expiry = now + datetime.timedelta(hours=1)
@@ -106,22 +132,3 @@ class TestPmpConnector(TestCase):
         auth = Mock(**auth_vals)
         connector = PmpConnector(auth)
         self.assertTrue(connector.authorized)
-
-    # def test_get_with_expired_token_make_request(self):
-    #     auth_vals1 = {'client_id': 'client-id',
-    #                   'client_secret': 'client-secret',
-    #                   'access_token': 'bd50df0000000000',
-    #                   'access_token_url': 'http:://www.google.com',
-    #                   'sign_request.side_effect': ExpiredToken}
-    #     auth_vals2 = auth_vals1.copy()
-    #     auth_vals2['sign_request.side_effect'] = None
-    #     auth_vals2['sign_request.return_value'] = self.signed_request
-    #     auth_vals2['access_token'] = 'SECOND TRY TOKEN'
-    #     authorizer1 = Mock(**auth_vals1)
-    #     response = Mock(**self.attribs)
-    #     session = Mock(**{'send.return_value': response,
-    #                       'prepare_request.return_value': self.signed_request})
-    #     pconn = self.pconn
-    #     pconn.authorizer = authorizer1
-    #     with patch.object(requests, 'Session', return_value=session) as mocker:
-    #         pconn.get("http://www.google.com")
