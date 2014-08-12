@@ -13,7 +13,16 @@ from ..utils.json_utils import filter_dict
 class NavigableDoc(object):
     """:class:NavigableDoc <NavigableDoc>` is for easily parsing
     and navigation collection+doc JSON documents returned from the
-    PMP API. Each document should have
+    PMP API. Each document should have the standard collectiondoc keys:
+    'href', 'version', 'attributes', 'links', but may also have 'items'.
+
+    Methods and properties are designed to make it easy to retrieve
+    information from these collectiondocs. To instantiate, pass
+    in a collectiondoc result (which can be any dictionary, but which is
+    usually loaded from JSON).
+
+    Args:
+      `collection_result` -- JSON collectiondoc from PMP API
     """
 
     def __init__(self, collection_result):
@@ -28,6 +37,10 @@ class NavigableDoc(object):
         return self.collectiondoc
 
     def make_pager(self):
+        """Manages the `pager` attribute of the NavigableDoc. Each
+        NavigableDoc will have a `pager` item associated with it for
+        keeping track of navigation elements.
+        """
         self.pager = Pager()
         self.pager.update(self.links.get('navigation', None))
         self.url = self.pager.current

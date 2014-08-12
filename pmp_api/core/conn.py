@@ -52,6 +52,19 @@ class PmpConnector(object):
                          self.authorizer.token_expires)
         return has_token and not_expired
 
+    def reauthorize(self):
+        if self.authorized:
+            return True
+        else:
+            if self.authorizer.access_token_url is None:
+                errmsg = "Access token expired and access_token_url is unknown"
+                errmsg += " Create new access token for PmpAuth object."
+                raise ExpiredToken(errmsg)
+            else:
+                url = self.authorizer.access_token_url
+                self.authorizer.get_access_token2(url)
+                return True
+
     def get(self, endpoint, content_type='collection+json'):
         """Returns dictionary of results from requested PMP endopint.
         If the access_token has expired, this method will attempt to renew
@@ -69,19 +82,55 @@ class PmpConnector(object):
         content_types = {'collection+json': 'application/vnd.collection.doc+json',
                          'json': 'application/json',
                          'text': 'application/x-www-form-urlencoded'}
-
         req.headers['Content-Type'] = content_types[content_type]
+
         try:
             signed_req = self.authorizer.sign_request(req)
         except ExpiredToken:
-            if self.authorizer.access_token_url is None:
-                errmsg = "Access token expired and access_token_url is unknown"
-                errmsg += " Create new access token for PmpAuth object."
-                raise ExpiredToken(errmsg)
-            else:
-                url = self.authorizer.access_token_url
-                self.authorizer.get_access_token2(url)
-                signed_req = self.authorizer.sign_request(req)
+            self.reauthorize()
+            signed_req = self.authorizer.sign_request(req)
+
+        prepped_req = sesh.prepare_request(signed_req)
+        response = sesh.send(prepped_req)
+        if response.ok:
+            self.last_url = endpoint
+            try:
+                results = response.json()
+                return results
+            except ValueError:
+                errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
+                raise EmptyResponse(errmsg)
+        else:
+            errmsg = "Bad response from server on request for endpoint: {}"
+            errmsg += " Response status code: {}"
+            raise BadRequest(errmsg.format(endpoint,
+                                           response.status_code))
+
+    def put(self, endpoint, document, content_type="collection+json"):
+        """Puts a passed-in document up to PMP API at endpoint url.
+        If the access_token has expired, this method will attempt to renew
+        the token and raise `ExpiredToken` if cannot do so.
+
+        Args:
+           `endpoint` -- PMP API url
+           `document` -- collectiondoc+json document, specified in PMP spec.
+
+        Kwargs:
+           `content_type` -- content-type requested.
+        """
+        sesh = requests.Session()
+        req = requests.Request('PUT', endpoint, data=document)
+        req.headers = {}
+        content_types = {'collection+json': 'application/vnd.collection.doc+json',
+                         'json': 'application/json',
+                         'text': 'application/x-www-form-urlencoded'}
+        req.headers['Content-Type'] = content_types[content_type]
+
+        try:
+            signed_req = self.authorizer.sign_request(req)
+        except ExpiredToken:
+            self.reauthorize()
+            signed_req = self.authorizer.sign_request(req)
 
         prepped_req = sesh.prepare_request(signed_req)
         response = sesh.send(prepped_req)
@@ -99,3 +148,21 @@ class PmpConnector(object):
             errmsg += " Response status code: {}"
             raise BadRequest(errmsg.format(endpoint,
                                            response.status_code))
+
+    def delete(self, endpoint):
+        sesh = requests.Session()
+        req = requests.Request('DELETE', endpoint)
+        req.headers = {'Content-Type':
+                       'application/vnd.collection.doc+json'}
+        try:
+            signed_req = self.authorizer.sign_request(req)
+        except ExpiredToken:
+            self.reauthorize()
+            signed_req = self.authorizer.sign_request(req)
+
+        prepped_req = sesh.prepare_request(signed_req)
+        response = sesh.send(prepped_req)
+        if response.status_code == '204':
+            return True
+        else:
+            return False

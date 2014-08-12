@@ -60,34 +60,31 @@ class Client(object):
         self.pager = None
         self.document = None
 
-    def gain_access(self, client_id, client_secret):
+    def gain_access(self, client_id,
+                    client_secret,
+                    auth_urn="urn:collectiondoc:form:issuetoken"):
         """Requests access for `entry_point` using provided authentication.
-        Finds the urn `urn:collectiondoc:form:issuetoken` and requests a
-        token using the protocol listed there.
+        Finds the `auth_urn` and requests a token using the protocol listed
+        there.
         """
-        AUTH_URN = "urn:collectiondoc:form:issuetoken"
         resp = requests.get(self.entry_point)
         home_doc = resp.json()
         self.document = NavigableDoc(home_doc)
-        auth_schema = self.document.options(AUTH_URN)
+        auth_schema = self.document.options(auth_urn)
         access_token_url = auth_schema.get('href', None)
         if not access_token_url:
             errmsg = "Missing authentication URL at endpoint."
             errmsg += " Review API values at {0} with options {1}"
-            raise NoToken(errmsg.format(AUTH_URN, str(auth_schema)))
+            raise NoToken(errmsg.format(auth_urn, str(auth_schema)))
 
         authorizer = PmpAuth(client_id, client_secret)
         try:
             authorizer.get_access_token2(access_token_url)
             self.connector = PmpConnector(authorizer)
-        except NoToken:
+        except NoToken as exc:
             errmsg = "Client connection failed. Check entry_point or"
             errmsg += " authentication schema used."
-            raise NoToken(errmsg)
-
-    @property
-    def authorized(self):
-        return self.connector.authorized
+            raise NoToken(errmsg) from exc
 
     def get(self, endpoint):
         """Returns NavigableDoc object obtained from requested endpoint.
@@ -119,6 +116,32 @@ class Client(object):
             self.document = NavigableDoc(results)
             self.pager = self.document.pager
             return self.document
+
+    def save(self, endpoint, document):
+        """Saves a document (a string value) at PMP.
+
+        Args:
+
+           `endpoint` -- URL endpoint for saving documents
+           `document` -- data (str) to send over as a document payload.
+        """
+        results = self.connector.put(endpoint, document)
+        self.document = NavigableDoc(results)
+        self.pager = self.document.pager
+        return self.document
+
+    def delete(self, endpoint):
+        """Deletes a document from PMP API: simply fires 'DELETE'
+        to provided endpoint. If permissions allow it, should delete
+        and return True.
+
+        Args:
+           `endpoint` -- URL endpoint that represents doc to delete
+        """
+        return self.connector.delete(endpoint)
+
+    def upload(self, endpoint, upload_file):
+        raise Exception("Not implemented yet.")
 
     def query(self, rel_type, params=None):
         """Issues request for a query using urn with params to create
