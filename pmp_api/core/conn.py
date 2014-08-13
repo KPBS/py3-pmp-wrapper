@@ -65,19 +65,13 @@ class PmpConnector(object):
                 self.authorizer.get_access_token2(url)
                 return True
 
-    def get(self, endpoint, content_type='collection+json'):
-        """Returns dictionary of results from requested PMP endopint.
-        If the access_token has expired, this method will attempt to renew
-        the token and raise `ExpiredToken` if cannot do so.
-
-        Args:
-           `endpoint` -- PMP API url
-
-        Kwargs:
-           `content_type` -- content-type requested.
-        """
+    def _request_factory(self, req_method, req_endpoint,
+                         content_type="collection+json", payload=None):
         sesh = requests.Session()
-        req = requests.Request('GET', endpoint)
+        if payload is None:
+            req = requests.Request(req_method, req_endpoint)
+        else:
+            req = requests.Request(req_method, req_endpoint, data=payload)
         req.headers = {}
         content_types = {'collection+json': 'application/vnd.collection.doc+json',
                          'json': 'application/json',
@@ -92,6 +86,22 @@ class PmpConnector(object):
 
         prepped_req = sesh.prepare_request(signed_req)
         response = sesh.send(prepped_req)
+        return response
+
+    def get(self, endpoint, content_type='collection+json'):
+        """Returns dictionary of results from requested PMP endopint.
+        If the access_token has expired, this method will attempt to renew
+        the token and raise `ExpiredToken` if cannot do so.
+
+        Args:
+           `endpoint` -- PMP API url
+
+        Kwargs:
+           `content_type` -- content-type requested.
+        """
+        response = self._request_factory('GET',
+                                         endpoint,
+                                         content_type=content_type)
         if response.ok:
             self.last_url = endpoint
             try:
@@ -118,23 +128,10 @@ class PmpConnector(object):
         Kwargs:
            `content_type` -- content-type requested.
         """
-        sesh = requests.Session()
-        req = requests.Request('PUT', endpoint, data=document)
-        req.headers = {}
-        content_types = {'collection+json': 'application/vnd.collection.doc+json',
-                         'json': 'application/json',
-                         'text': 'application/x-www-form-urlencoded'}
-        req.headers['Content-Type'] = content_types[content_type]
-
-        try:
-            signed_req = self.authorizer.sign_request(req)
-        except ExpiredToken:
-            self.reauthorize()
-            signed_req = self.authorizer.sign_request(req)
-
-        prepped_req = sesh.prepare_request(signed_req)
-        response = sesh.send(prepped_req)
-
+        response = self._request_factory('PUT',
+                                         endpoint,
+                                         payload=document,
+                                         content_type=content_type)
         if response.ok:
             self.last_url = endpoint
             try:
@@ -150,18 +147,7 @@ class PmpConnector(object):
                                            response.status_code))
 
     def delete(self, endpoint):
-        sesh = requests.Session()
-        req = requests.Request('DELETE', endpoint)
-        req.headers = {'Content-Type':
-                       'application/vnd.collection.doc+json'}
-        try:
-            signed_req = self.authorizer.sign_request(req)
-        except ExpiredToken:
-            self.reauthorize()
-            signed_req = self.authorizer.sign_request(req)
-
-        prepped_req = sesh.prepare_request(signed_req)
-        response = sesh.send(prepped_req)
+        response = self._request_factory('DELETE', endpoint)
         if response.status_code == '204':
             return True
         else:

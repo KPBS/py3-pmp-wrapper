@@ -22,6 +22,7 @@ from .core.auth import PmpAuth
 from .core.conn import PmpConnector
 from .core.exceptions import NoToken
 from .collectiondoc.navigabledoc import NavigableDoc
+from .utils.json_utils import filter_dict
 
 
 class Client(object):
@@ -117,7 +118,7 @@ class Client(object):
             self.pager = self.document.pager
             return self.document
 
-    def save(self, endpoint, document):
+    def save(self, document, urn='urn:collectiondoc:form:documentsave'):
         """Saves a document (a string value) at PMP.
 
         Args:
@@ -125,22 +126,38 @@ class Client(object):
            `endpoint` -- URL endpoint for saving documents
            `document` -- data (str) to send over as a document payload.
         """
+        # # Trying to deal with save vs edit scenarios
+        edit_links = document.get('edit', None)
+        if edit_links is None and self.document is not None:
+            edit_links = self.document.get('edit', None)
+        edit_schema = next(filter_dict(edit_links, 'rels', urn))
+        template = endpoint.get('href-template')
+        if document.href is not None:
+            guid = ''
+            endpoint = document.query(urn, params={'guid': guid})
+        else:
+            endpoint = document.query(urn)
+
         results = self.connector.put(endpoint, document)
-        self.document = NavigableDoc(results)
-        self.pager = self.document.pager
+        # Not sure about response received
+        # self.document = NavigableDoc(results)
+        # self.pager = self.document.pager
         return self.document
 
-    def delete(self, endpoint):
+    def delete(self, document):
         """Deletes a document from PMP API: simply fires 'DELETE'
-        to provided endpoint. If permissions allow it, should delete
-        and return True.
+        to provided document's href endpoint. If permissions allow it, it
+        should delete and return True.
 
         Args:
-           `endpoint` -- URL endpoint that represents doc to delete
+           `document` -- NavigableDoc document to be deleted from PMP
         """
-        return self.connector.delete(endpoint)
+        return self.connector.delete(document.collectiondoc.get('href'))
 
     def upload(self, endpoint, upload_file):
+        """Uploads a rich media object to PMP API.
+        -- Not implemented yet.
+        """
         raise Exception("Not implemented yet.")
 
     def query(self, rel_type, params=None):

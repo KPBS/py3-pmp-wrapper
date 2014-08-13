@@ -35,6 +35,7 @@ class WriteableDoc:
         self.host = host
         self.version = '1.0'
         self.error = None
+        self.href = None
 
     def serialize(self):
         document = {}
