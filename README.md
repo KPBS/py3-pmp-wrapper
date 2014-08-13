@@ -98,13 +98,27 @@ To really get interesting information back, we need to have some way of managing
 
 #### Querying 
 
-In order to get interesting results back, we generally want to issue queries, but it can be tough to remember how to make queries. The `NavigableDoc` has a `template` method that will reveal what params are available for a query:
+In order to get interesting results back, we generally want to issue queries, but it can be tough to remember how to make queries. The `NavigableDoc` has a `template` method that will reveal what params are available for a query and you can use the `Client` to create a query with these params:
 
 ```python
 >>> document.template('urn:collectiondoc:query:docs')
 'https://api-pilot.pmp.io/docs{?guid,limit,offset,tag,collection,text,searchsort,has,author,distributor,distributorgroup,startdate,enddate,profile,language}'
 >>> client.query('urn:collectiondoc:query:docs', params={'has': 'audio', 'language': 'en'})
+<NavigableDoc: https://api-pilot.pmp.io/docs/SOMEQUERY>
 ```
+
+The document also has a query method which will create well-formed queries for you, but it will raise a `BadQuery` exception if you pass it a set of invalid parameters, telling you which of those parameters are invalid:
+
+```python
+>>> document.query('urn:collectiondoc:query:docs',params={'has': 'audio', 'language': 'en'})
+'https://api-pilot.pmp.io/docs?language=en&has=audio'
+>>> document.query('urn:collectiondoc:query:docs',params={'Not-a-param': 'Error', 'profile': 'story'})
+Traceback (most recent call last):
+...
+  raise BadQuery(errmsg.format(badstuff))
+pmp_api.core.exceptions.BadQuery: Query param does not exist: {'Not-a-param'}
+```
+
 
 (For values accepted by query keys, consult the [PMP documentation](https://github.com/publicmediaplatform/pmpdocs/wiki)
 

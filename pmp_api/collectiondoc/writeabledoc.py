@@ -28,14 +28,22 @@ class WriteableDoc:
 
     def __init__(self,
                  collection_result,
-                 host="https://api-sandbox.pmp.io",
-                 profile="/profiles/story"):
+                 pubhost="https://publish-sandbox.pmp.io",
+                 readhost="https://api-sandbox.pmp.io",
+                 profile="/profiles/story",
+                 document_type=None):
         self.data = collection_result
-        self.profile_link = profile
-        self.host = host
+        self.profile = profile
+        self.pubhost = pubhost
+        self.readhost = readhost
         self.version = '1.0'
         self.error = None
         self.href = None
+        self.guid = uuid.uuid4()
+        self.document_url = self._get_doc_url()
+
+    def _get_doc_url(self):
+        return self.pubhost + '/docs/' + str(self.guid)
 
     def serialize(self):
         document = {}
@@ -52,21 +60,38 @@ class WriteableDoc:
     def attributes(self):
         # Need a string for published date:
         # "2013-11-06T20:57:59+00:00"
-        now = datetime.datetime.now()
-        attribs = {'guid': uuid.uuid4(),
-                   'tags': self.data.get('tags', ['kpbs_api']),
+        utc_now = datetime.datetime.utcnow()
+        date_format = "%Y-%m-%dT%H:%M:%S+00:00"
+        now = datetime.datetime.strftime(utc_now, date_format)
+        attribs = {'guid': str(self.guid),
+                   'tags': self.data.get('tag', ['kpbs_api']),
                    'title': self.data.get('title', 'KPBS San Diego'),
                    'published': self.data.get('published', now),
+                   'byline': self.data.get('byline', 'KPBS'),
                    'contenttemplated': self.data.get('contenttemplated',
                                                      None),
                    'contentencoded': self.data.get('contentencoded',
                                                    None)}
-        return attribs
+        result = {}
+        for key, val in attribs.items():
+            if val is None:
+                pass
+            else:
+                result[key] = val
+        return result
 
     @property
     def links(self):
-        profile = self.host + self.profile
-        return [profile]
+        profile_link = self.readhost + self.profile
+        links_dict = {'profile': [{'href': profile_link}]}
+        enclosure = self.data.get('enclosure', None)
+        alternate = self.data.get('alternate_links', [])
+        if enclosure is not None:
+            links_dict['enclosure'] = enclosure
+        if alternate is not None:
+            links_dict['alternate'] = alternate
+        # links_dict['item'] = [{'href': self.document_url}]
+        return links_dict
 
     @property
     def items(self):
@@ -76,3 +101,12 @@ class WriteableDoc:
         """Method to convert a navigable_doc into an editable document
         """
         pass
+
+
+
+
+
+
+
+
+

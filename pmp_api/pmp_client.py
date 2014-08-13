@@ -115,6 +115,10 @@ class Client(object):
 
         if results is not None:
             self.document = NavigableDoc(results)
+            if self.document.errors is not None:
+                # Better check for errors: IS THIS IMPLEMENTED in SPEC?
+                return self.document.errors
+
             self.pager = self.document.pager
             return self.document
 
@@ -125,24 +129,33 @@ class Client(object):
 
            `endpoint` -- URL endpoint for saving documents
            `document` -- data (str) to send over as a document payload.
+
+        Kwargs:
+           `urn` -- document save URN
         """
+        # This is a mess: figure out what you're doing and
+        # rewrite with tests.
+
+        # First of all, test whether document already exists or use kwargs on call
+        # If so, find its url
+        # If not, use regular doc-save url
+
+        # After that, you can put the document.
+
         # # Trying to deal with save vs edit scenarios
         edit_links = document.get('edit', None)
-        if edit_links is None and self.document is not None:
-            edit_links = self.document.get('edit', None)
+        if edit_links is None:
+            raise Exception("No edit links in doc")
         edit_schema = next(filter_dict(edit_links, 'rels', urn))
         template = endpoint.get('href-template')
-        if document.href is not None:
+        if document.collection.get('href', None) is not None:
             guid = ''
             endpoint = document.query(urn, params={'guid': guid})
         else:
             endpoint = document.query(urn)
 
         results = self.connector.put(endpoint, document)
-        # Not sure about response received
-        # self.document = NavigableDoc(results)
-        # self.pager = self.document.pager
-        return self.document
+        return results
 
     def delete(self, document):
         """Deletes a document from PMP API: simply fires 'DELETE'
@@ -152,6 +165,7 @@ class Client(object):
         Args:
            `document` -- NavigableDoc document to be deleted from PMP
         """
+        # Does not work at the moment. Don't use
         return self.connector.delete(document.collectiondoc.get('href'))
 
     def upload(self, endpoint, upload_file):
@@ -163,13 +177,24 @@ class Client(object):
     def query(self, rel_type, params=None):
         """Issues request for a query using urn with params to create
         a well-formed request.
+
+        Args:
+           `rel_type` -- Relation Type (urn)
+
+        Kwargs:
+           `params` -- Dictionary of params to construct a query
         """
         return self.get(self.document.query(rel_type, params=params))
 
     def home(self):
         """Requests API home-doc `entry_point` and returns results.
         """
-        return self.get(self.entry_point)
+        if self.connector is not None and self.connector.authorized:
+            return self.get(self.entry_point)
+        else:
+            # Fragile: fix or reject and make all requests be authenticated
+            self.document = NavigableDoc(requests.get(self.entry_point).json())
+            return self.document
 
     def next(self):
         """Requests the `next` page listed by navigation. If
