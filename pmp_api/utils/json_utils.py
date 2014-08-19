@@ -49,8 +49,7 @@ def qfind(json_dict, key):
 
 def filter_dict(json_dict, key, val):
     """Returns a filter iterator from `json_dict` where results contain
-    `key` - `val` matches. Relies on qfind method to find matching keys
-    inside the dictionary or list of dictionaries.
+    `key` - `val` matches.
 
     Args:
        `json_dict` -- JSON dictionary.
@@ -76,7 +75,7 @@ def returnfirst(func):
     """Decorator for retrieving the first value of any function that returns
     multiple values or an iterator with more than one value.
 
-    This function returns None if noresults may be found.
+    This function returns None if no results may be found.
 
     Args:
        `func` -- function that returns iterator
@@ -89,3 +88,103 @@ def returnfirst(func):
         except ValueError:
             return None
     return inner
+
+
+def get_nested_val(somedict, keys):
+    """Returns JSON value retrieved by following *known* keys.
+
+    This function makes it easy to plumb the depths of a nested
+    dict with using an iterable of keys and integers.
+
+    It will go as deep as keys/indices exist and return None if it
+    doesn't find one or if it runs into a value it can't parse.
+
+    Usage::
+
+       >>> some_dict = {'links': {'collection' : [{'a': 'b'}]}}
+       >>> get_nested_val(some_dict, ['links', 'collection'])
+       [{'a': 'b'}]
+       >>> # with a list index
+       >>> get_nested_val(some_dict, ['links', 'collection', 0, 'a'])
+       'b'
+    """
+    if somedict is None or len(keys) < 1:
+        return
+    if len(keys) == 1:
+        key = keys[0]
+        if all((isinstance(key, int),
+                isinstance(somedict, list))) and key < len(somedict):
+            return somedict[key]
+        elif isinstance(somedict, dict):
+            return somedict.get(key, None)
+    else:
+        key, *keys = keys
+        if all((isinstance(key, int),
+                isinstance(somedict, list))) and key < len(somedict):
+            return get_nested_val(somedict[key], keys)
+        elif isinstance(somedict, dict):
+            return get_nested_val(somedict.get(key, None), keys)
+
+
+def search_with_keys(list_of_results, keys, val):
+    """If we have a set of keys we'd like to use to access
+    an object and we have a particular value we are looking for,
+    then we can filter a list of results in order to find the object
+    that has the match for those keys and that value.
+
+    This function returns a filter iterator that contains all matching
+    results for the list of keys passed in and the val passed in.
+
+    Args:
+
+       `list_of_results` -- List of dictionaries from JSON
+       `keys` -- tuple or list of keys to navigate the object
+       `val` -- Matching value we're looking for
+
+    Usage::
+
+       >>> some_dict = {'links': {'collection' : [{'a': 'b'}]}}
+       >>> list(search_with_keys(some_dict, ['links', 'collection', 0, 'a'], 'b'))
+       [{'a': 'b'}]
+    """
+    def filter_nested_val(json_result):
+        *head_keys, last_key = keys
+        retrieved = get_nested_val(json_result, head_keys)
+        if retrieved is not None and retrieved[last_key]:
+            return retrieved[last_key] == val
+    return filter(filter_nested_val, list_of_results)
+
+
+def set_value(json_results, keys, newvalue):
+    """If you have a set of key and/array indices that conform
+    to a nested JSON object, you can use this function to set
+    the value retrieved by those keys.
+
+    Args:
+
+       `json_results` -- Nested JSON Object
+       `keys` -- tuple or list of keys to navigate the object
+       `newvalue` -- Replacement value
+
+    Usage::
+
+       >>> some_dict = {'links': {'collection' : [{'a': 'b'}]}}
+       >>> set_value(some_dict, ['links', 'collection', 0, 'a'], 'c')
+       True
+       >>> some_dict
+       {'links': {'collection' : [{'a': 'c'}]}}
+
+    It is also possible to write a find-and-replace by combining
+    `set_value` with `search_with_keys`::
+
+        >>> for items in search_keys(json_results, keys, searchval):
+        ...  set_value(item, keys, newval)
+
+
+    Returns: json_results passed in
+    """
+    *keys, last_key = keys
+    editable = get_nested_val(json_results, keys)
+    if editable is not None and editable.get(last_key, False):
+        editable[last_key] = newvalue
+        return editable

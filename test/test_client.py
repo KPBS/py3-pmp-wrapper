@@ -295,14 +295,14 @@ class TestPmpClient(TestCase):
             mock_get.assert_called_with(self.test_entry_point)
 
     def test_save(self):
-        self.fail("test_save not implemented.")
+        self.fail("client test_save not implemented.")
 
     def test_delete(self):
-        self.fail("test_delete not implemented")
+        self.fail("client test_delete not implemented")
 
     def test_upload(self):
-        with self.assertRaises(Exception):
-            client = Client(self.test_entry_point)
-            client.upload("http://www.google.com",
-                          "TEST")
-            self.fail("test_upload and upload not implemented")
+        self.fail("client test_upload not implemented")
+        # with self.assertRaises(Exception):
+        #    client = Client(self.test_entry_point)
+        #    client.upload("http://www.google.com",
+        #                  "TEST")

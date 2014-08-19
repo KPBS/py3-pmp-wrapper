@@ -156,9 +156,9 @@ class PmpConnector(object):
                 errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
                 raise EmptyResponse(errmsg)
         else:
-            errmsg = "Bad response from server on request for endpoint: {}"
-            errmsg += " Response status code: {}"
-            errmsg += "Response content: {}"
+            errmsg = "Bad response from server on request for endpoint: {},"
+            errmsg += " Response status code: {},"
+            errmsg += " Response content: {}"
             raise BadRequest(errmsg.format(endpoint,
                                            response.status_code,
                                            response.content))

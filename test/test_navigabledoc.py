@@ -28,7 +28,7 @@ class TestNavigableDoc(TestCase):
     def test_current_page_init(self):
         url = 'http://127.0.0.1:8080/docs?guid=04224975-e93c-4b17-9df9-'
         url += '96db37d318f3'
-        self.assertEqual(self.homedoc.url, url)
+        self.assertEqual(self.homedoc.href, url)
 
     def test_query_types(self):
         queries = self.homedoc.query_types()
@@ -39,7 +39,6 @@ class TestNavigableDoc(TestCase):
                            ['urn:collectiondoc:form:profilesave']),
                           ('Schema Save',
                            ['urn:collectiondoc:form:schemasave'])]
-        
         self.assertEqual(first, actual_queries[0])
         self.assertEqual(second, actual_queries[1])
         self.assertEqual(third, actual_queries[2])
@@ -122,3 +121,26 @@ class TestNavigableDoc(TestCase):
         for urn in some_nones:
             self.assertEqual(self.homedoc.template(urn),
                              None)
+
+    def test_edit(self):
+        edit_keys1 = ("links", "navigation", 0, "rels")
+        edit_keys2 = ("attributes", "guid")
+        result1 = self.homedoc.edit(edit_keys1, "NO WAY!")
+        result2 = self.homedoc.edit(edit_keys2, "NEW TEST GUID")
+        self.assertEqual(self.homedoc.links['navigation'][0]['rels'],
+                         "NO WAY!")
+        self.assertEqual(self.homedoc.attributes['guid'],
+                         "NEW TEST GUID")
+        self.assertEqual(result1, self.homedoc.links['navigation'][0])
+        self.assertEqual(result2, self.homedoc.attributes)
+
+        unchanged_val = self.homedoc.links.copy()
+        self.homedoc.edit(["links", "NONE"], "Doesn't Change")
+        self.assertEqual(self.homedoc.links,
+                         unchanged_val)
+
+    def test_serialize(self):
+        self.assertEqual(type(self.homedoc.serialize()),
+                         str)
+        self.assertEqual(json.loads(self.homedoc.serialize()),
+                         self.homedoc.collectiondoc)

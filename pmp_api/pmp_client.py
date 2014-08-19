@@ -115,45 +115,17 @@ class Client(object):
 
         if results is not None:
             self.document = NavigableDoc(results)
-            if self.document.errors is not None:
-                # Better check for errors: IS THIS IMPLEMENTED in SPEC?
-                return self.document.errors
-
             self.pager = self.document.pager
             return self.document
 
-    def save(self, document, urn='urn:collectiondoc:form:documentsave'):
+    def save(self, endpoint, document):
         """Saves a document (a string value) at PMP.
-
         Args:
 
            `endpoint` -- URL endpoint for saving documents
            `document` -- data (str) to send over as a document payload.
-
-        Kwargs:
-           `urn` -- document save URN
         """
-        # This is a mess: figure out what you're doing and
-        # rewrite with tests.
-
-        # First of all, test whether document already exists or use kwargs on call
-        # If so, find its url
-        # If not, use regular doc-save url
-
-        # After that, you can put the document.
-
-        # # Trying to deal with save vs edit scenarios
-        edit_links = document.get('edit', None)
-        if edit_links is None:
-            raise Exception("No edit links in doc")
-        edit_schema = next(filter_dict(edit_links, 'rels', urn))
-        template = endpoint.get('href-template')
-        if document.collection.get('href', None) is not None:
-            guid = ''
-            endpoint = document.query(urn, params={'guid': guid})
-        else:
-            endpoint = document.query(urn)
-
+        # Drastically simplify: This is just a wrapper for conn.put
         results = self.connector.put(endpoint, document)
         return results
 
@@ -165,7 +137,6 @@ class Client(object):
         Args:
            `document` -- NavigableDoc document to be deleted from PMP
         """
-        # Does not work at the moment. Don't use
         return self.connector.delete(document.collectiondoc.get('href'))
 
     def upload(self, endpoint, upload_file):
