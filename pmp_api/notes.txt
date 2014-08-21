@@ -1,0 +1,87 @@
+SANDBOX:
+
+reading: https://api-sandbox.pmp.io
+
+tokens: https://publish-sandbox.pmp.io/auth/access_token
+
+This works:
+``
+>>> test = pmp_api.collectiondoc.writeabledoc.WriteableDoc(data)
+>>> test.document_url
+https://publish-sandbox.pmp.io/docs/475dfd1f-d46d-426a-a36b-6fd03b4618b9'
+>>> test.serialize()
+'{"links": {"profile": [{"href": "https://api-sandbox.pmp.io/profiles/story"}], "alternate": [{"href": "http://www.kpbs.org/news/2014/aug/11/feds-still-want-migrant-shelter-escondido-city-doe/"}]}, "attributes": {"byline": "Jill Replogle", "contentencoded": "<p>The city of Escondido... Tons of writings---</p>", "guid": "475dfd1f-d46d-426a-a36b-6fd03b4618b9", "published": "2014-08-11T17:33:58+00:00", "tags": ["kpbs_api", "fronteras"], "title": "Feds Still Want Migrant Shelter In Escondido; City Does Not"}, "version": "1.0"}'
+>>> writeconnector.put(test.document_url, test.serialize())
+{'url': 'https://api-sandbox.pmp.io/docs/475dfd1f-d46d-426a-a36b-6fd03b4618b9'}
+>>> readclient.get('https://api-sandbox.pmp.io/docs/475dfd1f-d46d-426a-a36b-6fd03b4618b9')
+<Navigable Doc: https://api-sandbox.pmp.io/docs?guid=475dfd1f-d46d-426a-a36b-6fd03b4618b9>
+```
+
+wconn.delete('https://publish-sandbox.pmp.io/docs/9e0dd38c-9c95-4e61-97a9-5fe12db0459e')
+<Response [204]> ## This is supposed to happen
+But this url didn't come from the document itself.
+unless we put it there??
+
+http://docs.pmp.io/wiki/Content-Retrieval
+https://github.com/publicmediaplatform/pmpdocs/wiki/Querying-the-API
+
+BOOLEANS:
+; == OR
+, == AND
+
+
+searchsort: how search results are sorted
+
+Useful URNS:
+'urn:collectiondoc:collection:property' ('title': 'Marketplace')
+'urn:collectiondoc:audio'
+'urn:collectiondoc:author:contributor'
+'urn:collectiondoc:collection:contributor'
+'urn:collectiondoc:image'
+'urn:collectiondoc:collection:series'
+
+
+Custom searches: 
+
+tag: 'sometag', profile: 'story' or 'media profile'
+
+
+Aliases Profile:
+    Shows defines semantics for documents that contain mappings of aliases to guids
+
+So: search aliases for interesting GUIds. Then search those GUIds.
+
+Schema Profile:
+    Shows the schemas of the other profiles
+    This is probably going to be the hardest one to define
+
+
+# Useful reformatter when copy-pasting from web
+
+def substuff(content):
+    content = content.replace('”', '"').replace('“', '"').replace('…', '...')
+    return " ".join(map(lambda c: "<p>" + c + "</p>", content.split('\n\n')))
+
+Fronteras sample urls:
+
+>>> urls
+['http://www.kpbs.org/news/2014/aug/11/feds-still-want-migrant-shelter-escondido-city-doe/', 'http://www.kpbs.org/news/2014/aug/11/should-us-process-potential-refugees-central-ameri/', 'http://www.kpbs.org/news/2014/aug/05/jailed-marine-andrew-tahmooressi-hearing-mexico/', 'http://www.kpbs.org/news/2014/jul/29/why-nicaraguan-kids-arent-fleeing-to-the-us/', 'http://www.kpbs.org/news/2014/jul/23/aclu-considers-legal-action-against-escondido-over/', 'http://www.kpbs.org/news/2014/jul/22/escondido-urged-reconsider-shelter-migrant-youth/', 'http://www.kpbs.org/news/2014/jul/14/tijuana-blocks-three-narco-corrido-stars-annual-fa/', 'http://www.kpbs.org/news/2014/jul/14/will-deporting-central-american-kids-faster-keep-t/', 'http://www.kpbs.org/news/2014/jul/09/immigration-judge-obamas-plea-more-money-courts-wo/', 'http://www.kpbs.org/news/2014/jul/09/latino-lawmakers-report-adequate-conditions-health/']
+
+for each url:
+>>> content = story_soup.find('div', attrs={'class': 'story_body'})
+
+
+Find all the document profiles:
+
+```python
+>>> client.query("urn:collectiondoc:query:profiles")
+>>> profiles1 = client.document
+>>> profiles2 = client.next()
+>>> profiles3 = client.next()
+>>> def get_titles():
+...   for item in all_profiles:
+...     for prof in item.items:
+...       yield prof['attributes']['title'], prof['attributes']['guid']
+>>> list(get_titles())
+[('Compass Profile', 'fe990a36-a9b8-44ce-aa51-b9ca8dcefbb5'), ('PBS NewsHour', '6f5bce04-a47e-433e-bdb5-5c679dac56da'), ('Contributor Profile', '8bf6f5ae-84b1-4e52-a744-8e1ac63f283e'), ('Topic Profile', '3ffa207f-cfbe-4bcd-987c-0bd8e29fdcb6')
+```

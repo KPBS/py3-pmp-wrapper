@@ -148,8 +148,26 @@ etc.
 Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of *all* values contained in the document:
 
 ```python
->>> client.document.collectiondoc
+>>> document.collectiondoc
 {ALL-The_Data ...}
+```
+
+You can get or set values directly this way, or you can use the `edit` method, which requires knowing exactly where the data is located (and if you are not careful, it's easy to make a document invalid in this way by clobbering a `list` with a `string` for instance). 
+
+To use the `edit` method, pass in a tuple or list of keys/indices to where the data is located:
+
+```python
+>>> document.edit(['attributes', 'guid'], "NEW GUID")
+{'guid': "NEW GUID", etc.}
+>>> document.edit(['links', 'navigation', 0, 'rels'], "NEW REL")
+
+```
+
+And you can get a json dump of the data inside a `NavigableDoc` (for submitting it back to PMP, for instance) by calling its serialize method:
+
+```python
+>>> document.serialize()
+'{ALL-The_Data ...}'
 ```
 
 ## Credentials

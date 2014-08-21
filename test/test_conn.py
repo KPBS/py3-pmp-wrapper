@@ -1,13 +1,16 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch, call
 
+import os
 import datetime
 import requests
+from multiprocessing import Process
 
 from pmp_api.core.conn import PmpConnector
 from pmp_api.core.exceptions import BadRequest
 from pmp_api.core.exceptions import ExpiredToken
 from pmp_api.core.exceptions import EmptyResponse
+from server import run
 
 
 class TestPmpConnector(TestCase):
@@ -26,6 +29,21 @@ class TestPmpConnector(TestCase):
                           'sign_request.return_value': self.signed_request}
         self.test_vals = {'a': 1, 'b': 2, 'c': 'VALUE'}
         self.attribs = {'ok': True, 'json.return_value': self.test_vals}
+        # Live server testing with JSON responses
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        self.fixture_dir = os.path.join(current_dir, 'fixtures')
+        self.auth_doc = os.path.join(self.fixture_dir, 'authdetails.json')
+        self.data_doc = os.path.join(self.fixture_dir, 'test_data.json')
+        entry_point = 'http://127.0.0.1:8080/?json_response={}'
+        self.auth_url = entry_point.format(self.auth_doc)
+        self.data_url = entry_point.format(self.data_doc)
+        self.server_process = Process(target=run)
+        self.server_process.start()
+
+    def tearDown(self):
+        self.server_process.terminate()
+        self.server_process.join()
+        del(self.server_process)
 
     def test_authorized_no_token(self):
         now = datetime.datetime.utcnow()
@@ -90,6 +108,13 @@ class TestPmpConnector(TestCase):
             self.assertEqual(len(authorizer.mock_calls), 1)
             self.assertEqual(authorizer.mock_calls[0],
                              call.get_access_token2('http://www.google.com'))
+
+    def test_reauthorize_live_server_response(self):
+        from pmp_api.core.auth import PmpAuth
+        authorizer = PmpAuth('client-id', 'client-secret')
+        authorizer.access_token_url = self.auth_url
+        connector = PmpConnector(authorizer)
+        self.assertTrue(connector.reauthorize())
 
 
 class TestPmpConnectorGet(TestCase):

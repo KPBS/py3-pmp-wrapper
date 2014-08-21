@@ -4,11 +4,12 @@ from unittest import TestCase
 
 from pmp_api.utils.json_utils import qfind
 from pmp_api.utils.json_utils import filter_dict
-from pmp_api.utils.json_utils import returnfirst
 from pmp_api.utils.json_utils import get_nested_val
 from pmp_api.utils.json_utils import search_with_keys
 from pmp_api.utils.json_utils import set_value
-from pmp_api.core.exceptions import NoResult
+from pmp_api.utils.json_utils import get_path
+from pmp_api.utils.json_utils import count_key
+from pmp_api.utils.json_utils import gen_path
 
 
 class TestQfind(TestCase):
@@ -116,27 +117,6 @@ class TestFilterDict(TestCase):
             next(filter_dict(self.test_data['links']['enclosure'],
                              'href',
                              'http://BAD-VALUE')),
-
-
-class TestReturnFirstDec(TestCase):
-
-    def setUp(self):
-        def goodfunc():
-            yield from range(100, 110)
-
-        def badfunc():
-            yield from []
-
-        self.goodfunc = goodfunc
-        self.badfunc = badfunc
-
-    def test_good(self):
-        goodfirst = returnfirst(self.goodfunc)
-        self.assertEqual(goodfirst(), 100)
-
-    def test_bad(self):
-        badfirst = returnfirst(self.badfunc)
-        self.assertEqual(badfirst(), None)
 
 
 class TestGetNestedVal(TestCase):
@@ -285,3 +265,104 @@ class TestSetValue(TestCase):
                             doctype)
         self.assertFalse(results)
         self.assertEqual(results, None)
+
+
+class TestGetPath(TestCase):
+
+    def setUp(self):
+        self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        fixture_dir = os.path.join(current_dir, 'fixtures')
+        data = os.path.join(fixture_dir, 'test_data.json')
+        with open(data, 'r') as f:
+            items = json.loads(f.read())['items']
+        self.item = items[4]
+
+    def test_get_path(self):
+        attribs = self.item['attributes']
+        links = self.item['links']
+        self.assertEqual(get_path(links, 'profile'),
+                         ['profile'])
+        self.assertEqual(get_path(attribs, 'to'),
+                         ['valid', 'to'])
+        # Slightly harder: one level up:
+        self.assertEqual(get_path(self.item, 'to'),
+                         ['attributes', 'valid', 'to'])
+        self.assertEqual(get_path(self.item, 'schema'),
+                         ['links', 'schema'])
+
+    def test_get_path_inside_list(self):
+        self.assertEqual(get_path(self.item, 'scope'),
+                         ['links', 'schema', 0, 'scope'])
+
+    def test_get_path_no_path(self):
+        self.assertEqual(get_path(self.item, 'bunk'),
+                         None)
+
+
+class TestCountKey(TestCase):
+
+    def setUp(self):
+        self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        fixture_dir = os.path.join(current_dir, 'fixtures')
+        data = os.path.join(fixture_dir, 'test_data.json')
+        with open(data, 'r') as f:
+            items = json.loads(f.read())['items']
+        self.item = items[7]
+
+    def test_count_key(self):
+        self.assertEqual(sum(count_key(self.item, 'bitrate')),
+                         1)
+        self.assertEqual(sum(count_key(self.item, 'scope')),
+                         1)
+        self.assertEqual(sum(count_key(self.item, 'href')),
+                         11)
+        self.assertEqual(sum(count_key(self.item, 'creator')),
+                         1)
+        self.assertEqual(sum(count_key(self.item, 'NOCOUNT')),
+                         0)
+
+
+class TestPathGen(TestCase):
+    def setUp(self):
+        self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        fixture_dir = os.path.join(current_dir, 'fixtures')
+        data = os.path.join(fixture_dir, 'test_data.json')
+        with open(data, 'r') as f:
+            self.items = json.loads(f.read())['items']
+
+    def test_path_simple(self):
+        item = self.items[0]
+        self.assertEqual(list(gen_path(item, 'attributes')),
+                         [['attributes']])
+        self.assertEqual(list(gen_path(item, 'links')),
+                         [['links']])
+
+    def test_path_nested_dict(self):
+        item = self.items[0]
+        pub_expected = [['attributes', 'published']]
+        to_expected = [['attributes', 'valid', 'to']]
+        self.assertEqual(list(gen_path(item, 'published')),
+                         pub_expected)
+        self.assertEqual(list(gen_path(item, 'to')),
+                         to_expected)
+        self.assertTrue(get_nested_val(item, pub_expected[0]))
+        self.assertTrue(get_nested_val(item, to_expected[0]))
+
+    def test_path_mixed_list(self):
+        placeholder = ['links', 'enclosure', 0, 'meta', 'bitrate']
+        paths_to_bitrate = [[n] + placeholder for n in range(10)]
+        self.assertEqual(list(gen_path(self.items, 'bitrate')),
+                         paths_to_bitrate)
+        placeholder = ['attributes', 'valid', 'to']
+        valid_tos = [[n] + placeholder for n in range(10)]
+        self.assertEqual(list(gen_path(self.items, 'to')),
+                         valid_tos)
+        self.assertTrue(all(get_nested_val(self.items, path)
+                            for path in valid_tos))
+
+    def test_path_no_path(self):
+        self.assertEqual(list(gen_path(self.items, 'NO KEY')),
+                         [])

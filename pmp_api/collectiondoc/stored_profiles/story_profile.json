@@ -1,0 +1,29 @@
+{ 
+  "version": null 
+, "attributes": {
+    "tags": [
+	null
+    ]
+    , "guid": Infinity
+    , "title": Infinity
+    , "contenttemplated": null
+    , "contentencoded": null
+    , "published": null
+    , "teaser": null
+    , "byline": null
+    , "description": null
+  }
+    , "links": {
+	"profile": [
+	    {
+		"href": "https://api-sandbox.pmp.io/profiles/story"
+	    }
+	]
+	, "item": [
+	    null
+	]
+	, "collection": [
+	    Infinity
+	]
+    }
+}
