@@ -1,6 +1,9 @@
 pmp_api.collectiondoc package
 =============================
 
+Submodules
+----------
+
 pmp_api.collectiondoc.navigabledoc module
 -----------------------------------------
 
@@ -17,10 +20,26 @@ pmp_api.collectiondoc.pager module
     :undoc-members:
     :show-inheritance:
 
+pmp_api.collectiondoc.profile module
+------------------------------------
+
+.. automodule:: pmp_api.collectiondoc.profile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pmp_api.collectiondoc.query module
 ----------------------------------
 
 .. automodule:: pmp_api.collectiondoc.query
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pmp_api.collectiondoc.writeabledoc module
+-----------------------------------------
+
+.. automodule:: pmp_api.collectiondoc.writeabledoc
     :members:
     :undoc-members:
     :show-inheritance:

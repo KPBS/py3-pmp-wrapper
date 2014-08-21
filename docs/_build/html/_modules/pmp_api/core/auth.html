@@ -188,6 +188,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">endpoint</span>
 
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Bad response from server on access_token request: &quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot;code: {} content: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+                                                    <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="PmpAuth.get_access_token2"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth.get_access_token2">[docs]</a>    <span class="k">def</span> <span class="nf">get_access_token2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">access_token_url</span><span class="p">):</span>
         <span class="c"># For the access_token urn given by homedoc, this</span>
@@ -227,6 +232,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">access_token_url</span>
 
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Bad response from server on access_token request: &quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot;code: {} content: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+                                                    <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="PmpAuth.sign_request"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.auth.PmpAuth.sign_request">[docs]</a>    <span class="k">def</span> <span class="nf">sign_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_obj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provided with a :class:requests.Request object, this method will sign a</span>
