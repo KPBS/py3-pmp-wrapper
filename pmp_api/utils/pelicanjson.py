@@ -1,9 +1,10 @@
 """JSON is a recursive data structure, so this module has been created in
-order to (hopefully) make JSON easier to deal with. Often, it's necessary to
-explore a JSON object without knowing precisely where things are (in the case
-of Hypermedia, for example). By creating a recursive data structure, we can
-facilitate such tasks as retrieving key-value pairs, iterating through the
-data structure, and searching for elements in the data structure.
+order to (hopefully) make parsing JSON easier to deal with. Often, it's
+necessary to explore a JSON object without knowing precisely where things are
+(in the case of Hypermedia, for example). By creating a recursive data
+structure, we can facilitate such tasks as retrieving key-value pairs,
+iterating through the data structure, and searching for elements in the data
+structure.
 
 There are limitations, however: no JSON structure that has keys deeper
 than Python's recursion limit (default: 1000 stack frames) will work.
@@ -67,14 +68,16 @@ class PelicanJson(collections.MutableMapping):
     def __iter__(self):
         """Iterates through the entire tree and returns all nested keys.
         """
-        for k, v in self.store.items():
+        # for k, v in self.store.items():
+        #     yield k
+        #     if type(v) == type(self):
+        #         yield from iter(v)
+        #     elif type(v) == list:
+        #         for item in v:
+        #             if type(item) == type(self):
+        #                 yield from iter(v)
+        for k, v in self.items():
             yield k
-            if type(v) == type(self):
-                yield from iter(v)
-            elif type(v) == list:
-                for item in v:
-                    if type(item) == type(self):
-                        yield from iter(v)
 
     def items(self, path=None):
         """Yields path-value pairs from throughout the entire tree.
