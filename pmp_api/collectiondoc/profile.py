@@ -64,26 +64,16 @@ class Profile:
             errmsg = "Invalid profile: Missing values for following paths: `{}`"
             raise InvalidProfile(errmsg.format(".".join(result)))
 
-            path = get_path(self.data, key)
-            if type(value) != 
-            if isinstance(value, dict):
-                for k, v in value.items():
-                    item_checker(k, v)
-            elif isinstance(value, list):
-                for v in value:
-                    item_checker(key, v)
-            return True
-
-        for k, v in self.data.items():
-            item_checker(k, v)
         # Also need to type-check the whole thing! So a list
         # value doesn't get clobbered by a string!
+        # We pretty much need a way to iterate these things, some generic
+        # iterate protocol. Possibly subclass dict and create an __iter__ for it
         return True
 
-    def empty_values(self, data, value):
+    def empty_values(self, data):
         """
         """
-        return list(find_value(data, value))
+        return find_value(data, None)
 
     def serialize(self):
         """Returns valid JSON representation of the profiled object that conforms
@@ -97,15 +87,11 @@ class Profile:
         assert self.is_valid
         finished_data = copy.deepcopy(self.data)
         empties = empty_values(finished_data)
-        while empties:
-            path = empties[::-1]
-            result = get_nested_val(finished_data, path)
-            if result is None or result == [None]:
-                *elements, key = path
-                if elements:
-                    inner_object = get_nested_val(finished_data, elements)
-                    del inner_object[key]
-                else:
-                    del finished_data[key]
-            empties = empty_values(finished_data)
+        for empty in empties:
+            *elements, key = empty
+            if elements:
+                inner_object = get_nested_val(finished_data, elements)
+                del inner_object[key]
+            else:
+                del finished_data[key]
         return json.dumps(finished_data)

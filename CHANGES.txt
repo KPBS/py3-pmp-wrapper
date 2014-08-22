@@ -1,3 +1,5 @@
+v0.4.5 August 20, 2014 -- Added some utilities to json_utils in order to better create profile objects.
+
 v0.4.4 August 7, 2014 -- Fixed Issue #6: <Navigable Doc: None> for homedoc. All pages with nav links should now be considered navigable.
 
 v0.4.3 August 7, 2014 -- Error handling in lower-level auth/conn modules for when queries return no useful results. Also completed testing for json_utils and worked a bit on the filter_dict function.

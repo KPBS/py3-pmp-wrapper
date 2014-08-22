@@ -292,7 +292,7 @@ def gen_path(json_result, key, path=None):
 
     Usage::
 
-       >>> list(find_value(some_nested_json, 'SOMEKEY'))
+       >>> list(gen_path(some_nested_json, 'SOMEKEY'))
        [['key1, 'key2', key3']['another_object', 'another_key', 1']]
        >>> get_nested_valu(some_nested_json, ['key1, 'key2', key3'])
        'SOMEVALUE'
@@ -331,13 +331,13 @@ def find_value(json_result, value, path=None):
 
     Returns:
 
-       Generator of lists that each represent one path to the value searched for.
+       Generator of lists that each represent a path to the value searched for.
 
     Usage::
 
        >>> list(find_value(some_nested_json, 'SOMEVALUE'))
-       [['key1, 'key2', key3']['another_object', 'another_key', 1']]
-       >>> get_nested_value(some_nested_json, ['another_object', 'another_key', 1'])
+       [['key1, 'key2', key3']['another_object', 1, 'akey']]
+       >>> get_nested_value(some_nested_json, ['another_object', 1, 'akey'])
        'SOMEVALUE'
 
     """

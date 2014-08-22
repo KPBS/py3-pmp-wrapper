@@ -1,3 +1,15 @@
+NEED some way to ierate these crazy nested JSON objects
+In addition, we need some way to get the path for any key or value 
+in the thing at any time. Iterate with path! 
+
+Sounds like I need to create a subclass of a dictionary but work
+on its __iter__ method and also work on a specialized `enumerate`
+for it.
+
+Once we have that, I can add all of these methods from json_utils
+to that subclassed object and it can be the sole interface for stuff?
+
+
 SANDBOX:
 
 reading: https://api-sandbox.pmp.io
