@@ -20,6 +20,7 @@ import requests
 
 from .core.auth import PmpAuth
 from .core.conn import PmpConnector
+from .core.exceptions import BadQuery
 from .core.exceptions import NoToken
 from .collectiondoc.navigabledoc import NavigableDoc
 from .utils.json_utils import filter_dict
@@ -155,7 +156,13 @@ class Client(object):
         Kwargs:
            `params` -- Dictionary of params to construct a query
         """
-        return self.get(self.document.query(rel_type, params=params))
+        pmp_request = self.document.query(rel_type, params=params)
+        if pmp_request is None:
+            errmsg = "Can't create request for {0} with params {1}. Check that"
+            errmsg += " {0} is present in docuemnt."
+            raise BadQuery(errmsg.format(rel_type, str(params)))
+        else:
+            return self.get(pmp_request)
 
     def home(self):
         """Requests API home-doc `entry_point` and returns results.
