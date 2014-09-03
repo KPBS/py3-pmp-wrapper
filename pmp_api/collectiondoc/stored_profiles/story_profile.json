@@ -1,29 +1,38 @@
 { 
-  "version": null 
+  "version": "OPTONAL_VALUE" 
 , "attributes": {
     "tags": [
-	null
+	"OPTONAL_VALUE"
     ]
-    , "guid": Infinity
-    , "title": Infinity
-    , "contenttemplated": null
-    , "contentencoded": null
-    , "published": null
-    , "teaser": null
-    , "byline": null
-    , "description": null
+    , "guid": "REQUIRED_VALUE"
+    , "title": "REQUIRED_VALUE"
+    , "contenttemplated": "OPTONAL_VALUE"
+    , "contentencoded": "OPTONAL_VALUE"
+    , "published": "OPTONAL_VALUE"
+    , "teaser": "OPTONAL_VALUE"
+    , "byline": "OPTONAL_VALUE"
+    , "description": "OPTONAL_VALUE"
   }
     , "links": {
 	"profile": [
 	    {
-		"href": "https://api-sandbox.pmp.io/profiles/story"
+		"href": "REQUIRED_VALUE"
 	    }
 	]
 	, "item": [
-	    null
+	    "OPTONAL_VALUE"
+	]
+	, "alternate": [
+	    {
+		"href": "REQUIRED_VALUE"
+	    }
 	]
 	, "collection": [
-	    Infinity
+	    {
+		"href": "REQUIRED_VALUE"
+	    }
 	]
     }
+    ,"REQUIRED": "REQUIRED_VALUE"
+    , "OPTIONAL": "OPTIONAL_VALUE"
 }

@@ -66,7 +66,8 @@ setup(
     install_requires=[
         "requests>=2.2.1",
         "six>=1.7.3",
-        "uritemplate"
+        "uritemplate",
+        "pelecanus"
     ],
     long_description = long_description
 )

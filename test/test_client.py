@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 from server import run_forever
 from pmp_api.pmp_client import Client
 from pmp_api.core.auth import PmpAuth
+from pmp_api.core.conn import PmpConnector
 
 from pmp_api.collectiondoc.navigabledoc import NavigableDoc
 from pmp_api.core.exceptions import NoToken

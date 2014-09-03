@@ -360,7 +360,3 @@ def find_value(json_result, value, path=None):
     else:
         if json_result == value:
             return path
-
-
-def find_matching_pair(json_result, key, value):
-    pass

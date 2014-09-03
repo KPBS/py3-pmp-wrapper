@@ -126,7 +126,6 @@ class Client(object):
            `endpoint` -- URL endpoint for saving documents
            `document` -- data (str) to send over as a document payload.
         """
-        # Drastically simplify: This is just a wrapper for conn.put
         results = self.connector.put(endpoint, document)
         return results
 
@@ -140,7 +139,7 @@ class Client(object):
         """
         return self.connector.delete(document.collectiondoc.get('href'))
 
-    def upload(self, endpoint, upload_file):
+    def upload(self, endpoint, upload_document):
         """Uploads a rich media object to PMP API.
         -- Not implemented yet.
         """

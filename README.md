@@ -75,9 +75,9 @@ We can also go `back` or `forward`, like a browser, re-requesting previous docum
 Most of the useful navigation is done via `urn`, the primary method for accessing content, and the Client object provides a `query` method for use with a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
 
 ```python
->>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
+>>> document = client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
 <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
->>> client.document.items
+>>> document.items
 { ITEMS ... }
 ```
 
