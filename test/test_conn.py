@@ -33,10 +33,8 @@ class TestPmpConnector(TestCase):
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.fixture_dir = os.path.join(current_dir, 'fixtures')
         self.auth_doc = os.path.join(self.fixture_dir, 'authdetails.json')
-        self.data_doc = os.path.join(self.fixture_dir, 'test_data.json')
         entry_point = 'http://127.0.0.1:8080/?json_response={}'
         self.auth_url = entry_point.format(self.auth_doc)
-        self.data_url = entry_point.format(self.data_doc)
         self.server_process = Process(target=run)
         self.server_process.start()
 

@@ -18,7 +18,7 @@ class TestQfind(TestCase):
         # Fixture locations
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             items = json.loads(f.read())['items']
         self.test_data = items[0]
@@ -55,19 +55,19 @@ class TestQfind(TestCase):
 
     def test_nested_list_of_dicts(self):
         expect_created = self.test_data['attributes']
-        created = next(qfind(self.test_data, 'created'))
-        self.assertEqual(expect_created, created)
+        created = list(qfind(self.test_data, 'created'))
+        self.assertIn(expect_created, created)
 
     def test_mixed_dictlist_json(self):
-        expect_enclosure = self.test_data['links']
-        expect_meta = self.test_data['links']['enclosure'][0]
-        expect_scope = self.test_data['links']['schema'][0]
-        enclosure = next(qfind(self.test_data, 'enclosure'))
-        meta = next(qfind(self.test_data, 'meta'))
-        scope = next(qfind(self.test_data, 'scope'))
-        self.assertEqual(expect_enclosure, enclosure)
-        self.assertEqual(expect_meta, meta)
-        self.assertEqual(expect_scope, scope)
+        expect_alternate = self.test_data['links']['alternate']
+        expect_teaser = self.test_data['attributes']['teaser']
+        expect_pagenum = self.test_data['links']['navigation'][0]['pagenum']
+        alternate = next(qfind(self.test_data, 'alternate'))['alternate']
+        teaser = next(qfind(self.test_data, 'teaser'))['teaser']
+        pagenum = next(qfind(self.test_data, 'pagenum'))['pagenum']
+        self.assertEqual(alternate, expect_alternate)
+        self.assertEqual(expect_teaser, teaser)
+        self.assertEqual(expect_pagenum, pagenum)
 
 
 class TestFilterDict(TestCase):
@@ -76,31 +76,35 @@ class TestFilterDict(TestCase):
         # Fixture locations
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             self.items = json.loads(f.read())['items']
-        self.test_data = self.items[0]
+        self.test_data = self.items[5]
 
     def test_filter_good(self):
-        test_url = 'http://api.pbs.org/cove/v1/videos/160923/'
-        self.assertEqual(list(filter_dict(self.test_data, 'rels', 'self')),
-                         self.test_data['links']['navigation'])
+        test_url = 'http://www.npr.org/2014/08/27/343758273/chicaco-greets-'
+        test_url += 'little-league-national-champs-as-returning-heroes?ft=3&f'
+        test_url += '=343758273'
+        self.assertIn(self.test_data['links']['navigation'][0],
+                      list(filter_dict(self.test_data, 'rels', 'self')))
         self.assertEqual(
-            next(filter_dict(self.test_data['links']['enclosure'],
+            next(filter_dict(self.test_data['links'],
                              'href',
                              test_url)),
-            self.test_data['links']['enclosure'][0])
+            self.test_data['links']['alternate'][0])
 
     def test_filter_bad_key(self):
-        test_url = 'http://api.pbs.org/cove/v1/videos/160923/'
+        test_url = 'http://www.npr.org/2014/08/27/343758273/chicaco-greets-'
+        test_url += 'little-league-national-champs-as-returning-heroes?ft=3&f'
+        test_url += '=343758273'
         self.assertEqual(list(filter_dict(self.test_data, 'BAD', 'self')),
                          [])
-        self.assertEqual(list(filter_dict(self.test_data['links']['enclosure'],
+        self.assertEqual(list(filter_dict(self.test_data['links']['alternate'],
                                           'BAD',
                                           test_url)),
                          [])
         with self.assertRaises(StopIteration):
-            next(filter_dict(self.test_data['links']['enclosure'],
+            next(filter_dict(self.test_data['links']['alternate'],
                              'BAD',
                              test_url)),
 
@@ -109,12 +113,12 @@ class TestFilterDict(TestCase):
                                           'rels',
                                           'BAD VALUE')),
                          [])
-        self.assertEqual(list(filter_dict(self.test_data['links']['enclosure'],
+        self.assertEqual(list(filter_dict(self.test_data['links']['alternate'],
                                           'href',
                                           'http://BAD-VALUE')),
                          [])
         with self.assertRaises(StopIteration):
-            next(filter_dict(self.test_data['links']['enclosure'],
+            next(filter_dict(self.test_data['links']['alternate'],
                              'href',
                              'http://BAD-VALUE')),
 
@@ -127,7 +131,7 @@ class TestGetNestedVal(TestCase):
                                       {4: '4'}]}}
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             items = json.loads(f.read())['items']
         self.test_data = items[-1]
@@ -149,7 +153,8 @@ class TestGetNestedVal(TestCase):
                          '4')
 
     def test_nested_data(self):
-        result = 'http://127.0.0.1:8080/profiles/video'
+        result = 'http://www.npr.org/2014/08/27/343758312/meet-the-squirrel-'
+        result += 'whisperer-of-happy-valley?ft=3&f=343758312'
         self.assertEqual(get_nested_val(self.test_data,
                                         ('links', 'alternate', 0, 'href')),
                          result)
@@ -178,7 +183,7 @@ class TestSearchWithKeys(TestCase):
         self.sample = [sample1, sample2]
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             self.items = json.loads(f.read())['items']
 
@@ -187,14 +192,15 @@ class TestSearchWithKeys(TestCase):
                                         ['links', 0, 0, 'a'],
                                         'b'))
         self.assertEqual(results, self.sample[1])
-        title = "PBS NewsHour"
+        title = "Weekly Innovation: A Sad Desk Microwave For Your Sad Desk"
+        title += " Lunch"
         test_keys1 = ['attributes', 'title']
         results1 = list(search_with_keys(self.items,
                                          test_keys1,
                                          title))
         self.assertEqual(len(results1), 1)
 
-        profile = "http://127.0.0.1:8080/profiles/video"
+        profile = "http://127.0.0.1:8080/profiles/story"
         test_keys2 = ['links', 'profile', 0, 'href']
         results2 = list(search_with_keys(self.items,
                                          test_keys2,
@@ -202,22 +208,22 @@ class TestSearchWithKeys(TestCase):
         self.assertEqual(len(results2), 10)
 
     def test_nested_search_with_index(self):
-        doctype = 'application/vnd.collection.doc+json'
-        test_keys1 = ['links', 'profile', 0, 'type']
-        results1 = (list(search_with_keys(self.items,
-                                          test_keys1,
-                                          doctype)))
+        profile = 'http://127.0.0.1:8080/profiles/story'
+        test_keys1 = ['links', 'profile', 0, 'href']
+        results1 = list(search_with_keys(self.items,
+                                         test_keys1,
+                                         profile))
         self.assertEqual(len(results1), 10)
-
-        enclosure_url = 'http://api.pbs.org/cove/v1/videos/160923/'
-        test_keys = ['links', 'enclosure', 0, 'href']
+        expected_url = self.items[5]['links']['alternate'][0]['href']
+        test_keys = ['links', 'alternate', 0, 'href']
+        title = self.items[5]['attributes']['title']
         results = next(search_with_keys(self.items,
                                         test_keys,
-                                        enclosure_url))
+                                        expected_url))
         self.assertEqual(results['attributes']['title'],
-                         'PBS NewsHour')
-        self.assertEqual(results['links']['enclosure'][0]['href'],
-                         enclosure_url)
+                         title)
+        self.assertEqual(results['links']['alternate'][0]['href'],
+                         expected_url)
 
     def test_bad_vals(self):
         doctype = 'application/vnd.collection.doc+json'
@@ -234,7 +240,7 @@ class TestSetValue(TestCase):
         self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             self.items = json.loads(f.read())['items']
 
@@ -249,12 +255,12 @@ class TestSetValue(TestCase):
 
     def test_nested_replace(self):
         new_enclosure_url = 'http://TESTVALUE/cove/v1/videos/160923/'
-        test_keys = ['links', 'enclosure', 0, 'href']
+        test_keys = ['links', 'navigation', 0, 'href']
         results = set_value(self.items[-1],
                             test_keys,
                             new_enclosure_url)
         self.assertTrue(results)
-        self.assertEqual(self.items[-1]['links']['enclosure'][0]['href'],
+        self.assertEqual(self.items[-1]['links']['navigation'][0]['href'],
                          new_enclosure_url)
 
     def test_bad_vals(self):
@@ -273,7 +279,7 @@ class TestGetPath(TestCase):
         self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             items = json.loads(f.read())['items']
         self.item = items[4]
@@ -285,15 +291,10 @@ class TestGetPath(TestCase):
                          ['profile'])
         self.assertEqual(get_path(attribs, 'to'),
                          ['valid', 'to'])
-        # Slightly harder: one level up:
-        self.assertEqual(get_path(self.item, 'to'),
-                         ['attributes', 'valid', 'to'])
-        self.assertEqual(get_path(self.item, 'schema'),
-                         ['links', 'schema'])
 
     def test_get_path_inside_list(self):
-        self.assertEqual(get_path(self.item, 'scope'),
-                         ['links', 'schema', 0, 'scope'])
+        self.assertEqual(get_path(self.item, 'totalpages'),
+                         ['links', 'navigation', 0, 'totalpages'])
 
     def test_get_path_no_path(self):
         self.assertEqual(get_path(self.item, 'bunk'),
@@ -306,20 +307,20 @@ class TestCountKey(TestCase):
         self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             items = json.loads(f.read())['items']
         self.item = items[7]
 
     def test_count_key(self):
-        self.assertEqual(sum(count_key(self.item, 'bitrate')),
-                         1)
-        self.assertEqual(sum(count_key(self.item, 'scope')),
-                         1)
+        self.assertEqual(sum(count_key(self.item, 'title')),
+                         2)
+        self.assertEqual(sum(count_key(self.item, 'byline')),
+                         0)
         self.assertEqual(sum(count_key(self.item, 'href')),
                          11)
         self.assertEqual(sum(count_key(self.item, 'creator')),
-                         1)
+                         2)
         self.assertEqual(sum(count_key(self.item, 'NOCOUNT')),
                          0)
 
@@ -329,39 +330,41 @@ class TestPathGen(TestCase):
         self.sample1 = {'links': {'collection': [{'a': 'b'}]}}
         current_dir = os.path.abspath(os.path.dirname(__file__))
         fixture_dir = os.path.join(current_dir, 'fixtures')
-        data = os.path.join(fixture_dir, 'test_data.json')
+        data = os.path.join(fixture_dir, 'datadoc.json')
         with open(data, 'r') as f:
             self.items = json.loads(f.read())['items']
 
     def test_path_simple(self):
         item = self.items[0]
-        self.assertEqual(list(gen_path(item, 'attributes')),
-                         [['attributes']])
-        self.assertEqual(list(gen_path(item, 'links')),
-                         [['links']])
+        expected = [['attributes'],
+                    ['items', 0, 'attributes'],
+                    ['items', 1, 'attributes']]
+        paths = gen_path(item, 'attributes')
+        count = 0
+        while count < 3:
+            self.assertIn(next(paths), expected)
+            count += 1
+        with self.assertRaises(StopIteration):
+            next(paths)
 
     def test_path_nested_dict(self):
         item = self.items[0]
-        pub_expected = [['attributes', 'published']]
-        to_expected = [['attributes', 'valid', 'to']]
-        self.assertEqual(list(gen_path(item, 'published')),
-                         pub_expected)
-        self.assertEqual(list(gen_path(item, 'to')),
-                         to_expected)
-        self.assertTrue(get_nested_val(item, pub_expected[0]))
-        self.assertTrue(get_nested_val(item, to_expected[0]))
-
-    def test_path_mixed_list(self):
-        placeholder = ['links', 'enclosure', 0, 'meta', 'bitrate']
-        paths_to_bitrate = [[n] + placeholder for n in range(10)]
-        self.assertEqual(list(gen_path(self.items, 'bitrate')),
-                         paths_to_bitrate)
-        placeholder = ['attributes', 'valid', 'to']
-        valid_tos = [[n] + placeholder for n in range(10)]
-        self.assertEqual(list(gen_path(self.items, 'to')),
-                         valid_tos)
-        self.assertTrue(all(get_nested_val(self.items, path)
-                            for path in valid_tos))
+        pub_expected = [['attributes', 'published'],
+                        ['items', 0, 'attributes', 'published'],
+                        ['items', 1, 'attributes', 'published']]
+        to_expected = [['attributes', 'valid', 'to'],
+                       ['items', 0, 'attributes', 'valid', 'to'],
+                       ['items', 1, 'attributes', 'valid', 'to']]
+        pub_paths = gen_path(item, 'published')
+        to_paths = gen_path(item, 'to')
+        count = 0
+        while count < 3:
+            self.assertIn(next(pub_paths), pub_expected)
+            self.assertIn(next(to_paths), to_expected)
+            count += 1
+        with self.assertRaises(StopIteration):
+            next(pub_paths)
+            next(to_paths)
 
     def test_path_no_path(self):
         self.assertEqual(list(gen_path(self.items, 'NO KEY')),

@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 from server import run_forever
 from pmp_api.pmp_client import Client
 from pmp_api.core.auth import PmpAuth
-from pmp_api.core.conn import PmpConnector
 
 from pmp_api.collectiondoc.navigabledoc import NavigableDoc
 from pmp_api.core.exceptions import NoToken
@@ -27,16 +26,16 @@ class TestPmpClient(TestCase):
         entry_point = 'http://127.0.0.1:8080/?json_response={}'
 
         # For various navigation tests
-        self.nav_values = {'next': "http://127.0.0.1:8080/docs?offset=20",
+        self.nav_values = {'next': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue&offset=10",
                            'prev': "http://127.0.0.1:8080/docs?",
-                           'first': "http://127.0.0.1:8080/docs?",
-                           'last': "http://127.0.0.1:8080/docs?offset=42920",
-                           'current': "http://127.0.0.1:8080/docs?offset=10"}
+                           'first': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue",
+                           'last': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue&offset=13130",
+                           'current': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue"}
 
         # Fixture locations
         self.home_doc = os.path.join(self.fixture_dir, 'homedoc.json')
         self.auth_doc = os.path.join(self.fixture_dir, 'authdetails.json')
-        self.data_doc = os.path.join(self.fixture_dir, 'test_data.json')
+        self.data_doc = os.path.join(self.fixture_dir, 'datadoc.json')
 
         # Can also return JSON via these urls and testing server
         self.test_entry_point = entry_point.format(self.home_doc)
@@ -137,7 +136,7 @@ class TestPmpClient(TestCase):
         self.assertNotEqual(client.pager, None)
         self.assertTrue(client.pager.navigable)
         self.assertEqual(client.pager.next, self.nav_values['next'])
-        self.assertEqual(client.pager.prev, self.nav_values['prev'])
+        self.assertEqual(client.pager.prev, None)
         self.assertEqual(client.pager.first, self.nav_values['first'])
         self.assertEqual(client.pager.last, self.nav_values['last'])
         self.assertEqual(client.pager.current, self.nav_values['current'])
@@ -241,8 +240,7 @@ class TestPmpClient(TestCase):
         client.get(self.data_url)
 
         with patch.object(Client, 'get') as mock_get:
-            client.prev()
-            mock_get.assert_called_with(self.nav_values['prev'])
+            self.assertEqual(client.prev(), None)
 
     def test_first(self):
         client = Client(self.test_entry_point)
