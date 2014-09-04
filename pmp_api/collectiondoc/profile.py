@@ -37,6 +37,9 @@ profiles = {'contributor': ('Contributor Profile',
 
 
 def validate(data, profile_type="story"):
+    """Validator for a profile: it will return False if profile
+    contains required fields that have not been filled in.
+    """
     # Do we want to return a Boolean or raise an error
     name, profile_file = profiles[profile_type]
     current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -59,6 +62,8 @@ def validate(data, profile_type="story"):
 
 
 def new_profile(profile_type="story", collection=None):
+    """
+    """
     name, profile_file = profiles[profile_type]
     current_dir = os.path.abspath(os.path.dirname(__file__))
     profile_location = os.path.join(current_dir,
@@ -80,6 +85,8 @@ def new_profile(profile_type="story", collection=None):
 
 
 def empty_values(data, profile_type="story"):
+    """Function that lists all of the fields missing values.
+    """
     name, profile_file = profiles[profile_type]
     current_dir = os.path.abspath(os.path.dirname(__file__))
     profile_location = os.path.join(current_dir,
@@ -93,6 +100,8 @@ def empty_values(data, profile_type="story"):
 
 
 def edit_profile(profile, new_data):
+    """EXPERIMENTAL function for cramming data into a profile.
+    """
     missing_paths = []
     pelican_profile = PelicanJson(profile)
     pelican_data = PelicanJson(new_data)
