@@ -171,7 +171,7 @@ class PmpConnector(object):
         Returns boolean
         """
         response = self._request_factory('DELETE', endpoint)
-        if response.status_code == '204':
+        if response.status_code == 204:
             return True
         else:
             return False

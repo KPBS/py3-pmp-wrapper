@@ -313,7 +313,7 @@ class TestPmpConnectorDelete(TestCase):
         self.auth_vals['token_expires'] = datetime.datetime.utcnow() + self.delta
         authorizer = Mock(**self.auth_vals)
         pconn = PmpConnector(authorizer)
-        attribs = {'status_code': '200'}
+        attribs = {'status_code': 200}
         response = Mock(**attribs)
         session = Mock(**{'send.return_value': response,
                           'prepare_request.return_value': self.signed_request})
@@ -324,7 +324,7 @@ class TestPmpConnectorDelete(TestCase):
         self.auth_vals['token_expires'] = datetime.datetime.utcnow() + self.delta
         authorizer = Mock(**self.auth_vals)
         pconn = PmpConnector(authorizer)
-        attribs = {'status_code': '204'}
+        attribs = {'status_code': 204}
         response = Mock(**attribs)
         session = Mock(**{'send.return_value': response,
                           'prepare_request.return_value': self.signed_request})
@@ -346,7 +346,7 @@ class TestPmpConnectorDelete(TestCase):
                      'access_token_url': 'http://www.google.com',
                      'token_expires': datetime.datetime.utcnow() + self.delta,
                      'sign_request.side_effect': [ExpiredToken, None]}
-        attribs = {'status_code': '204'}
+        attribs = {'status_code': 204}
         authorizer = Mock(**auth_vals)
         response = Mock(**attribs)
         session = Mock(**{'send.return_value': response,

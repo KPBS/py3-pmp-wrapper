@@ -139,11 +139,11 @@ class Client(object):
         """
         return self.connector.delete(document.collectiondoc.get('href'))
 
-    def upload(self, endpoint, upload_document):
-        """Uploads a rich media object to PMP API.
-        -- Not implemented yet.
-        """
-        raise Exception("Not implemented yet.")
+    # def upload(self, endpoint, upload_document):
+    #     """Uploads a rich media object to PMP API.
+    #     -- Not implemented yet.
+    #     """
+    #     raise Exception("Not implemented yet.")
 
     def query(self, rel_type, params=None):
         """Issues request for a query using urn with params to create
