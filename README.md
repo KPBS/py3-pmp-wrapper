@@ -75,9 +75,9 @@ We can also go `back` or `forward`, like a browser, re-requesting previous docum
 Most of the useful navigation is done via `urn`, the primary method for accessing content, and the Client object provides a `query` method for use with a `urn`. For example, let's look at `urn:collectiondoc:query:docs`, which contains information for querying documents.
 
 ```python
->>> client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
+>>> document = client.query('urn:collectiondoc:query:docs', params={"tag": "samplecontent", "profile": "story"})
 <NavigableDoc: https://api-pilot.pmp.io/docs?guid=SOME_GUID>
->>> client.document.items
+>>> document.items
 { ITEMS ... }
 ```
 
@@ -98,13 +98,27 @@ To really get interesting information back, we need to have some way of managing
 
 #### Querying 
 
-In order to get interesting results back, we generally want to issue queries, but it can be tough to remember how to make queries. The `NavigableDoc` has a `template` method that will reveal what params are available for a query:
+In order to get interesting results back, we generally want to issue queries, but it can be tough to remember how to make queries. The `NavigableDoc` has a `template` method that will reveal what params are available for a query and you can use the `Client` to create a query with these params:
 
 ```python
 >>> document.template('urn:collectiondoc:query:docs')
 'https://api-pilot.pmp.io/docs{?guid,limit,offset,tag,collection,text,searchsort,has,author,distributor,distributorgroup,startdate,enddate,profile,language}'
 >>> client.query('urn:collectiondoc:query:docs', params={'has': 'audio', 'language': 'en'})
+<NavigableDoc: https://api-pilot.pmp.io/docs/SOMEQUERY>
 ```
+
+The document also has a query method which will create well-formed queries for you, but it will raise a `BadQuery` exception if you pass it a set of invalid parameters, telling you which of those parameters are invalid:
+
+```python
+>>> document.query('urn:collectiondoc:query:docs',params={'has': 'audio', 'language': 'en'})
+'https://api-pilot.pmp.io/docs?language=en&has=audio'
+>>> document.query('urn:collectiondoc:query:docs',params={'Not-a-param': 'Error', 'profile': 'story'})
+Traceback (most recent call last):
+...
+  raise BadQuery(errmsg.format(badstuff))
+pmp_api.core.exceptions.BadQuery: Query param does not exist: {'Not-a-param'}
+```
+
 
 (For values accepted by query keys, consult the [PMP documentation](https://github.com/publicmediaplatform/pmpdocs/wiki)
 
@@ -134,8 +148,26 @@ etc.
 Finally, you can always retrieve *all* of the results inside a document by acessing its `collectiondoc` attribute. This will return a dictionary of *all* values contained in the document:
 
 ```python
->>> client.document.collectiondoc
+>>> document.collectiondoc
 {ALL-The_Data ...}
+```
+
+You can get or set values directly this way, or you can use the `edit` method, which requires knowing exactly where the data is located (and if you are not careful, it's easy to make a document invalid in this way by clobbering a `list` with a `string` for instance). 
+
+To use the `edit` method, pass in a tuple or list of keys/indices to where the data is located:
+
+```python
+>>> document.edit(['attributes', 'guid'], "NEW GUID")
+{'guid': "NEW GUID", etc.}
+>>> document.edit(['links', 'navigation', 0, 'rels'], "NEW REL")
+
+```
+
+And you can get a json dump of the data inside a `NavigableDoc` (for submitting it back to PMP, for instance) by calling its serialize method:
+
+```python
+>>> document.serialize()
+'{ALL-The_Data ...}'
 ```
 
 ## Credentials

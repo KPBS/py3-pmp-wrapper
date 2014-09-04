@@ -26,9 +26,8 @@ class TestNavigableDoc(TestCase):
                            ['urn:collectiondoc:query:docs'])
 
     def test_current_page_init(self):
-        url = 'http://127.0.0.1:8080/docs?guid=04224975-e93c-4b17-9df9-'
-        url += '96db37d318f3'
-        self.assertEqual(self.homedoc.url, url)
+        url = 'http://127.0.0.1:8080/'
+        self.assertEqual(self.homedoc.href, url)
 
     def test_query_types(self):
         queries = self.homedoc.query_types()
@@ -39,7 +38,6 @@ class TestNavigableDoc(TestCase):
                            ['urn:collectiondoc:form:profilesave']),
                           ('Schema Save',
                            ['urn:collectiondoc:form:schemasave'])]
-        
         self.assertEqual(first, actual_queries[0])
         self.assertEqual(second, actual_queries[1])
         self.assertEqual(third, actual_queries[2])
@@ -69,7 +67,10 @@ class TestNavigableDoc(TestCase):
                                            'tag': 'SOME tag'})
         expected = "http://127.0.0.1:8080/docs?tag=SOME%20tag&has=CONTENT"
         expected += "&profile=SOME%20PROFILE&language=en"
-        self.assertEqual(query, expected)
+        self.assertIn("tag=SOME%20tag", query)
+        self.assertIn("&has=CONTENT", query)
+        self.assertIn("&profile=SOME%20PROFILE", query)
+        self.assertIn("&language=en", query)
 
     def test_query_bad_rel_type(self):
         bad1 = self.docs_query[:-5]
@@ -85,8 +86,12 @@ class TestNavigableDoc(TestCase):
                           ['urn:collectiondoc:hreftpl:docs']),
                           ('Query for documents',
                            ['urn:collectiondoc:query:docs']),
-                          ('Generate guids',
-                           ['urn:collectiondoc:query:guids']),
+                          ('Document Save',
+                           ['urn:collectiondoc:form:documentsave']),
+                          ('Create OAuth2 Credentials',
+                           ['urn:collectiondoc:form:createcredentials']),
+                          ('Query for profiles',
+                           ['urn:collectiondoc:query:profiles']),
                           ('Issue OAuth2 Token',
                            ['urn:collectiondoc:form:issuetoken'])]
         for item in actual_queries:
@@ -103,15 +108,13 @@ class TestNavigableDoc(TestCase):
 
     def test_template(self):
         tests = [('urn:collectiondoc:query:users',
-                 "http://127.0.0.1:8080/users{?limit,offset,tag,collection"),
-                 ('urn:collectiondoc:query:groups',
-                  "http://127.0.0.1:8080/groups{?limit,offset,tag,collection"),
+                 "http://127.0.0.1:8080/users{?guid,limit,offset,searchsort,startdate,enddate,writeable,tag,collection,text}"),
                  ('urn:collectiondoc:hreftpl:profiles',
-                  "http://127.0.0.1:8080/profiles{/guid}"),
+                  "http://127.0.0.1:8080/profiles/{guid}"),
                  ('urn:collectiondoc:query:profiles',
-                  "http://127.0.0.1:8080/profiles{?limit,offset,tag,coll"),
+                  "http://127.0.0.1:8080/profiles{?guid,limit,offset,searchsort,startdate,enddate,writeable,tag,collection,text}"),
                  ('urn:collectiondoc:hreftpl:docs',
-                  "http://127.0.0.1:8080/docs{/guid}{?limit,offset}")]
+                  "http://127.0.0.1:8080/docs/{guid}{?limit,offset}")]
         for urn, expected in tests:
             self.assertIn(expected, self.homedoc.template(urn))
 
@@ -122,3 +125,26 @@ class TestNavigableDoc(TestCase):
         for urn in some_nones:
             self.assertEqual(self.homedoc.template(urn),
                              None)
+
+    def test_edit(self):
+        edit_keys1 = ("links", "navigation", 0, "rels")
+        edit_keys2 = ("attributes", "guid")
+        result1 = self.homedoc.edit(edit_keys1, "NO WAY!")
+        result2 = self.homedoc.edit(edit_keys2, "NEW TEST GUID")
+        self.assertEqual(self.homedoc.links['navigation'][0]['rels'],
+                         "NO WAY!")
+        self.assertEqual(self.homedoc.attributes['guid'],
+                         "NEW TEST GUID")
+        self.assertEqual(result1, self.homedoc.links['navigation'][0])
+        self.assertEqual(result2, self.homedoc.attributes)
+
+        unchanged_val = self.homedoc.links.copy()
+        self.homedoc.edit(["links", "NONE"], "Doesn't Change")
+        self.assertEqual(self.homedoc.links,
+                         unchanged_val)
+
+    def test_serialize(self):
+        self.assertEqual(type(self.homedoc.serialize()),
+                         str)
+        self.assertEqual(json.loads(self.homedoc.serialize()),
+                         self.homedoc.collectiondoc)

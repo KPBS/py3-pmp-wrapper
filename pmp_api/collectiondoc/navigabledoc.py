@@ -3,34 +3,49 @@
    :synopsis: Creates an interactive NavigableDoc object
    from API results.
 """
+import json
 
 from .pager import Pager
 from .query import make_query
 from ..utils.json_utils import qfind
 from ..utils.json_utils import filter_dict
+from ..utils.json_utils import set_value
 
 
 class NavigableDoc(object):
     """:class:NavigableDoc <NavigableDoc>` is for easily parsing
     and navigation collection+doc JSON documents returned from the
-    PMP API. Each document should have
+    PMP API. Each document should have the standard collectiondoc keys:
+    'href', 'version', 'attributes', 'links', but may also have 'items'.
+
+    Methods and properties are designed to make it easy to retrieve
+    information from these collectiondocs. To instantiate, pass
+    in a collectiondoc result (which can be any dictionary, but which is
+    usually loaded from JSON).
+
+    Args:
+      `collection_result` -- JSON collectiondoc from PMP API
     """
 
     def __init__(self, collection_result):
         self.collectiondoc = collection_result
         self.get = self.collectiondoc.get
+        self.href = self.get('href', '')
         self.make_pager()
 
     def __repr__(self):
-        return "<Navigable Doc: {}>".format(self.url)
+        return "<Navigable Doc: {}>".format(self.href)
 
     def __str__(self):
         return self.collectiondoc
 
     def make_pager(self):
+        """Manages the `pager` attribute of the NavigableDoc. Each
+        NavigableDoc will have a `pager` item associated with it for
+        keeping track of navigation elements.
+        """
         self.pager = Pager()
         self.pager.update(self.links.get('navigation', None))
-        self.url = self.pager.current
 
     def query(self, rel_type, params=None):
         """Returns constructed url with query parameters for urn
@@ -79,6 +94,23 @@ class NavigableDoc(object):
         options = self.options(rel_type)
         if options:
             return options.get('href-template', None)
+
+    def edit(self, keys, update_val):
+        """Convenience method to change a particular value inside the `collectiondoc`
+        attribute without setting it directly. To use this method, provide a
+        keys and/or indices to get to the value you want to be changed and
+        include the value you would like to overwrite with.
+
+        Args:
+           `keys` -- list of keys/indices that return the val to be edited
+           `update_val` -- new value
+
+        Returns: Lowest level object that has been edited or None if not found.
+        """
+        return set_value(self.collectiondoc, keys, update_val)
+
+    def serialize(self):
+        return json.dumps(self.collectiondoc)
 
     @property
     def attributes(self):

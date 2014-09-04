@@ -59,27 +59,35 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pmp_api.collectiondoc.html">pmp_api.collectiondoc package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#module-pmp_api.collectiondoc.navigabledoc">pmp_api.collectiondoc.navigabledoc module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#module-pmp_api.collectiondoc.pager">pmp_api.collectiondoc.pager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#pmp-api-collectiondoc-profile-module">pmp_api.collectiondoc.profile module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#module-pmp_api.collectiondoc.query">pmp_api.collectiondoc.query module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#module-pmp_api.collectiondoc.writeabledoc">pmp_api.collectiondoc.writeabledoc module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.collectiondoc.html#module-pmp_api.collectiondoc">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pmp_api.core.html">pmp_api.core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#module-pmp_api.core.access">pmp_api.core.access module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#module-pmp_api.core.auth">pmp_api.core.auth module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#module-pmp_api.core.conn">pmp_api.core.conn module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#pmp-api-core-exceptions-module">pmp_api.core.exceptions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#module-pmp_api.core.exceptions">pmp_api.core.exceptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.core.html#module-pmp_api.core">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pmp_api.utils.html">pmp_api.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pmp_api.utils.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.utils.html#module-pmp_api.utils.json_utils">pmp_api.utils.json_utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pmp_api.utils.html#module-pmp_api.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-pmp_api.pmp_client">
 <span id="pmp-api-pmp-client-module"></span><h2>pmp_api.pmp_client module<a class="headerlink" href="#module-pmp_api.pmp_client" title="Permalink to this headline">¶</a></h2>
@@ -125,6 +133,18 @@ if this is used before any pages have been requested</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pmp_api.pmp_client.Client.delete">
+<tt class="descname">delete</tt><big>(</big><em>document</em><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes a document from PMP API: simply fires &#8216;DELETE&#8217;
+to provided document&#8217;s href endpoint. If permissions allow it, it
+should delete and return True.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><cite>document</cite> &#8211; NavigableDoc document to be deleted from PMP</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="pmp_api.pmp_client.Client.first">
 <tt class="descname">first</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Requests the <cite>first</cite> page listed by navigation. If
@@ -140,10 +160,10 @@ if <cite>back</cite> has not been used.</p>
 
 <dl class="method">
 <dt id="pmp_api.pmp_client.Client.gain_access">
-<tt class="descname">gain_access</tt><big>(</big><em>client_id</em>, <em>client_secret</em><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.gain_access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.gain_access" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">gain_access</tt><big>(</big><em>client_id</em>, <em>client_secret</em>, <em>auth_urn='urn:collectiondoc:form:issuetoken'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.gain_access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.gain_access" title="Permalink to this definition">¶</a></dt>
 <dd><p>Requests access for <cite>entry_point</cite> using provided authentication.
-Finds the urn <cite>urn:collectiondoc:form:issuetoken</cite> and requests a
-token using the protocol listed there.</p>
+Finds the <cite>auth_urn</cite> and requests a token using the protocol listed
+there.</p>
 </dd></dl>
 
 <dl class="method">
@@ -190,6 +210,29 @@ Also, saves NavigableDoc object as <cite>document</cite> attribute.</p>
 <tt class="descname">query</tt><big>(</big><em>rel_type</em>, <em>params=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Issues request for a query using urn with params to create
 a well-formed request.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><cite>rel_type</cite> &#8211; Relation Type (urn)</dd>
+<dt>Kwargs:</dt>
+<dd><cite>params</cite> &#8211; Dictionary of params to construct a query</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.pmp_client.Client.save">
+<tt class="descname">save</tt><big>(</big><em>endpoint</em>, <em>document</em><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves a document (a string value) at PMP.
+Args:</p>
+<blockquote>
+<div><cite>endpoint</cite> &#8211; URL endpoint for saving documents
+<cite>document</cite> &#8211; data (str) to send over as a document payload.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.pmp_client.Client.upload">
+<tt class="descname">upload</tt><big>(</big><em>endpoint</em>, <em>upload_file</em><big>)</big><a class="reference internal" href="_modules/pmp_api/pmp_client.html#Client.upload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.pmp_client.Client.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads a rich media object to PMP API.
+&#8211; Not implemented yet.</p>
 </dd></dl>
 
 </dd></dl>
@@ -213,6 +256,7 @@ See PMP Docs for more information:
   <ul>
 <li><a class="reference internal" href="#">pmp_api package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pmp_api.pmp_client">pmp_api.pmp_client module</a></li>
 <li><a class="reference internal" href="#module-pmp_api">Module contents</a></li>
 </ul>

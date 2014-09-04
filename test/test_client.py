@@ -2,9 +2,11 @@ import os
 import json
 import requests
 
+
 from multiprocessing import Process
 from unittest import TestCase
 from unittest.mock import Mock, patch
+from pelecanus import PelicanJson
 
 from server import run_forever
 from pmp_api.pmp_client import Client
@@ -18,40 +20,44 @@ from pmp_api.core.exceptions import BadQuery
 class TestPmpClient(TestCase):
 
     def setUp(self):
-        self.server_process = Process(target=run_forever)
-        self.server_process.start()
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.fixture_dir = os.path.join(current_dir, 'fixtures')
         self.test_url = 'http://127.0.0.1:8080/'
         entry_point = 'http://127.0.0.1:8080/?json_response={}'
 
         # For various navigation tests
-        self.nav_values = {'next': "http://127.0.0.1:8080/docs?offset=20",
+        self.nav_values = {'next': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue&offset=10",
                            'prev': "http://127.0.0.1:8080/docs?",
-                           'first': "http://127.0.0.1:8080/docs?",
-                           'last': "http://127.0.0.1:8080/docs?offset=42920",
-                           'current': "http://127.0.0.1:8080/docs?offset=10"}
+                           'first': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue",
+                           'last': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue&offset=13130",
+                           'current': "http://127.0.0.1:8080/docs?tag=npr_api&profile=someGUIDvalue"}
 
         # Fixture locations
         self.home_doc = os.path.join(self.fixture_dir, 'homedoc.json')
         self.auth_doc = os.path.join(self.fixture_dir, 'authdetails.json')
-        self.data_doc = os.path.join(self.fixture_dir, 'test_data.json')
+        self.data_doc = os.path.join(self.fixture_dir, 'datadoc.json')
 
         # Can also return JSON via these urls and testing server
+        self.server_process = Process(target=run_forever)
+        self.server_process.start()
         self.test_entry_point = entry_point.format(self.home_doc)
         self.auth_url = entry_point.format(self.auth_doc)
         self.data_url = entry_point.format(self.data_doc)
 
+        with open(self.home_doc, 'r') as jfile:
+            home = PelicanJson(json.loads(jfile.read()))
+        home.set_nested_value(['links', 'auth', 3, 'href'],
+                              self.auth_url)
+        self.home_values = home.convert()
+
     def tearDown(self):
         self.server_process.terminate()
         self.server_process.join()
-        del(self.server_process)
+        del self.server_process
 
     def test_home(self):
         client = Client(self.test_entry_point)
-        with open(self.home_doc, 'r') as jfile:
-            values = json.loads(jfile.read())
-        mock_connector = Mock(**{'get.return_value': values})
+        mock_connector = Mock(**{'get.return_value': self.home_values})
         client.connector = mock_connector
         result = client.home()
         self.assertTrue(result)
@@ -70,14 +76,19 @@ class TestPmpClient(TestCase):
             client.gain_access('client-id', 'client-secret')
             mocker.assert_called_with(expected_url)
 
+    def test_gain_access_with_server(self):
+        client = Client(self.test_entry_point)
+        response = Mock(**{"json.return_value": self.home_values})
+        with patch.object(requests, 'get', return_value=response):
+            # We have to patch the first request for the homedoc...
+            client.gain_access('client-id', 'client-secret')
+
     def test_gain_access_makes_pager(self):
         client = Client(self.test_entry_point)
         resp = requests.get(self.test_entry_point).json()
         expected_doc = NavigableDoc(resp)
-        with open(self.home_doc, 'r') as jfile:
-            values = json.loads(jfile.read())        
         with patch.object(PmpAuth, 'get_access_token2',
-                          return_value=values) as mocker:
+                          return_value=self.home_values) as mocker:
 
             client.gain_access('client-id', 'client-secret')
             self.assertEqual(expected_doc.links, client.document.links)
@@ -136,7 +147,7 @@ class TestPmpClient(TestCase):
         self.assertNotEqual(client.pager, None)
         self.assertTrue(client.pager.navigable)
         self.assertEqual(client.pager.next, self.nav_values['next'])
-        self.assertEqual(client.pager.prev, self.nav_values['prev'])
+        self.assertEqual(client.pager.prev, None)
         self.assertEqual(client.pager.first, self.nav_values['first'])
         self.assertEqual(client.pager.last, self.nav_values['last'])
         self.assertEqual(client.pager.current, self.nav_values['current'])
@@ -240,8 +251,7 @@ class TestPmpClient(TestCase):
         client.get(self.data_url)
 
         with patch.object(Client, 'get') as mock_get:
-            client.prev()
-            mock_get.assert_called_with(self.nav_values['prev'])
+            self.assertEqual(client.prev(), None)
 
     def test_first(self):
         client = Client(self.test_entry_point)
@@ -293,3 +303,25 @@ class TestPmpClient(TestCase):
         with patch.object(Client, 'get') as mock_get:
             client.forward()
             mock_get.assert_called_with(self.test_entry_point)
+
+    def test_save(self):
+        client = Client(self.test_entry_point)
+        response = Mock(**{"json.return_value": self.home_values})
+        with patch.object(requests, 'get', return_value=response):
+            client.gain_access('client-id', 'client-secret')
+        put_url = "http://127.0.0.1:8080/?json_response={}"
+        success = os.path.join(self.fixture_dir, 'successful_put.json')
+        self.assertTrue(client.save(put_url.format(success), self.data_doc))
+
+    def test_delete(self):
+        client = Client(self.test_entry_point)
+        response = Mock(**{"json.return_value": self.home_values})
+        with patch.object(requests, 'get', return_value=response):
+            client.gain_access('client-id', 'client-secret')
+        document = client.get(self.data_url)
+        item = NavigableDoc(document.items[5])
+        self.assertTrue(client.delete(item))
+
+    # def test_upload(self):
+    #     # this method has not been implemented
+    #     self.fail("client test_upload not implemented")

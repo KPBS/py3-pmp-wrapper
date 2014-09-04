@@ -65,13 +65,13 @@
 <span class="sd">All results returned from PMP endpoints are returned as :class:`NavigableDoc`</span>
 <span class="sd">objects, so the API for :class:`NavigableDoc` is important to look at as well.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="kn">from</span> <span class="nn">.core.auth</span> <span class="kn">import</span> <span class="n">PmpAuth</span>
 <span class="kn">from</span> <span class="nn">.core.conn</span> <span class="kn">import</span> <span class="n">PmpConnector</span>
 <span class="kn">from</span> <span class="nn">.core.exceptions</span> <span class="kn">import</span> <span class="n">NoToken</span>
 <span class="kn">from</span> <span class="nn">.collectiondoc.navigabledoc</span> <span class="kn">import</span> <span class="n">NavigableDoc</span>
+<span class="kn">from</span> <span class="nn">.utils.json_utils</span> <span class="kn">import</span> <span class="n">filter_dict</span>
 
 
 <div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -110,30 +110,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pager</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">document</span> <span class="o">=</span> <span class="bp">None</span>
 
-<div class="viewcode-block" id="Client.gain_access"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.gain_access">[docs]</a>    <span class="k">def</span> <span class="nf">gain_access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">):</span>
+<div class="viewcode-block" id="Client.gain_access"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.gain_access">[docs]</a>    <span class="k">def</span> <span class="nf">gain_access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span>
+                    <span class="n">client_secret</span><span class="p">,</span>
+                    <span class="n">auth_urn</span><span class="o">=</span><span class="s">&quot;urn:collectiondoc:form:issuetoken&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Requests access for `entry_point` using provided authentication.</span>
-<span class="sd">        Finds the urn `urn:collectiondoc:form:issuetoken` and requests a</span>
-<span class="sd">        token using the protocol listed there.</span>
+<span class="sd">        Finds the `auth_urn` and requests a token using the protocol listed</span>
+<span class="sd">        there.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">AUTH_URN</span> <span class="o">=</span> <span class="s">&quot;urn:collectiondoc:form:issuetoken&quot;</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span><span class="p">)</span>
         <span class="n">home_doc</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">document</span> <span class="o">=</span> <span class="n">NavigableDoc</span><span class="p">(</span><span class="n">home_doc</span><span class="p">)</span>
-        <span class="n">auth_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">AUTH_URN</span><span class="p">)</span>
+        <span class="n">auth_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">auth_urn</span><span class="p">)</span>
         <span class="n">access_token_url</span> <span class="o">=</span> <span class="n">auth_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">access_token_url</span><span class="p">:</span>
             <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Missing authentication URL at endpoint.&quot;</span>
             <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; Review API values at {0} with options {1}&quot;</span>
-            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">AUTH_URN</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">auth_schema</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auth_urn</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">auth_schema</span><span class="p">)))</span>
 
         <span class="n">authorizer</span> <span class="o">=</span> <span class="n">PmpAuth</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">authorizer</span><span class="o">.</span><span class="n">get_access_token2</span><span class="p">(</span><span class="n">access_token_url</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connector</span> <span class="o">=</span> <span class="n">PmpConnector</span><span class="p">(</span><span class="n">authorizer</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">NoToken</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">NoToken</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Client connection failed. Check entry_point or&quot;</span>
             <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; authentication schema used.&quot;</span>
-            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NoToken</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
 </div>
 <div class="viewcode-block" id="Client.get"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns NavigableDoc object obtained from requested endpoint.</span>
@@ -166,16 +167,54 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">pager</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">pager</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span>
 </div>
+<div class="viewcode-block" id="Client.save"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves a document (a string value) at PMP.</span>
+<span class="sd">        Args:</span>
+
+<span class="sd">           `endpoint` -- URL endpoint for saving documents</span>
+<span class="sd">           `document` -- data (str) to send over as a document payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Drastically simplify: This is just a wrapper for conn.put</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span>
+</div>
+<div class="viewcode-block" id="Client.delete"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deletes a document from PMP API: simply fires &#39;DELETE&#39;</span>
+<span class="sd">        to provided document&#39;s href endpoint. If permissions allow it, it</span>
+<span class="sd">        should delete and return True.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           `document` -- NavigableDoc document to be deleted from PMP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">collectiondoc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Client.upload"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">upload_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Uploads a rich media object to PMP API.</span>
+<span class="sd">        -- Not implemented yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Not implemented yet.&quot;</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="Client.query"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Issues request for a query using urn with params to create</span>
 <span class="sd">        a well-formed request.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           `rel_type` -- Relation Type (urn)</span>
+
+<span class="sd">        Kwargs:</span>
+<span class="sd">           `params` -- Dictionary of params to construct a query</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="Client.home"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Requests API home-doc `entry_point` and returns results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">authorized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Fragile: fix or reject and make all requests be authenticated</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">document</span> <span class="o">=</span> <span class="n">NavigableDoc</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_point</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span>
 </div>
 <div class="viewcode-block" id="Client.next"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Requests the `next` page listed by navigation. If</span>

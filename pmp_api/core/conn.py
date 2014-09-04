@@ -47,33 +47,26 @@ class PmpConnector(object):
 
     @property
     def authorized(self):
+        """Tests whether requests have been authorized
+        """
+        if self.authorizer.token_expires is None:
+            return False
+
         has_token = bool(self.authorizer.access_token)
         not_expired = lt(datetime.datetime.utcnow(),
                          self.authorizer.token_expires)
         return has_token and not_expired
 
-    def get(self, endpoint, content_type='collection+json'):
-        """Returns dictionary of results from requested PMP endopint.
-        If the access_token has expired, this method will attempt to renew
-        the token and raise `ExpiredToken` if cannot do so.
+    def reauthorize(self):
+        """Attempts to reauthorize an expired token.
 
-        Args:
-           `endpoint` -- PMP API url
+        Returns True if reauthorization is successful.
 
-        Kwargs:
-           `content_type` -- content-type requested.
+        Raises ExpiredToken if reauthorization fails.
         """
-        sesh = requests.Session()
-        req = requests.Request('GET', endpoint)
-        req.headers = {}
-        content_types = {'collection+json': 'application/vnd.collection.doc+json',
-                         'json': 'application/json',
-                         'text': 'application/x-www-form-urlencoded'}
-
-        req.headers['Content-Type'] = content_types[content_type]
-        try:
-            signed_req = self.authorizer.sign_request(req)
-        except ExpiredToken:
+        if self.authorized:
+            return True
+        else:
             if self.authorizer.access_token_url is None:
                 errmsg = "Access token expired and access_token_url is unknown"
                 errmsg += " Create new access token for PmpAuth object."
@@ -81,10 +74,52 @@ class PmpConnector(object):
             else:
                 url = self.authorizer.access_token_url
                 self.authorizer.get_access_token2(url)
-                signed_req = self.authorizer.sign_request(req)
+                return True
+
+    def _request_factory(self, req_method, req_endpoint, payload=None):
+        """Assembles Request and Session and sends Request.
+
+        This method factors out commonalities between other request methods:
+        `get`, `put`, and `delete`, namely that all of these requests must be
+        signed and that all of them should attempt to reauthorize if they need
+        a signed request and the access_token has expired.
+
+        Args:
+           `req_method` -- Request method ("GET", "PUT", "DELETE")
+           `req_endpoint` -- Endpoint requested
+
+        Kwargs:
+           `payload` -- Data to send to server (for "PUT"s)
+
+        Returns response from server to calling method.
+        """
+        sesh = requests.Session()
+        if payload is None:
+            req = requests.Request(req_method, req_endpoint)
+        else:
+            req = requests.Request(req_method, req_endpoint, data=payload)
+        req.headers = {}
+        req.headers['Content-Type'] = 'application/vnd.collection.doc+json'
+
+        try:
+            signed_req = self.authorizer.sign_request(req)
+        except ExpiredToken:
+            self.reauthorize()
+            signed_req = self.authorizer.sign_request(req)
 
         prepped_req = sesh.prepare_request(signed_req)
         response = sesh.send(prepped_req)
+        return response
+
+    def get(self, endpoint):
+        """GETs a document from from requested PMP endpoint.
+
+        Args:
+           `endpoint` -- PMP API url
+
+        Returns dictionary of values (JSON) returned by endpoint.
+        """
+        response = self._request_factory('GET', endpoint)
 
         if response.ok:
             self.last_url = endpoint
@@ -99,3 +134,44 @@ class PmpConnector(object):
             errmsg += " Response status code: {}"
             raise BadRequest(errmsg.format(endpoint,
                                            response.status_code))
+
+    def put(self, endpoint, document):
+        """PUTs a passed-in document up to PMP API at endpoint url.
+
+        Args:
+           `endpoint` -- PMP API url
+           `document` -- collectiondoc+json document, specified in PMP spec.
+
+        Returns dictionary of values (JSON) returned by endpoint.
+        (which should be {'url': 'https://Document_location'})
+        """
+        response = self._request_factory('PUT', endpoint, payload=document)
+
+        if response.ok:
+            self.last_url = endpoint
+            try:
+                results = response.json()
+                return results
+            except ValueError:
+                errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
+                raise EmptyResponse(errmsg)
+        else:
+            errmsg = "Bad response from server on request for endpoint: {},"
+            errmsg += " Response status code: {},"
+            errmsg += " Response content: {}"
+            raise BadRequest(errmsg.format(endpoint,
+                                           response.status_code,
+                                           response.content))
+
+    def delete(self, endpoint):
+        """Deletes the requesed endpoint from PMP API. Will return false
+        on NOT AUTHORIZED response or any response that does not confirm doc
+        has been deleted.
+
+        Returns boolean
+        """
+        response = self._request_factory('DELETE', endpoint)
+        if response.status_code == 204:
+            return True
+        else:
+            return False

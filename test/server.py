@@ -58,12 +58,13 @@ class FixtureMissing(Exception):
     pass
 
 
-class GetHandler(BaseHTTPRequestHandler):
+class JsonHandler(BaseHTTPRequestHandler):
     """This is probably obvious, but...
 
     DO NOT USE THIS IN PRODUCTION. THIS IS FOR UNITTESTING
     APPLICATIONS PARSING JSON RESPONSES OR SENDING CUSTOM HEADER/PARAM VALS!
     """
+    allow_reuse_address = True
 
     def get_json(self):
         """This method looks for header value OR query parameter
@@ -157,14 +158,34 @@ class GetHandler(BaseHTTPRequestHandler):
             self.wfile.write(bytes(message, encoding="UTF-8"))
         return
 
+    def do_PUT(self):
+        content = self.get_json()
+        if content:
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(json.dumps(content), encoding="UTF-8"))
+        else:
+            message_parts = self.standard_message_parts()
+            message = '\r\n'.join(message_parts)
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(bytes(message, encoding="UTF-8"))
+        return
 
-def run(server_class=HTTPServer, handler_class=GetHandler):
+    def do_DELETE(self):
+        self.send_response(204)
+        self.end_headers()
+        return
+
+
+def run(server_class=HTTPServer, handler_class=JsonHandler):
     server_address = ('', 8080)
     httpd = server_class(server_address, handler_class)
     httpd.handle_request()
 
 
-def run_forever(server_class=HTTPServer, handler_class=GetHandler):
+def run_forever(server_class=HTTPServer, handler_class=JsonHandler):
     server_address = ('', 8080)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
@@ -173,6 +194,6 @@ def run_forever(server_class=HTTPServer, handler_class=GetHandler):
 if __name__ == '__main__':
     print("Test server starting on port 8080...")
     print("Use <Ctrl-C> to stop")
-    # run_forever()
+    run_forever()
     # OR one-request:
-    run()
+    # run()

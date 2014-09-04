@@ -56,6 +56,9 @@
             
   <div class="section" id="pmp-api-collectiondoc-package">
 <h1>pmp_api.collectiondoc package<a class="headerlink" href="#pmp-api-collectiondoc-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="module-pmp_api.collectiondoc.navigabledoc">
 <span id="pmp-api-collectiondoc-navigabledoc-module"></span><h2>pmp_api.collectiondoc.navigabledoc module<a class="headerlink" href="#module-pmp_api.collectiondoc.navigabledoc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -64,11 +67,35 @@
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
 <p>:class:NavigableDoc &lt;NavigableDoc&gt;` is for easily parsing
 and navigation collection+doc JSON documents returned from the
-PMP API. Each document should have</p>
+PMP API. Each document should have the standard collectiondoc keys:
+&#8216;href&#8217;, &#8216;version&#8217;, &#8216;attributes&#8217;, &#8216;links&#8217;, but may also have &#8216;items&#8217;.</p>
+<p>Methods and properties are designed to make it easy to retrieve
+information from these collectiondocs. To instantiate, pass
+in a collectiondoc result (which can be any dictionary, but which is
+usually loaded from JSON).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><cite>collection_result</cite> &#8211; JSON collectiondoc from PMP API</dd>
+</dl>
 <dl class="attribute">
 <dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.attributes">
 <tt class="descname">attributes</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.attributes" title="Permalink to this definition">¶</a></dt>
 <dd><p>All attributes listed in the collectiondoc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.edit">
+<tt class="descname">edit</tt><big>(</big><em>keys</em>, <em>update_val</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.edit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to change a particular value inside the <cite>collectiondoc</cite>
+attribute without setting it directly. To use this method, provide a
+keys and/or indices to get to the value you want to be changed and
+include the value you would like to overwrite with.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><cite>keys</cite> &#8211; list of keys/indices that return the val to be edited
+<cite>update_val</cite> &#8211; new value</dd>
+</dl>
+<p>Returns: Lowest level object that has been edited or None if not found.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -81,6 +108,14 @@ PMP API. Each document should have</p>
 <dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.links">
 <tt class="descname">links</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.links" title="Permalink to this definition">¶</a></dt>
 <dd><p>All links listed in the collectiondoc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.make_pager">
+<tt class="descname">make_pager</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.make_pager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.make_pager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manages the <cite>pager</cite> attribute of the NavigableDoc. Each
+NavigableDoc will have a <cite>pager</cite> item associated with it for
+keeping track of navigation elements.</p>
 </dd></dl>
 
 <dl class="method">
@@ -115,6 +150,11 @@ run <cite>query_template(rel_type)</cite>.</p>
 <tt class="descname">querylinks</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.querylinks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.querylinks" title="Permalink to this definition">¶</a></dt>
 <dd><p>All items associated with <cite>query</cite> key of <cite>links</cite></p>
 </dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.serialize">
+<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/navigabledoc.html#NavigableDoc.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.navigabledoc.NavigableDoc.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="pmp_api.collectiondoc.navigabledoc.NavigableDoc.template">
@@ -182,6 +222,9 @@ boolean attribute.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="pmp-api-collectiondoc-profile-module">
+<h2>pmp_api.collectiondoc.profile module<a class="headerlink" href="#pmp-api-collectiondoc-profile-module" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="module-pmp_api.collectiondoc.query">
 <span id="pmp-api-collectiondoc-query-module"></span><h2>pmp_api.collectiondoc.query module<a class="headerlink" href="#module-pmp_api.collectiondoc.query" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-pmp_api.collectiondoc.query"></span><dl class="function">
@@ -208,6 +251,88 @@ valid for a particular uri-template.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-pmp_api.collectiondoc.writeabledoc">
+<span id="pmp-api-collectiondoc-writeabledoc-module"></span><h2>pmp_api.collectiondoc.writeabledoc module<a class="headerlink" href="#module-pmp_api.collectiondoc.writeabledoc" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pmp_api.collectiondoc.writeabledoc"></span><dl class="exception">
+<dt id="pmp_api.collectiondoc.writeabledoc.ConflictInit">
+<em class="property">exception </em><tt class="descclassname">pmp_api.collectiondoc.writeabledoc.</tt><tt class="descname">ConflictInit</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#ConflictInit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.ConflictInit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc">
+<em class="property">class </em><tt class="descclassname">pmp_api.collectiondoc.writeabledoc.</tt><tt class="descname">NewCollectioneDoc</tt><big>(</big><em>collectiondoc</em>, <em>is_new=True</em>, <em>profile='story'</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.attributes">
+<tt class="descname">attributes</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc.attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.edit">
+<tt class="descname">edit</tt><big>(</big><em>keys</em>, <em>newvalue</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc.edit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.edit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.empty_keys">
+<tt class="descname">empty_keys</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc.empty_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.empty_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.links">
+<tt class="descname">links</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.serialize">
+<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.verify">
+<tt class="descname">verify</tt><big>(</big><em>schema</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#NewCollectioneDoc.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.NewCollectioneDoc.verify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc">
+<em class="property">class </em><tt class="descclassname">pmp_api.collectiondoc.writeabledoc.</tt><tt class="descname">WriteableDoc</tt><big>(</big><em>collection_result</em>, <em>pubhost='https://publish-sandbox.pmp.io'</em>, <em>readhost='https://api-sandbox.pmp.io'</em>, <em>profile='/profiles/story'</em>, <em>links=None</em>, <em>attributes=None</em>, <em>items=None</em>, <em>is_new=True</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc.attributes">
+<tt class="descname">attributes</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc.attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc.attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc.convert">
+<tt class="descname">convert</tt><big>(</big><em>nav_doc</em><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to convert a navigable_doc into an editable document</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc.get_meta">
+<tt class="descname">get_meta</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc.get_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc.get_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc.items">
+<tt class="descname">items</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc.items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc.links">
+<tt class="descname">links</tt><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc.links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc.links" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmp_api.collectiondoc.writeabledoc.WriteableDoc.serialize">
+<tt class="descname">serialize</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pmp_api/collectiondoc/writeabledoc.html#WriteableDoc.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.collectiondoc.writeabledoc.WriteableDoc.serialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-pmp_api.collectiondoc">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pmp_api.collectiondoc" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -222,9 +347,12 @@ valid for a particular uri-template.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">pmp_api.collectiondoc package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc.navigabledoc">pmp_api.collectiondoc.navigabledoc module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc.pager">pmp_api.collectiondoc.pager module</a></li>
+<li><a class="reference internal" href="#pmp-api-collectiondoc-profile-module">pmp_api.collectiondoc.profile module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc.query">pmp_api.collectiondoc.query module</a></li>
+<li><a class="reference internal" href="#module-pmp_api.collectiondoc.writeabledoc">pmp_api.collectiondoc.writeabledoc module</a></li>
 <li><a class="reference internal" href="#module-pmp_api.collectiondoc">Module contents</a></li>
 </ul>
 </li>

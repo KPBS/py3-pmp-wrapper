@@ -55,9 +55,12 @@
 <span class="sd">:class:`PmpAuth &lt;PmpAuth&gt;` object and uses it to issue signed</span>
 <span class="sd">requests for all PMP endpoints.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">lt</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">BadRequest</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">EmptyResponse</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ExpiredToken</span>
 
@@ -86,33 +89,33 @@
 <span class="sd">      `base_url` -- url to make requests of PMP API</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_object</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="s">&quot;https://api-pilot.pmp.io&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">auth_object</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="s">&quot;https://api-sandbox.pmp.io&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span> <span class="o">=</span> <span class="n">auth_object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_url</span> <span class="o">=</span> <span class="bp">None</span>
 
-<div class="viewcode-block" id="PmpConnector.get"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.conn.PmpConnector.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;collection+json&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns dictionary of results from requested PMP endopint.</span>
-<span class="sd">        If the access_token has expired, this method will attempt to renew</span>
-<span class="sd">        the token and raise `ExpiredToken` if cannot do so.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">           `endpoint` -- PMP API url</span>
-
-<span class="sd">        Kwargs:</span>
-<span class="sd">           `content_type` -- content-type requested.</span>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="PmpConnector.authorized"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.conn.PmpConnector.authorized">[docs]</a>    <span class="k">def</span> <span class="nf">authorized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether requests have been authorized</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sesh</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
-        <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
-        <span class="n">req</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">content_types</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;collection+json&#39;</span><span class="p">:</span> <span class="s">&#39;application/vnd.collection.doc+json&#39;</span><span class="p">,</span>
-                         <span class="s">&#39;json&#39;</span><span class="p">:</span> <span class="s">&#39;application/json&#39;</span><span class="p">,</span>
-                         <span class="s">&#39;text&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">token_expires</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
 
-        <span class="n">req</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">content_types</span><span class="p">[</span><span class="n">content_type</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">signed_req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">sign_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">ExpiredToken</span><span class="p">:</span>
+        <span class="n">has_token</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
+        <span class="n">not_expired</span> <span class="o">=</span> <span class="n">lt</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">token_expires</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">has_token</span> <span class="ow">and</span> <span class="n">not_expired</span>
+</div>
+<div class="viewcode-block" id="PmpConnector.reauthorize"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.conn.PmpConnector.reauthorize">[docs]</a>    <span class="k">def</span> <span class="nf">reauthorize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Attempts to reauthorize an expired token.</span>
+
+<span class="sd">        Returns True if reauthorization is successful.</span>
+
+<span class="sd">        Raises ExpiredToken if reauthorization fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">access_token_url</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Access token expired and access_token_url is unknown&quot;</span>
                 <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; Create new access token for PmpAuth object.&quot;</span>
@@ -120,10 +123,52 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">access_token_url</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">get_access_token2</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                <span class="n">signed_req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">sign_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">True</span>
+</div>
+    <span class="k">def</span> <span class="nf">_request_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req_method</span><span class="p">,</span> <span class="n">req_endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Assembles Request and Session and sends Request.</span>
+
+<span class="sd">        This method factors out commonalities between other request methods:</span>
+<span class="sd">        `get`, `put`, and `delete`, namely that all of these requests must be</span>
+<span class="sd">        signed and that all of them should attempt to reauthorize if they need</span>
+<span class="sd">        a signed request and the access_token has expired.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           `req_method` -- Request method (&quot;GET&quot;, &quot;PUT&quot;, &quot;DELETE&quot;)</span>
+<span class="sd">           `req_endpoint` -- Endpoint requested</span>
+
+<span class="sd">        Kwargs:</span>
+<span class="sd">           `payload` -- Data to send to server (for &quot;PUT&quot;s)</span>
+
+<span class="sd">        Returns response from server to calling method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sesh</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">payload</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">req_method</span><span class="p">,</span> <span class="n">req_endpoint</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">req_method</span><span class="p">,</span> <span class="n">req_endpoint</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;application/vnd.collection.doc+json&#39;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">signed_req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">sign_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ExpiredToken</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reauthorize</span><span class="p">()</span>
+            <span class="n">signed_req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorizer</span><span class="o">.</span><span class="n">sign_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
 
         <span class="n">prepped_req</span> <span class="o">=</span> <span class="n">sesh</span><span class="o">.</span><span class="n">prepare_request</span><span class="p">(</span><span class="n">signed_req</span><span class="p">)</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">sesh</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">prepped_req</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+<div class="viewcode-block" id="PmpConnector.get"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.conn.PmpConnector.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;GETs a document from from requested PMP endpoint.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           `endpoint` -- PMP API url</span>
+
+<span class="sd">        Returns dictionary of values (JSON) returned by endpoint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_factory</span><span class="p">(</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">last_url</span> <span class="o">=</span> <span class="n">endpoint</span>
@@ -132,7 +177,53 @@
                 <span class="k">return</span> <span class="n">results</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;No JSON returned by endpoint: {}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">EmptyResponse</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span></div></div>
+                <span class="k">raise</span> <span class="n">EmptyResponse</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Bad response from server on request for endpoint: {}&quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; Response status code: {}&quot;</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="n">errmsg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span>
+                                           <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="PmpConnector.put"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.conn.PmpConnector.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PUTs a passed-in document up to PMP API at endpoint url.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           `endpoint` -- PMP API url</span>
+<span class="sd">           `document` -- collectiondoc+json document, specified in PMP spec.</span>
+
+<span class="sd">        Returns dictionary of values (JSON) returned by endpoint.</span>
+<span class="sd">        (which should be {&#39;url&#39;: &#39;https://Document_location&#39;})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_factory</span><span class="p">(</span><span class="s">&#39;PUT&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">document</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_url</span> <span class="o">=</span> <span class="n">endpoint</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">results</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;No JSON returned by endpoint: {}.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">EmptyResponse</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Bad response from server on request for endpoint: {},&quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; Response status code: {},&quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; Response content: {}&quot;</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="n">errmsg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span>
+                                           <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+                                           <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="PmpConnector.delete"><a class="viewcode-back" href="../../../pmp_api.core.html#pmp_api.core.conn.PmpConnector.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deletes the requesed endpoint from PMP API. Will return false</span>
+<span class="sd">        on NOT AUTHORIZED response or any response that does not confirm doc</span>
+<span class="sd">        has been deleted.</span>
+
+<span class="sd">        Returns boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_factory</span><span class="p">(</span><span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="s">&#39;204&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span></div></div>
 </pre></div>
 
           </div>
