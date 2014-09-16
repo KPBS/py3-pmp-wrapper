@@ -131,17 +131,14 @@ class TestNavigableDoc(TestCase):
         edit_keys2 = ("attributes", "guid")
         result1 = self.homedoc.edit(edit_keys1, "NO WAY!")
         result2 = self.homedoc.edit(edit_keys2, "NEW TEST GUID")
-        self.assertEqual(self.homedoc.links['navigation'][0]['rels'],
+        self.assertEqual(result1,
                          "NO WAY!")
-        self.assertEqual(self.homedoc.attributes['guid'],
+        self.assertEqual(result2,
                          "NEW TEST GUID")
-        self.assertEqual(result1, self.homedoc.links['navigation'][0])
-        self.assertEqual(result2, self.homedoc.attributes)
-
-        unchanged_val = self.homedoc.links.copy()
-        self.homedoc.edit(["links", "NONE"], "Doesn't Change")
-        self.assertEqual(self.homedoc.links,
-                         unchanged_val)
+        self.assertEqual(self.homedoc.links['navigation'][0]['rels'],
+                         result1)
+        self.assertEqual(self.homedoc.attributes['guid'],
+                         result2)
 
     def test_serialize(self):
         self.assertEqual(type(self.homedoc.serialize()),

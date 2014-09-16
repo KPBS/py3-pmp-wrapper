@@ -5,11 +5,13 @@
 """
 import json
 
+from pelecanus.toolbox import get_nested_value
+from pelecanus.toolbox import set_nested_value
+
 from .pager import Pager
 from .query import make_query
 from ..utils.json_utils import qfind
 from ..utils.json_utils import filter_dict
-from ..utils.json_utils import set_value
 
 
 class NavigableDoc(object):
@@ -98,8 +100,8 @@ class NavigableDoc(object):
     def edit(self, keys, update_val):
         """Convenience method to change a particular value inside the `collectiondoc`
         attribute without setting it directly. To use this method, provide a
-        keys and/or indices to get to the value you want to be changed and
-        include the value you would like to overwrite with.
+        list of keys and/or indices to get to the value you want to be
+        changed and include the value you would like to overwrite with.
 
         Args:
            `keys` -- list of keys/indices that return the val to be edited
@@ -107,7 +109,8 @@ class NavigableDoc(object):
 
         Returns: Lowest level object that has been edited or None if not found.
         """
-        return set_value(self.collectiondoc, keys, update_val)
+        set_nested_value(self.collectiondoc, keys, update_val)
+        return get_nested_value(self.collectiondoc, keys)
 
     def serialize(self):
         return json.dumps(self.collectiondoc)

@@ -10,30 +10,57 @@ class InvalidProfile(Exception):
 
 
 VERSION = "1.0"
-profiles = {'contributor': ('Contributor Profile',
-                            'contr_profile.json'),
-            'topic': ('Topic Profile',
-                      'topic_profile.json'),
-            'episode': ('Episode Profile',
-                        'episode_profile.json'),
-            'series': ('Series Profile',
-                       'series_profile.json'),
-            'property': ('Property Profile',
-                         'property_profile.json'),
-            'group': ('Group Profile',
-                      'group_profile.json'),
-            'audio': ('Audio Profile',
-                      'audio_profile.json'),
-            'video': ('Video Profile',
-                      'video_profile.json'),
-            'media': ('Media Profile',
-                      'media_profile.json'),
-            'image': ('Image Profile',
-                      'image_profile.json'),
-            'story': ('Story Profile',
-                      'story_profile.json'),
-            'organization': ('Organization Profile',
-                             'organization_profile')}
+# Other profiles have yet to be written...
+profiles = {'story': ('Story Profile',
+                      'story_profile.json')}
+
+
+def new_profile(profile_type="story", collection=None):
+    """This function can create a new profile from the JSON object
+    stored in the stored_profiles.
+    """
+    name, profile_file = profiles[profile_type]
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    profile_location = os.path.join(current_dir,
+                                    'stored_profiles',
+                                    profile_file)
+    with open(profile_location, 'r') as f:
+        data = json.loads(f.read())
+        data['version'] = VERSION
+
+        if collection is None:
+            del data['links']['collection']
+        else:
+            data['links']['collection'][0]['href'] = collection
+        del data['REQUIRED']
+        del data['OPTIONAL']
+
+    return data
+
+
+def edit_profile(profile, new_data):
+    """EXPERIMENTAL function for cramming data into a profile.
+    """
+    pelican_profile = PelicanJson(profile)
+    pelican_data = PelicanJson(new_data)
+    for path, value in pelican_data.enumerate():
+        pelican_profile.set_nested_value(path, value, force=True)
+    return pelican_profile.convert()
+
+
+def empty_values(data, profile_type="story"):
+    """Function that lists all of the fields missing values.
+    """
+    name, profile_file = profiles[profile_type]
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    profile_location = os.path.join(current_dir,
+                                    'stored_profiles',
+                                    profile_file)
+    with open(profile_location, 'r') as f:
+        profile = json.loads(f.read())
+    optional = profile['OPTIONAL']
+    temp_data = PelicanJson(data)
+    return list(temp_data.search_value(optional))
 
 
 def validate(data, profile_type="story"):
@@ -54,60 +81,14 @@ def validate(data, profile_type="story"):
         next(temp_data.search_value(required))
         return False
     except StopIteration:
-        pelican_profile = PelicanJson(profile)
-        for path, value in data.paths():
-            if type(value) != type(pelican_profile.get_nested_value(path)):
-                return False
-    return True
+        pass
 
-
-def new_profile(profile_type="story", collection=None):
-    """
-    """
-    name, profile_file = profiles[profile_type]
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    profile_location = os.path.join(current_dir,
-                                    'stored_profiles',
-                                    profile_file)
-
-    with open(profile_location, 'r') as f:
-        data = json.loads(f.read())
-        data['version'] = VERSION
-
-        if collection is None:
-            del data['links']['collection']
-        else:
-            data['links']['collection'][0]['href'] = collection
-        del data['REQUIRED']
-        del data['OPTIONAL']
-
-    return data
-
-
-def empty_values(data, profile_type="story"):
-    """Function that lists all of the fields missing values.
-    """
-    name, profile_file = profiles[profile_type]
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    profile_location = os.path.join(current_dir,
-                                    'stored_profiles',
-                                    profile_file)
-    with open(profile_location, 'r') as f:
-        profile = json.loads(f.read())
-    optional = profile['OPTIONAL']
-    temp_data = PelicanJson(data)
-    return list(temp_data.search_value(optional))
-
-
-def edit_profile(profile, new_data):
-    """EXPERIMENTAL function for cramming data into a profile.
-    """
-    missing_paths = []
+    # next step is to type-check all the values:
     pelican_profile = PelicanJson(profile)
-    pelican_data = PelicanJson(new_data)
-    for path, value in pelican_data.enumerate():
+    for path, value in temp_data.enumerate():
         try:
-            pelican_profile.set_nested_value(path, value)
-        except (IndexError, KeyError):
-            missing_paths.append((path, value))
-    return pelican_profile.convert()
+            if type(value) != type(pelican_profile.get_nested_value(path)):
+                return False, path
+        except (TypeError, IndexError, KeyError):
+            return False, path
+    return True, None
