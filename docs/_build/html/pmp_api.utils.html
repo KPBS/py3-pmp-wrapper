@@ -60,27 +60,6 @@
 <span class="target" id="module-pmp_api.utils.json_utils"></span><p>This module includes functions for parsing nested dictionaries returned
 by the PMP API</p>
 <dl class="function">
-<dt id="pmp_api.utils.json_utils.count_key">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">count_key</tt><big>(</big><em>json_result</em>, <em>key</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#count_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.count_key" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursive method for counting the appearance of a particular key
-inside a nested JSON object. This was created mostly to make sure that the
-generator below stays honest.</p>
-<p>Args:</p>
-<blockquote>
-<div><cite>json_result</cite> &#8211; JSON object
-<cite>key</cite> &#8211; Key to count</div></blockquote>
-<p>Returns:</p>
-<blockquote>
-<div><blockquote>
-<div>Generator object that can be summed to get a complete count:</div></blockquote>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">(</span><span class="n">count_key</span><span class="p">(</span><span class="n">JSON_OBJECT</span><span class="p">,</span> <span class="s">&quot;someKey&quot;</span><span class="p">))</span>
-<span class="go">10</span>
-</pre></div>
-</div>
-</div></blockquote>
-</dd></dl>
-
-<dl class="function">
 <dt id="pmp_api.utils.json_utils.filter_dict">
 <tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">filter_dict</tt><big>(</big><em>json_dict</em>, <em>key</em>, <em>val</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#filter_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.filter_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a filter iterator from <cite>json_dict</cite> where results contain
@@ -91,114 +70,6 @@ generator below stays honest.</p>
 <cite>key</cite> &#8211; Key we are searching for.
 <cite>val</cite> &#8211; Value that should explicitly match the key searched for.</dd>
 </dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.find_matching_pair">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">find_matching_pair</tt><big>(</big><em>json_result</em>, <em>key</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#find_matching_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.find_matching_pair" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.find_value">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">find_value</tt><big>(</big><em>json_result</em>, <em>value</em>, <em>path=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#find_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.find_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function for finding various paths to the value passed in.
-This function can handle arrays or objects and will return indices for
-array values and string keys for dictionary keys accessed to find the
-value.</p>
-<p>Args:</p>
-<blockquote>
-<div><cite>json_result</cite> &#8211; JSON object
-<cite>value</cite> &#8211; value to search for</div></blockquote>
-<p>Returns:</p>
-<blockquote>
-<div>Generator of lists that each represent one path to the value searched for.</div></blockquote>
-<p>Usage:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">find_value</span><span class="p">(</span><span class="n">some_nested_json</span><span class="p">,</span> <span class="s">&#39;SOMEVALUE&#39;</span><span class="p">))</span>
-<span class="go">[[&#39;key1, &#39;key2&#39;, key3&#39;][&#39;another_object&#39;, &#39;another_key&#39;, 1&#39;]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_nested_value</span><span class="p">(</span><span class="n">some_nested_json</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">,</span> <span class="s">&#39;another_key&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="s">&#39;])</span>
-<span class="go">&#39;SOMEVALUE&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.gen_path">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">gen_path</tt><big>(</big><em>json_result</em>, <em>key</em>, <em>path=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#gen_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.gen_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function for introspecting a nested JSON object and finding all
-routes to a particular key. If, for instance, the key &#8216;href&#8217; appears inside
-the JSON object 11 times, this generator will return 11 separate results,
-representing pathways to those 11 results.</p>
-<p>These pathways can be returned with <cite>get_nested_val</cite> or the data at at
-their endpoints can be edited with <cite>set_value</cite>.</p>
-<p>Args:</p>
-<blockquote>
-<div><cite>json_result</cite> &#8211; JSON object
-<cite>key</cite> &#8211; Key to find routes for</div></blockquote>
-<p>Returns:</p>
-<blockquote>
-<div>Generator of lists that each represent one path to the key passed in.</div></blockquote>
-<p>Usage:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">find_value</span><span class="p">(</span><span class="n">some_nested_json</span><span class="p">,</span> <span class="s">&#39;SOMEKEY&#39;</span><span class="p">))</span>
-<span class="go">[[&#39;key1, &#39;key2&#39;, key3&#39;][&#39;another_object&#39;, &#39;another_key&#39;, 1&#39;]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_nested_valu</span><span class="p">(</span><span class="n">some_nested_json</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;key1, &#39;</span><span class="n">key2</span><span class="s">&#39;, key3&#39;</span><span class="p">])</span>
-<span class="go">&#39;SOMEVALUE&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.get_nested_val">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">get_nested_val</tt><big>(</big><em>somedict</em>, <em>keys</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#get_nested_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.get_nested_val" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns JSON value retrieved by following <em>known</em> keys.</p>
-<p>This function makes it easy to plumb the depths of a nested
-dict with using an iterable of keys and integers.</p>
-<p>It will go as deep as keys/indices exist and return None if it
-doesn&#8217;t find one or if it runs into a value it can&#8217;t parse.</p>
-<p>Usage:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">some_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;links&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;collection&#39;</span> <span class="p">:</span> <span class="p">[{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;b&#39;</span><span class="p">}]}}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_nested_val</span><span class="p">(</span><span class="n">some_dict</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;collection&#39;</span><span class="p">])</span>
-<span class="go">[{&#39;a&#39;: &#39;b&#39;}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># with a list index</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_nested_val</span><span class="p">(</span><span class="n">some_dict</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;collection&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">])</span>
-<span class="go">&#39;b&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.get_path">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">get_path</tt><big>(</big><em>json_result</em>, <em>key</em>, <em>path=None</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#get_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.get_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find first occurrence of a key inside a nested dictionary. This is helpful
-only for unique keys across all nested brances of a dictionary and will
-return confusing results for dictionaries that do not conform to this rule.</p>
-<p>Returns list of results:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span>
-<span class="gp">... </span> <span class="p">{</span><span class="s">&#39;attributes&#39;</span><span class="p">:</span>
-<span class="gp">... </span>     <span class="p">{</span><span class="s">&#39;contentencoded&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">None</span><span class="p">],</span> <span class="s">&#39;published&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
-<span class="gp">... </span>      <span class="s">&#39;contenttemplated&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;guid&#39;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
-<span class="gp">... </span>      <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;byline&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;teaser&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">},</span>
-<span class="gp">... </span>      <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;links&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;collection&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">inf</span><span class="p">],</span> <span class="s">&#39;</span>
-<span class="gp">... </span>       <span class="n">item</span><span class="s">&#39;: [None],</span>
-<span class="gp">... </span>       <span class="s">&#39;profile&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="s">&#39;https://api-sandbox.pmp.io/profiles/story&#39;</span><span class="p">}]}</span>
-<span class="gp">... </span>  <span class="s">&#39;links&#39;</span> <span class="p">:</span> <span class="p">[{</span><span class="s">&#39;creator&#39;</span><span class="p">:</span> <span class="s">&#39;https://someurl&#39;</span><span class="p">}]</span>
-<span class="gp">... </span>    <span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_path</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s">&#39;attributes&#39;</span><span class="p">)</span>
-<span class="go">[&#39;attributes&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_path</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s">&#39;tags&#39;</span><span class="p">)</span>
-<span class="go">[&#39;attributes&#39;, &#39;tags&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_path</span><span class="p">(</span><span class="n">conent</span><span class="p">,</span> <span class="s">&#39;creator&#39;</span><span class="p">)</span>
-<span class="go">[&#39;links&#39;, 0, &#39;creator&#39;]</span>
-</pre></div>
-</div>
-<p>Args:</p>
-<blockquote>
-<div><cite>json_result</cite> &#8211; nested JSON dictionary values
-<cite>key</cite> &#8211; key whose path we&#8217;d like to discover</div></blockquote>
-<p>Kwargs:</p>
-<blockquote>
-<div><cite>path</cite> &#8211; The path gets built on recursive calls.</div></blockquote>
-<p>This function is only valid for unique keys. Use generator <cite>gen_path</cite> to
-find all routes to a particular key inside a JSON object.</p>
 </dd></dl>
 
 <dl class="function">
@@ -226,66 +97,6 @@ particular key. Consider the following example:</p>
 <dt>Args:</dt>
 <dd><cite>json_dict</cite> &#8211; JSON dictionary.
 <cite>key</cite> &#8211; Key we are searching for.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.reverse_result">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">reverse_result</tt><big>(</big><em>func</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#reverse_result"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.reverse_result" title="Permalink to this definition">¶</a></dt>
-<dd><p>The recursive function <cite>get_path</cite> returns results in order reversed
-from desired. This decorator just reverses those results before returning
-them to caller.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.search_with_keys">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">search_with_keys</tt><big>(</big><em>list_of_results</em>, <em>keys</em>, <em>val</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#search_with_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.search_with_keys" title="Permalink to this definition">¶</a></dt>
-<dd><p>If we have a set of objects, as well as keys we&#8217;d like to use to access
-each object, and we have a particular value we are looking for,
-then we can filter a list of results in order to find the object
-that has the match for those keys and that value.</p>
-<p>This function returns a filter iterator that contains all matching
-results for the list of keys passed in and the val passed in.</p>
-<p>Args:</p>
-<blockquote>
-<div><cite>list_of_results</cite> &#8211; List of dictionaries from JSON
-<cite>keys</cite> &#8211; tuple or list of keys to navigate the object
-<cite>val</cite> &#8211; Matching value we&#8217;re looking for</div></blockquote>
-<p>Usage:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">some_dicts</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&#39;links&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;collection&#39;</span> <span class="p">:</span> <span class="p">[{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;b&#39;</span><span class="p">}]}}</span>
-<span class="gp">... </span>   <span class="p">{</span><span class="s">&#39;links&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;collection&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;c&#39;</span><span class="p">}]}}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">search_with_keys</span><span class="p">(</span><span class="n">some_dict</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;collection&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">],</span> <span class="s">&#39;b&#39;</span><span class="p">))</span>
-<span class="go">[{&#39;a&#39;: &#39;b&#39;}]</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="function">
-<dt id="pmp_api.utils.json_utils.set_value">
-<tt class="descclassname">pmp_api.utils.json_utils.</tt><tt class="descname">set_value</tt><big>(</big><em>json_results</em>, <em>keys</em>, <em>newvalue</em><big>)</big><a class="reference internal" href="_modules/pmp_api/utils/json_utils.html#set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmp_api.utils.json_utils.set_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>If you have a set of key and/array indices that conform
-to a nested JSON object, you can use this function to set
-the value retrieved by those keys for that particular JSON object.</p>
-<p>Args:</p>
-<blockquote>
-<div><cite>json_results</cite> &#8211; Nested JSON Object
-<cite>keys</cite> &#8211; tuple or list of keys to navigate the object
-<cite>newvalue</cite> &#8211; Replacement value</div></blockquote>
-<p>Usage:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">some_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;links&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;collection&#39;</span> <span class="p">:</span> <span class="p">[{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;b&#39;</span><span class="p">}]}}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">set_value</span><span class="p">(</span><span class="n">some_dict</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;links&#39;</span><span class="p">,</span> <span class="s">&#39;collection&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">],</span> <span class="s">&#39;c&#39;</span><span class="p">)</span>
-<span class="go">[{&#39;a&#39;: &#39;c&#39;}]</span>
-</pre></div>
-</div>
-<p>It is also possible to write a find-and-replace by combining
-<cite>set_value</cite> with <cite>search_with_keys</cite> to be used on lots of JSON objects:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">search_keys</span><span class="p">(</span><span class="n">json_results</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">searchval</span><span class="p">):</span>
-<span class="gp">... </span> <span class="n">set_value</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">newval</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>Edited dictionary</dd>
 </dl>
 </dd></dl>
 

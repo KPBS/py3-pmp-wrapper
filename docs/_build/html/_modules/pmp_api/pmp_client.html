@@ -69,6 +69,7 @@
 
 <span class="kn">from</span> <span class="nn">.core.auth</span> <span class="kn">import</span> <span class="n">PmpAuth</span>
 <span class="kn">from</span> <span class="nn">.core.conn</span> <span class="kn">import</span> <span class="n">PmpConnector</span>
+<span class="kn">from</span> <span class="nn">.core.exceptions</span> <span class="kn">import</span> <span class="n">BadQuery</span>
 <span class="kn">from</span> <span class="nn">.core.exceptions</span> <span class="kn">import</span> <span class="n">NoToken</span>
 <span class="kn">from</span> <span class="nn">.collectiondoc.navigabledoc</span> <span class="kn">import</span> <span class="n">NavigableDoc</span>
 <span class="kn">from</span> <span class="nn">.utils.json_utils</span> <span class="kn">import</span> <span class="n">filter_dict</span>
@@ -174,7 +175,6 @@
 <span class="sd">           `endpoint` -- URL endpoint for saving documents</span>
 <span class="sd">           `document` -- data (str) to send over as a document payload.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Drastically simplify: This is just a wrapper for conn.put</span>
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">document</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 </div>
@@ -187,12 +187,12 @@
 <span class="sd">           `document` -- NavigableDoc document to be deleted from PMP</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">collectiondoc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;href&#39;</span><span class="p">))</span>
-</div>
-<div class="viewcode-block" id="Client.upload"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">upload_file</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Uploads a rich media object to PMP API.</span>
-<span class="sd">        -- Not implemented yet.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Not implemented yet.&quot;</span><span class="p">)</span>
+
+    <span class="c"># def upload(self, endpoint, upload_document):</span>
+    <span class="c">#     &quot;&quot;&quot;Uploads a rich media object to PMP API.</span>
+    <span class="c">#     -- Not implemented yet.</span>
+    <span class="c">#     &quot;&quot;&quot;</span>
+    <span class="c">#     raise Exception(&quot;Not implemented yet.&quot;)</span>
 </div>
 <div class="viewcode-block" id="Client.query"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Issues request for a query using urn with params to create</span>
@@ -204,7 +204,13 @@
 <span class="sd">        Kwargs:</span>
 <span class="sd">           `params` -- Dictionary of params to construct a query</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">pmp_request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">rel_type</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pmp_request</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Can&#39;t create request for {0} with params {1}. Check that&quot;</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s">&quot; {0} is present in docuemnt.&quot;</span>
+            <span class="k">raise</span> <span class="n">BadQuery</span><span class="p">(</span><span class="n">errmsg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rel_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pmp_request</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Client.home"><a class="viewcode-back" href="../../pmp_api.html#pmp_api.pmp_client.Client.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Requests API home-doc `entry_point` and returns results.</span>

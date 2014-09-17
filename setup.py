@@ -7,9 +7,11 @@ import re
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+
 def read(*parts):
     # intentionally *not* adding an encoding option to open
     return codecs.open(os.path.join(here, *parts), 'r').read()
+
 
 def find_version(*file_paths):
     version_file = read(*file_paths)
@@ -21,7 +23,6 @@ def find_version(*file_paths):
 
 long_description = read('README.txt')
 
-import pmp_api
 
 class Tox(TestCommand):
     def finalize_options(self):
@@ -38,7 +39,8 @@ class Tox(TestCommand):
 setup(
     name = 'py3-pmp-wrapper',
     packages = ['pmp_api', 
-                'pmp_api.core', 
+                'pmp_api.core',
+                'pmp_api.recipes',
                 'pmp_api.collectiondoc',
                 'pmp_api.collectiondoc.stored_profiles', 
                 'pmp_api.utils'],

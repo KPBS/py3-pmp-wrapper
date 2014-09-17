@@ -54,11 +54,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
+<span class="kn">from</span> <span class="nn">pelecanus.toolbox</span> <span class="kn">import</span> <span class="n">get_nested_value</span>
+<span class="kn">from</span> <span class="nn">pelecanus.toolbox</span> <span class="kn">import</span> <span class="n">set_nested_value</span>
+
 <span class="kn">from</span> <span class="nn">.pager</span> <span class="kn">import</span> <span class="n">Pager</span>
 <span class="kn">from</span> <span class="nn">.query</span> <span class="kn">import</span> <span class="n">make_query</span>
 <span class="kn">from</span> <span class="nn">..utils.json_utils</span> <span class="kn">import</span> <span class="n">qfind</span>
 <span class="kn">from</span> <span class="nn">..utils.json_utils</span> <span class="kn">import</span> <span class="n">filter_dict</span>
-<span class="kn">from</span> <span class="nn">..utils.json_utils</span> <span class="kn">import</span> <span class="n">set_value</span>
 
 
 <div class="viewcode-block" id="NavigableDoc"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc">[docs]</a><span class="k">class</span> <span class="nc">NavigableDoc</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -147,8 +149,8 @@
 <div class="viewcode-block" id="NavigableDoc.edit"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.edit">[docs]</a>    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">update_val</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convenience method to change a particular value inside the `collectiondoc`</span>
 <span class="sd">        attribute without setting it directly. To use this method, provide a</span>
-<span class="sd">        keys and/or indices to get to the value you want to be changed and</span>
-<span class="sd">        include the value you would like to overwrite with.</span>
+<span class="sd">        list of keys and/or indices to get to the value you want to be</span>
+<span class="sd">        changed and include the value you would like to overwrite with.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">           `keys` -- list of keys/indices that return the val to be edited</span>
@@ -156,7 +158,8 @@
 
 <span class="sd">        Returns: Lowest level object that has been edited or None if not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">set_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">update_val</span><span class="p">)</span>
+        <span class="n">set_nested_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">update_val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">get_nested_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="NavigableDoc.serialize"><a class="viewcode-back" href="../../../pmp_api.collectiondoc.html#pmp_api.collectiondoc.navigabledoc.NavigableDoc.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">collectiondoc</span><span class="p">)</span>
