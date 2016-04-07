@@ -159,9 +159,8 @@ class PmpConnector(object):
             errmsg = "Bad response from server on request for endpoint: {},"
             errmsg += " Response status code: {},"
             errmsg += " Response content: {}"
-            raise BadRequest(errmsg.format(endpoint,
-                                           response.status_code,
-                                           response.content))
+            errmsg.format(endpoint, response.status_code, response.content)
+            raise BadRequest(errmsg)
 
     def delete(self, endpoint):
         """Deletes the requesed endpoint from PMP API. Will return false
