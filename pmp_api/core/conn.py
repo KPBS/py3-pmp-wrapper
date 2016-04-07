@@ -156,11 +156,14 @@ class PmpConnector(object):
                 errmsg = "No JSON returned by endpoint: {}.".format(endpoint)
                 raise EmptyResponse(errmsg)
         else:
+            return response
+            """
             errmsg = "Bad response from server on request for endpoint: {},"
             errmsg += " Response status code: {},"
             errmsg += " Response content: {}"
             errmsg.format(endpoint, response.status_code, response.content)
             raise BadRequest(errmsg)
+            """
 
     def delete(self, endpoint):
         """Deletes the requesed endpoint from PMP API. Will return false
